@@ -1,0 +1,24 @@
+# --- Office 临时文件 ---
+~$*
+~/
+
+# --- 开发调试脚本 ---
+_validate*.js
+_fix_*.js
+_closing.txt
+
+# --- 构建中间产物 ---
+docx_extract/
+temp_doc.txt
+*.log
+
+# --- 源文档 ---
+source.docx
+
+# --- Node.js ---
+node_modules/
+
+# --- 系统文件 ---
+.DS_Store
+Thumbs.db
+desktop.ini
