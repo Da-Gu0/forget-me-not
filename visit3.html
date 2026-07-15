@@ -793,6 +793,48 @@ body {
 }
 #v2-close-all.visible { opacity:1; pointer-events:all; }
 #v2-close-all:hover { background: var(--blue-deep); }
+
+/* ========== 手机端适配（新增 · 赵奶奶篇打磨） ========== */
+@media (max-width: 768px) {
+  #top-bar { padding: 0 12px; height: 40px; }
+  #chapter-label { font-size: 11px; letter-spacing: 1px; }
+  #notebook-btn { width: 32px; height: 32px; font-size: 16px; }
+  #trust-bar .petal { width: 16px; height: 16px; }
+  #zhao-area { width: 108px; height: 188px; left: 12px; bottom: 56px; }
+  #player-area { width: 100px; height: 188px; right: 12px; bottom: 56px; }
+  #zhao-hand { left: 78px; bottom: 96px; font-size: 28px; }
+  #window-frame { right: 10px; top: 12px; width: 160px; height: 110px; }
+  #windowsill { right: 6px; top: 120px; width: 190px; }
+  #floor-spot { left: 140px; top: 120px; width: 130px; }
+  #calendar-wall { right: 14px; top: 46px; font-size: 22px; }
+  #tool-box { right: 20px; bottom: 28px; font-size: 34px; }
+  #bamboo-stick { right: 14px; bottom: 46px; font-size: 26px; }
+  #stem-break-fx { top: 120px; right: 80px; font-size: 32px; }
+  .memory-flash { top: 110px; right: 50px; width: 64px; height: 64px; }
+  #dialogue-area { height: auto; min-height: 150px; padding: 12px 16px; }
+  #dialogue-text { font-size: 14px; line-height: 1.8; }
+  #continue-indicator { right: 14px; bottom: 12px; font-size: 12px; }
+  #speaker-row { margin-bottom: 6px; }
+  .speaker-icon { width: 26px; height: 26px; font-size: 14px; }
+  .speaker-name { font-size: 12px; }
+  #choices-container { flex-direction: column; align-items: center; bottom: 14px; left: 14px; right: 14px; }
+  .choice-btn { width: 100%; max-width: 320px; padding: 12px 16px; font-size: 14px; }
+  .scene-hint { font-size: 12px; padding: 6px 14px; bottom: 12px; }
+  #notebook-modal { width: 92vw; max-height: 82vh; padding: 20px; }
+  #suitcase { left: 50%; transform: translateX(-50%); width: min(320px, 88vw); }
+  #suitcase.opened { height: 230px; }
+  #suitcase-items { left: 50%; transform: translateX(-50%); width: min(320px, 88vw); height: auto; }
+  #specimen-detail, #field-notes-detail, #work-id-detail, #letter-detail {
+    width: 92vw; max-height: 80vh; padding: 16px;
+  }
+  .specimen-card { font-size: 11px; }
+}
+@media (max-width: 480px) {
+  #zhao-area { width: 92px; height: 160px; }
+  #player-area { width: 86px; height: 160px; }
+  #dialogue-text { font-size: 13.5px; }
+  #trust-bar .petal { width: 14px; height: 14px; }
+}
 </style>
 </head>
 <body>
