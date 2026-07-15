@@ -96,7 +96,7 @@ body {
 /* ========== 场景层 ========== */
 #scene-layer {
   flex:1; position:relative; overflow:hidden;
-  background: url('sucai/zhao/赵奶奶房间真实样子（有种子版）.png') center center / cover no-repeat;
+  background: url('sucai/zhao/zhao_room_real_with_seeds.png') center center / cover no-repeat;
 }
 
 /* 窗户（与背景图片融合，保持不可见但保留位置参照） */
@@ -771,7 +771,7 @@ body {
     <div class="scene-click-hint" id="scene-click-hint"></div>
     <!-- 沾泥土的竹签弹窗 -->
     <div id="dirty-stick-popup" onclick="Game.closeDirtyStickPopup()">
-      <img src="sucai/zhao/沾泥土的竹签.png" alt="沾泥土的竹签">
+      <img src="sucai/zhao/bamboo_stick_dirty.png" alt="沾泥土的竹签">
     </div>
 
 
@@ -857,10 +857,10 @@ body {
 
   <!-- 角色立绘 -->
   <div id="zhao-area" class="hidden">
-    <img id="zhao-sprite" src="assets/zhao/赵奶奶立绘-背影（透明）.png" alt="赵奶奶">
+    <img id="zhao-sprite" src="assets/zhao/zhao_portrait_back_transparent.png" alt="赵奶奶">
   </div>
   <div id="player-area" class="hidden">
-    <img id="player-sprite" src="assets/zhao/主角（我）正面立绘（透明）.png" alt="我">
+    <img id="player-sprite" src="assets/zhao/protag_me_front_portrait_transparent.png" alt="我">
   </div>
 
   <!-- 对话区 -->
@@ -986,8 +986,8 @@ const Game = {
     this.el.zhaoArea.classList.remove('facing-player', 'turning');
     this.el.zhaoArea.classList.add('hidden');
     this.el.playerArea.classList.add('hidden');
-    this.el.zhaoSprite.src = 'assets/zhao/赵奶奶立绘-背影（透明）.png';
-    this.el.playerSprite.src = 'assets/zhao/主角（我）正面立绘（透明）.png';
+    this.el.zhaoSprite.src = 'assets/zhao/zhao_portrait_back_transparent.png';
+    this.el.playerSprite.src = 'assets/zhao/protag_me_front_portrait_transparent.png';
     this.el.breakFx.classList.remove('breaking');
     this.el.memFlash.classList.remove('flashing');
     this.el.transition.classList.remove('active');
@@ -1020,7 +1020,7 @@ const Game = {
     this.v2LabelStabilized = false;
     this.currentVisit = 1;
     // 重置背景
-    this.el.scene.style.backgroundImage = "url('sucai/zhao/赵奶奶房间真实样子（有种子版）.png')";
+    this.el.scene.style.backgroundImage = "url('sucai/zhao/zhao_room_real_with_seeds.png')";
     // 探访二元素
     this.el.v2Scene?.classList.remove('active');
     this.el.suitcase?.classList.remove('opened');
@@ -1107,11 +1107,11 @@ const Game = {
     
     // 处理表情立绘
     const exprMap = {
-      '赵奶奶立绘-背影.png': '赵奶奶立绘-背影（透明）.png',
-      '赵奶奶立绘-正常表情.png': '赵奶奶立绘-正常表情（透明）.png',
-      '赵奶奶立绘-悲伤.png': '赵奶奶立绘-悲伤（透明）.png',
-      '赵奶奶立绘-微笑.png': '赵奶奶立绘-正常表情（透明）.png',
-      '主角（我）正面立绘.png': '主角（我）正面立绘（透明）.png',
+      'zhao_portrait_back.png': 'zhao_portrait_back_transparent.png',
+      'zhao_portrait_normal.png': 'zhao_portrait_normal_transparent.png',
+      'zhao_portrait_sad.png': 'zhao_portrait_sad_transparent.png',
+      'zhao_portrait_smile.png': 'zhao_portrait_normal_transparent.png',
+      'protag_me_front_portrait.png': 'protag_me_front_portrait_transparent.png',
     };
     if (entry.zhaoExpr) {
       this.el.zhaoSprite.src = 'assets/zhao/' + (exprMap[entry.zhaoExpr] || entry.zhaoExpr);
@@ -1224,7 +1224,7 @@ const Game = {
         setTimeout(() => this.el.breakFx.classList.remove('breaking'), 1000);
         break;
       case 'memory_flash':
-        this.setSceneBackground('sucai/zhao/赵奶奶眼中的房间.png');
+        this.setSceneBackground('sucai/zhao/zhao_view_room.png');
         this.el.memFlash.classList.add('flashing');
         setTimeout(() => this.el.memFlash.classList.remove('flashing'), 600);
         break;
@@ -1272,8 +1272,8 @@ const Game = {
     const startTime = Date.now();
     const hotspot = hotspotEl;
     const self = this;
-    const IMG_MEMORY  = "url('sucai/zhao/想象中勿忘我的近景.png')";
-    const IMG_REALITY = "url('sucai/zhao/实际上勿忘我的近景.png')";
+    const IMG_MEMORY  = "url('sucai/zhao/想象中forget_me_not_closeup.png')";
+    const IMG_REALITY = "url('sucai/zhao/实际上forget_me_not_closeup.png')";
     
     function updateProgress() {
       if (!hotspot._hovering || !self.interactMode || self.hoverPaused) {
@@ -1320,7 +1320,7 @@ const Game = {
       return;
     }
     
-    this.el.scene.style.backgroundImage = "url('sucai/zhao/想象中勿忘我的近景.png')";
+    this.el.scene.style.backgroundImage = "url('sucai/zhao/想象中forget_me_not_closeup.png')";
     hotspotEl.querySelector('.hover-tooltip').classList.remove('visible');
     hotspotEl.querySelector('.hover-progress').classList.remove('show');
   },
@@ -1437,33 +1437,33 @@ const Game = {
   doIntro() {
     this.el.choices.classList.remove('active');
     // 开场：赵奶奶背影
-    this.el.zhaoSprite.src = 'assets/zhao/赵奶奶立绘-背影（透明）.png';
+    this.el.zhaoSprite.src = 'assets/zhao/zhao_portrait_back_transparent.png';
     
     this.runDialogueQueue([
       {
         speaker: 'narrator',
         text: '推开门。房间不大，阳光从朝南的窗户斜进来，落在桌面上。窗台上放着一盆……花？或许曾经是花。现在只剩下灰褐色的干枯茎叶，弯折着。土已经干裂了。',
         speed: 40,
-        zhaoExpr: '赵奶奶立绘-背影.png',
+        zhaoExpr: 'zhao_portrait_back.png',
       },
       {
         speaker: 'narrator',
         text: '赵奶奶坐在窗边，背对着门。我的脚步在木地板上发出轻微的吱呀声，她听到了，但没有立刻回头。她的肩膀动了一下，像是一个正在从很远的地方往回走的人。',
         speed: 45,
         anim: 'zhao_turn',
-        zhaoExpr: '赵奶奶立绘-背影.png',
+        zhaoExpr: 'zhao_portrait_back.png',
       },
       {
         speaker: 'zhao',
         text: '你来了。',
         speed: 120,
-        zhaoExpr: '赵奶奶立绘-正常表情.png',
+        zhaoExpr: 'zhao_portrait_normal.png',
       },
       {
         speaker: 'zhao',
         text: '多久没来了？',
         speed: 150,
-        zhaoExpr: '赵奶奶立绘-正常表情.png',
+        zhaoExpr: 'zhao_portrait_normal.png',
         cb: () => {
           this.showChoices([
             { label: 'A', text: '……有一阵了。' },
@@ -1487,32 +1487,32 @@ const Game = {
     this.runDialogueQueue([
       {
         speaker: 'player', text: d04text, speed: 120,
-        playerExpr: '主角（我）正面立绘.png',
+        playerExpr: 'protag_me_front_portrait.png',
       },
       {
         speaker: 'narrator', text: narrText, speed: 50,
-        zhaoExpr: '赵奶奶立绘-正常表情.png',
+        zhaoExpr: 'zhao_portrait_normal.png',
       },
       {
         speaker: 'narrator',
         text: '她伸出手，碰了碰枯花的茎秆。',
         speed: 55,
-        zhaoExpr: '赵奶奶立绘-正常表情.png',
+        zhaoExpr: 'zhao_portrait_normal.png',
       },
       {
         speaker: 'narrator',
         text: '那根茎秆太脆了，被她一碰就断了，落进干裂的土里。',
         speed: 50, anim: 'stem_break',
-        zhaoExpr: '赵奶奶立绘-正常表情.png',
+        zhaoExpr: 'zhao_portrait_normal.png',
       },
       {
         speaker: 'zhao', text: '……我忘浇了。', speed: 150,
-        zhaoExpr: '赵奶奶立绘-悲伤.png',
+        zhaoExpr: 'zhao_portrait_sad.png',
       },
       {
         speaker: 'zhao', text: '……不对，我浇过了。我今天早上浇过了。', speed: 90,
         anim: 'memory_flash',
-        zhaoExpr: '赵奶奶立绘-正常表情.png',
+        zhaoExpr: 'zhao_portrait_normal.png',
       },
       {
         speaker: 'narrator',
@@ -1524,7 +1524,7 @@ const Game = {
 
   // ------ 交互①: 悬停查看花盆（背景图闪回 · 3秒稳定） ------
   doHoverMode() {
-    this.setSceneBackground('sucai/zhao/想象中勿忘我的近景.png');
+    this.setSceneBackground('sucai/zhao/想象中forget_me_not_closeup.png');
     // 显示隐形热点区
     document.querySelectorAll('.pot-hotspot').forEach(p => p.classList.add('visible'));
     this.interactMode = true;
@@ -1546,7 +1546,7 @@ const Game = {
       speaker: 'zhao',
       text: '你看，土还是湿的。',
       speed: 120,
-      zhaoExpr: '赵奶奶立绘-正常表情.png',
+      zhaoExpr: 'zhao_portrait_normal.png',
     }, {
       speaker: 'narrator',
       text: '赵奶奶的声音从身后传来。但我的目光已经落在花盆上——画面在闪烁，鲜艳和枯萎之间。像两个版本的记忆在打架。',
@@ -1606,41 +1606,41 @@ const Game = {
         speaker: 'narrator',
         text: '我把竹签递给她看。赵奶奶低头看了一眼，愣了一下。她的眼睛眨了眨——像是大脑在尝试处理一个矛盾的信息。',
         speed: 50,
-        zhaoExpr: '赵奶奶立绘-悲伤.png',
+        zhaoExpr: 'zhao_portrait_sad.png',
       },
       {
         speaker: 'zhao',
         text: '……哦。那是昨天浇的。',
         speed: 130,
-        zhaoExpr: '赵奶奶立绘-悲伤.png',
+        zhaoExpr: 'zhao_portrait_sad.png',
         cb: () => {
           this.closeDirtyStickPopup();
-          this.setSceneBackground('sucai/zhao/赵奶奶房间真实样子（有种子版）.png', true);
+          this.setSceneBackground('sucai/zhao/zhao_room_real_with_seeds.png', true);
         },
       },
       {
         speaker: 'narrator',
         text: '她的手捏了一下水壶，但她的手有些抖。',
         speed: 50,
-        zhaoExpr: '赵奶奶立绘-悲伤.png',
+        zhaoExpr: 'zhao_portrait_sad.png',
       },
       {
         speaker: 'zhao',
         text: '今天几号了？',
         speed: 140,
-        zhaoExpr: '赵奶奶立绘-正常表情.png',
+        zhaoExpr: 'zhao_portrait_normal.png',
       },
       {
         speaker: 'player',
         text: '2号。',
         speed: 120,
-        playerExpr: '主角（我）正面立绘.png',
+        playerExpr: 'protag_me_front_portrait.png',
       },
       {
         speaker: 'narrator',
         text: '日历就在她身后墙上，她可能忘了日历的存在，也可能忘了"看日历"这件事意味着什么吧？',
         speed: 50,
-        zhaoExpr: '赵奶奶立绘-正常表情.png',
+        zhaoExpr: 'zhao_portrait_normal.png',
       },
     ], 0, () => { this.startPhase('flower_question'); });
   },
@@ -1652,13 +1652,13 @@ const Game = {
         speaker: 'zhao',
         text: '这是什么花？',
         speed: 130,
-        zhaoExpr: '赵奶奶立绘-正常表情.png',
+        zhaoExpr: 'zhao_portrait_normal.png',
       },
       {
         speaker: 'narrator',
         text: '她抬起头看我，语气像是在问一件她已经很久没问过的事。',
         speed: 50,
-        zhaoExpr: '赵奶奶立绘-正常表情.png',
+        zhaoExpr: 'zhao_portrait_normal.png',
         cb: () => {
           this.showChoices([
             { label: 'A', text: '"勿忘我……对吗？"' },
@@ -1670,19 +1670,19 @@ const Game = {
                 speaker: 'zhao',
                 text: isA ? '嗯。勿忘我。' : '这是勿忘我。',
                 speed: 120,
-                zhaoExpr: '赵奶奶立绘-微笑.png',
+                zhaoExpr: 'zhao_portrait_smile.png',
               },
               {
                 speaker: 'narrator',
                 text: '她回答得很快——这件事她还记得。她顿了一下，然后目光穿过窗台，像是看到了很远的地方。',
                 speed: 50,
-                zhaoExpr: '赵奶奶立绘-微笑.png',
+                zhaoExpr: 'zhao_portrait_smile.png',
               },
               {
                 speaker: 'zhao',
                 text: '你不记得了？你小时候，院子里有一大片。',
                 speed: 100,
-                zhaoExpr: '赵奶奶立绘-微笑.png',
+                zhaoExpr: 'zhao_portrait_smile.png',
               },
             ], 0, () => { this.startPhase('collect_seeds'); });
           });
@@ -1706,13 +1706,13 @@ const Game = {
         speaker: 'player',
         text: '这些种子……',
         speed: 120,
-        playerExpr: '主角（我）正面皱眉立绘.png',
+        playerExpr: 'protag_me_front_frown_portrait.png',
       },
       {
         speaker: 'zhao',
         text: '掉下来的吧。我没收。',
         speed: 120,
-        zhaoExpr: '赵奶奶立绘-正常表情.png',
+        zhaoExpr: 'zhao_portrait_normal.png',
       },
       {
         speaker: 'narrator',
@@ -1728,7 +1728,7 @@ const Game = {
     
     // 闪回动画 + 背景切换为无种子版（带过渡）
     this.el.memFlash.classList.add('flashing');
-    this.setSceneBackground('assets/zhao/赵奶奶房间真实样子（无种子版）.png', true);
+    this.setSceneBackground('assets/zhao/zhao_room_real_no_seeds.png', true);
     
     setTimeout(() => {
       this.el.memFlash.classList.remove('flashing');
@@ -1744,29 +1744,29 @@ const Game = {
         text: '我的手指触到种子的那一刻——画面闪了一下。不到一秒——我看到一双年轻的手在收种子，从一株完整的勿忘我花上小心翼翼地剥落。阳光很亮，背景是苗圃的绿色。然后画面消失了。',
         speed: 45,
         cb: () => {
-          this.setSceneBackground('assets/zhao/收完种子后闪回画面.png', true);
+          this.setSceneBackground('assets/zhao/flashback_after_seeds.png', true);
         },
       },
       {
         speaker: 'narrator',
         text: '我抬头看她。她正在看着我——她刚才也看到了那个画面吗？还是只有我看到了？',
         speed: 55,
-        zhaoExpr: '赵奶奶立绘-正常表情.png',
+        zhaoExpr: 'zhao_portrait_normal.png',
         cb: () => {
-          this.setSceneBackground('assets/zhao/赵奶奶房间真实样子（无种子版）.png', true);
+          this.setSceneBackground('assets/zhao/zhao_room_real_no_seeds.png', true);
         },
       },
       {
         speaker: 'zhao',
         text: '你要是想收，就收起来。放着也是放着。',
         speed: 120,
-        zhaoExpr: '赵奶奶立绘-正常表情.png',
+        zhaoExpr: 'zhao_portrait_normal.png',
       },
       {
         speaker: 'narrator',
         text: '她把视线移回窗外，像什么都没有发生。',
         speed: 70,
-        zhaoExpr: '赵奶奶立绘-正常表情.png',
+        zhaoExpr: 'zhao_portrait_normal.png',
       },
     ], 0, () => { this.startPhase('scene_ending'); });
   },
@@ -1784,26 +1784,26 @@ const Game = {
         speaker: 'narrator',
         text: '她坐回椅子上，看着那盆勿忘我。断裂的茎秆还躺在干裂的土面上。',
         speed: 55,
-        zhaoExpr: '赵奶奶立绘-正常表情.png',
+        zhaoExpr: 'zhao_portrait_normal.png',
       },
       {
         speaker: 'zhao',
         text: '这花好养。不用特别照顾。水多了也活，水少了也活。',
         speed: 90,
-        zhaoExpr: '赵奶奶立绘-正常表情.png',
+        zhaoExpr: 'zhao_portrait_normal.png',
       },
       {
         speaker: 'zhao',
         text: '……跟人一样。活着活着就习惯了。',
         speed: 120,
-        zhaoExpr: '赵奶奶立绘-悲伤.png',
+        zhaoExpr: 'zhao_portrait_sad.png',
       },
       {
         speaker: 'narrator',
         text: '走廊尽头，林姐穿着围裙在擦桌子。她没有看这边。阳光照在她围裙的皱褶上。',
         speed: 50,
         cb: () => {
-          this.setSceneBackground('assets/zhao/林姐走廊.png', true);
+          this.setSceneBackground('assets/zhao/linjie_hallway.png', true);
         },
       },
     ], 0, () => {

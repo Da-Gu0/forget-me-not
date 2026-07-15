@@ -96,7 +96,7 @@ body {
 /* ========== 场景层 ========== */
 #scene-layer {
   flex:1; position:relative; overflow:hidden;
-  background: url('sucai/zhao/赵奶奶房间真实样子（有种子版）.png') center center / cover no-repeat;
+  background: url('sucai/zhao/zhao_room_real_with_seeds.png') center center / cover no-repeat;
 }
 
 /* 场景过渡动画 */
@@ -302,15 +302,15 @@ body {
   pointer-events:none;
 }
 #zhao-back {
-  background-image: url('assets/zhao/赵奶奶立绘-背影（透明）.png');
+  background-image: url('assets/zhao/zhao_portrait_back_transparent.png');
   opacity:1; transform: scaleX(-1);
 }
 #zhao-face {
-  background-image: url('assets/zhao/赵奶奶立绘-正常表情（透明）.png');
+  background-image: url('assets/zhao/zhao_portrait_normal_transparent.png');
   opacity:0; transform: scaleX(-1);
 }
 #zhao-face.sad {
-  background-image: url('assets/zhao/赵奶奶立绘-悲伤（透明）.png');
+  background-image: url('assets/zhao/zhao_portrait_sad_transparent.png');
 }
 #zhao-area.facing-player #zhao-back { opacity:0; }
 #zhao-area.facing-player #zhao-face { opacity:1; }
@@ -342,11 +342,11 @@ body {
   pointer-events:none;
 }
 #player-normal {
-  background-image: url('assets/zhao/主角（我）正面立绘（透明）.png');
+  background-image: url('assets/zhao/protag_me_front_portrait_transparent.png');
   opacity:1;
 }
 #player-smile {
-  background-image: url('assets/zhao/主角（我）正面微笑立绘（透明）.png');
+  background-image: url('assets/zhao/protag_me_front_smile_transparent.png');
   opacity:0;
 }
 #player-area.smile #player-normal { opacity:0; }
@@ -362,7 +362,7 @@ body {
 #lin-area.hidden { opacity:0; pointer-events:none; }
 #lin-sprite {
   position:absolute; inset:0;
-  background-image: url('assets/zhao/林姐.png');
+  background-image: url('assets/zhao/linjie.png');
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center bottom;
@@ -827,10 +827,10 @@ body {
 .id-photo { font-size:60px; display:flex; align-items:center; justify-content:center;
   width:100%; height:100%; position:absolute; top:0; left:0; }
 .id-photo.young {
-  background: url('assets/zhao/证件照.png') center center / cover no-repeat;
+  background: url('assets/zhao/id_photo.png') center center / cover no-repeat;
 }
 .id-photo.zhou {
-  background: url('assets/zhao/老周证件照.png') center center / cover no-repeat;
+  background: url('assets/zhao/laozhou_id_photo.png') center center / cover no-repeat;
 }
 #work-id-detail .id-info { text-align:center; font-size:13px; color: var(--text-mid); line-height:1.8; }
 #work-id-detail .id-info .hidden-note {
@@ -1106,7 +1106,7 @@ body {
       </div>
       <!-- 未寄出的信详情 -->
       <div id="letter-detail">
-        <img src="assets/zhao/信.png" alt="未寄出的信" class="letter-img">
+        <img src="assets/zhao/letter.png" alt="未寄出的信" class="letter-img">
         <button class="v2-close-btn" onclick="Game.closeLetter()">折起信纸</button>
       </div>
       <!-- 全部查看完毕按钮 -->
@@ -1799,14 +1799,14 @@ const Game = {
         speed: 50,
         exp: { zhao: 'back' },
         startCb: () => { this.el.linArea.classList.add('hidden'); },
-        cb: () => { this.setSceneBackground('assets/zhao/林姐围裙上的字.png', true); },
+        cb: () => { this.setSceneBackground('assets/zhao/linjie_apron_text.png', true); },
       },
       {
         speaker: 'narrator',
         text: '你推开门。房间里很安静。阳光还是照在窗台上，那一盆枯花还在。',
         speed: 55,
         exp: { zhao: 'back' },
-        startCb: () => { this.setSceneBackground('assets/zhao/赵奶奶房间真实样子（无种子版）.png', true); },
+        startCb: () => { this.setSceneBackground('assets/zhao/zhao_room_real_no_seeds.png', true); },
       },
       {
         speaker: 'narrator',
@@ -1824,7 +1824,7 @@ const Game = {
           // 显示皮箱并播放打开动画，切换背景
           this.el.suitcase.classList.add('visible');
           this.el.suitcase.classList.add('opened');
-          this.setSceneBackground('assets/zhao/盒子.png');
+          this.setSceneBackground('assets/zhao/box.png');
           setTimeout(() => {
             this.el.suitcaseItems.classList.add('visible');
             this.showSceneHint('🔍 点击皮箱中的物品来查看。', 4000);
@@ -1885,7 +1885,7 @@ const Game = {
     this.el.workIdDetail.classList.remove('show');
     this.el.letterDetail.classList.remove('show');
     this.el.suitcaseItems.classList.remove('visible'); // 箱子内容全部查看完毕后，隐藏中间物品网格 UI
-    this.setSceneBackground('assets/zhao/赵奶奶房间真实样子（无种子版）.png');
+    this.setSceneBackground('assets/zhao/zhao_room_real_no_seeds.png');
     this.startPhase('v2_ending');
   },
 
