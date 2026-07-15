@@ -99,6 +99,18 @@ body {
   background: url('sucai/zhao/赵奶奶房间真实样子（有种子版）.png') center center / cover no-repeat;
 }
 
+/* 场景过渡动画 */
+.scene-transition {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  z-index: 0; pointer-events: none;
+  animation: sceneFadeIn 1.5s ease forwards;
+}
+@keyframes sceneFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
 /* 窗户（与背景图片融合，保持不可见但保留位置参照） */
 #window-frame {
   position:absolute; top:30px; right:40px;
@@ -262,11 +274,7 @@ body {
   100% { transform: rotate(-30deg) translate(-120px, -40px); opacity:1; }
 }
 
-/* 日历 */
-#calendar-wall {
-  position:absolute; right:340px; top:60px;
-  font-size:28px; opacity:0.4; pointer-events:none;
-}
+
 
 /* 场景提示标签 */
 .scene-hint {
@@ -969,8 +977,7 @@ body {
     <div id="tool-box" onclick="Game.onToolBoxClick()">🧰</div>
     <!-- 竹签探针 -->
     <div id="bamboo-stick">🥢</div>
-    <!-- 墙上日历 -->
-    <div id="calendar-wall">📅</div>
+
 
     <!-- ===== 探访二 · 标本盒 场景元素 ===== -->
     <div id="visit2-scene">
@@ -1031,17 +1038,26 @@ body {
               <div style="margin-top:40px; text-align:center; color:var(--text-gray);">
                 老周接手了云南的项目，<br>让我安心照顾家里。
               </div>
-              <div style="margin-top:60px; color:#ccc; text-align:center;">纸面干净<br>干干净净</div>
             </div>
           </div>
           <div class="fn-page" data-page="4">
             <div class="note-page" style="display:flex; align-items:center; justify-content:center; min-height:260px;">
-              <div style="color:#ccc; font-size:15px; text-align:center;">
-                ———— 此后空白 ————<br>
-                <span style="font-size:12px; margin-top:8px; display:inline-block;">
-                  从某一页开始，再也没有写过新的东西。
-                </span>
-              </div>
+              <div style="color:#e0e0e0; text-align:center;"></div>
+            </div>
+          </div>
+          <div class="fn-page" data-page="5">
+            <div class="note-page" style="display:flex; align-items:center; justify-content:center; min-height:260px;">
+              <div style="color:#e0e0e0; text-align:center;"></div>
+            </div>
+          </div>
+          <div class="fn-page" data-page="6">
+            <div class="note-page" style="display:flex; align-items:center; justify-content:center; min-height:260px;">
+              <div style="color:#e0e0e0; text-align:center;"></div>
+            </div>
+          </div>
+          <div class="fn-page" data-page="7">
+            <div class="note-page" style="display:flex; align-items:center; justify-content:center; min-height:260px;">
+              <div style="color:#e0e0e0; text-align:center;"></div>
             </div>
           </div>
         </div>
@@ -1050,10 +1066,13 @@ body {
           <span class="fn-dot" data-dot="2"></span>
           <span class="fn-dot" data-dot="3"></span>
           <span class="fn-dot" data-dot="4"></span>
+          <span class="fn-dot" data-dot="5"></span>
+          <span class="fn-dot" data-dot="6"></span>
+          <span class="fn-dot" data-dot="7"></span>
         </div>
         <div class="fn-nav">
           <button class="fn-btn fn-prev" id="fn-prev-btn" onclick="Game.flipFieldNotesPage(-1)" disabled>◀ 上一页</button>
-          <span class="fn-page-indicator" id="fn-page-indicator">1/4</span>
+          <span class="fn-page-indicator" id="fn-page-indicator">1/7</span>
           <button class="fn-btn fn-next" id="fn-next-btn" onclick="Game.flipFieldNotesPage(1)" disabled>下一页 ▶</button>
         </div>
         <button class="v2-close-btn fn-close-btn" id="fn-close-btn" onclick="Game.closeFieldNotes()" style="display:none;">合上记录本</button>
@@ -1080,7 +1099,6 @@ body {
               <div style="font-weight:600;">周乡良</div>
               <div>研究员</div>
               <div>植物研究所 · 第三研究室</div>
-              <div class="hidden-note">也做过一些事。</div>
             </div>
           </div>
         </div>
@@ -1108,7 +1126,7 @@ body {
 
   <!-- 对话区 -->
   <div id="dialogue-area">
-    <div id="speaker-row">
+    <div id="speaker-row" style="display:none;">
       <div class="speaker-name narrator">旁白</div>
     </div>
     <div id="dialogue-text"></div>
@@ -1146,9 +1164,10 @@ const Game = {
   v2AllExamined: false,
   v2LabelStabilized: false,
   v2FieldNotesPage: 1,
-  v2FieldNotesMaxPage: 4,
+  v2FieldNotesMaxPage: 7,
   v2FieldNotesBusy: false,
   v2FieldNotesAllFlipped: false,
+  v2SpecimenComplete: false,
   
   // DOM缓存
   el: {},
@@ -1186,8 +1205,7 @@ const Game = {
     this.el.toastCt    = $('toast-container');
     this.el.toolBox    = $('tool-box');
     this.el.stick      = $('bamboo-stick');
-    this.el.calendar   = $('calendar-wall');
-    // 探访二
+
     this.el.v2Scene      = $('visit2-scene');
     this.el.suitcase     = $('suitcase');
     this.el.suitcaseItems= $('suitcase-items');
@@ -1263,6 +1281,7 @@ const Game = {
     this.v2ItemsExamined = new Set();
     this.v2AllExamined = false;
     this.v2LabelStabilized = false;
+    this.v2SpecimenComplete = false;
     this.currentVisit = 1;
     // 探访二元素
     this.el.v2Scene?.classList.remove('active');
@@ -1279,10 +1298,21 @@ const Game = {
   },
 
   // 动态切换场景背景
-  setSceneBackground(url) {
-    if (this.el.scene) {
+  setSceneBackground(url, withTransition = false) {
+    if (!this.el.scene) return;
+    this.el.scene.querySelectorAll('.scene-transition').forEach(o => o.remove());
+    if (!withTransition) {
       this.el.scene.style.backgroundImage = `url('${url}')`;
+      return;
     }
+    const overlay = document.createElement('div');
+    overlay.className = 'scene-transition';
+    overlay.style.backgroundImage = `url('${url}')`;
+    this.el.scene.appendChild(overlay);
+    setTimeout(() => {
+      this.el.scene.style.backgroundImage = `url('${url}')`;
+      overlay.remove();
+    }, 1500);
   },
 
   // ========== 阶段管理 ==========
@@ -1769,13 +1799,14 @@ const Game = {
         speed: 50,
         exp: { zhao: 'back' },
         startCb: () => { this.el.linArea.classList.add('hidden'); },
-        cb: () => { this.setSceneBackground('assets/zhao/林姐围裙上的字.png'); },
+        cb: () => { this.setSceneBackground('assets/zhao/林姐围裙上的字.png', true); },
       },
       {
         speaker: 'narrator',
         text: '你推开门。房间里很安静。阳光还是照在窗台上，那一盆枯花还在。',
         speed: 55,
         exp: { zhao: 'back' },
+        startCb: () => { this.setSceneBackground('assets/zhao/赵奶奶房间真实样子（无种子版）.png', true); },
       },
       {
         speaker: 'narrator',
@@ -1816,6 +1847,11 @@ const Game = {
 
   onV2ItemClick(itemType) {
     if (!this.interactMode || this.phase !== 'v2_interact') return;
+    // 如果标本盒正在打开且未完成，不能切换到其他物品
+    if (itemType !== 'specimen' && this.el.specimenDetail.classList.contains('show') && !this.v2SpecimenComplete) {
+      this.showSceneHint('请先完成标本盒的互动。', 2000);
+      return;
+    }
     // 关闭已打开的面板（各show函数会重新打开目标面板）
     this.el.specimenDetail.classList.remove('show');
     this.el.fieldNotesDetail.classList.remove('show');
@@ -1888,7 +1924,7 @@ const Game = {
     if (this._v2LabelAnim) cancelAnimationFrame(this._v2LabelAnim);
     
     this.el.specimenDetail.classList.add('show');
-    this.markV2ItemExamined('specimen');
+    // 标记延迟到标本盒互动完全完成后
     
     // 对话框①：打开标本盒
     this.runDialogueQueue([
@@ -1915,6 +1951,10 @@ const Game = {
   },
 
   closeSpecimenBox() {
+    if (!this.v2SpecimenComplete) {
+      this.showSceneHint('请先完成蓝色标签的互动，再关闭标本盒。', 2500);
+      return;
+    }
     this.el.specimenDetail.classList.remove('show');
     if (this._v2LabelTimer) clearTimeout(this._v2LabelTimer);
     if (this._v2LabelAnim) cancelAnimationFrame(this._v2LabelAnim);
@@ -2034,6 +2074,11 @@ const Game = {
         text: '我不知道她是真的不记得了，还是她选择不记得了。',
         speed: 50,
         exp: { zhao: 'back' },
+        cb: () => {
+          this.v2SpecimenComplete = true;
+          this.markV2ItemExamined('specimen');
+          this.closeSpecimenBox();
+        },
       },
     ]);
   },
@@ -2111,7 +2156,8 @@ const Game = {
     switch(target) {
       case 2: this._startFNDialogue(2); break;
       case 3: this._startFNDialogue(3); break;
-      case 4: this._startFNDialogue(4); break;
+      case 7: this._startFNDialogue(7); break;
+      default: this.v2FieldNotesBusy = false; this._fnUpdateNav(); break;
     }
   },
 
@@ -2144,6 +2190,12 @@ const Game = {
           exp: { player: 'normal', zhao: 'sad' },
         },
         {
+          speaker: 'narrator',
+          text: '赵奶奶的表情变了，显示出一种"我不想看那个"的回避。',
+          speed: 40,
+          exp: { zhao: 'sad' },
+        },
+        {
           speaker: 'zhao',
           text: '……他画展那年，我没去野外。',
           speed: 100,
@@ -2160,7 +2212,7 @@ const Game = {
       3: [
         {
           speaker: 'narrator',
-          text: '再往后翻。纸面变干净了，干干净净的——日期、地点、花色全都不见了。像是记录本的主人换了。',
+          text: '再往后翻。日期、地点、花色全都不见了。像是记录本的主人换了。',
           speed: 42,
           exp: { zhao: 'back' },
         },
@@ -2190,7 +2242,7 @@ const Game = {
           cb: () => { this.v2FieldNotesBusy = false; this._fnUpdateNav(); },
         },
       ],
-      4: [
+      7: [
         {
           speaker: 'narrator',
           text: '再往后翻。全是空白。\n从某一页开始，再也没有写过新的东西。那个在云南、四川、西藏记录花色的女人，不知道去哪了。',
@@ -2278,6 +2330,9 @@ const Game = {
   // ===== 工作证 =====
   showWorkId() {
     this.el.workIdDetail.classList.add('show');
+    this.addFragment({
+      text: '赵秀兰，植物研究所第三研究室助理研究员。周乡良，同一研究室研究员。两张证件并排放在一起。她曾是认真的研究者，和认真的人共事。但研究记录到此为止。'
+    });
     this.markV2ItemExamined('workid');
   },
   closeWorkId() {
@@ -2287,6 +2342,9 @@ const Game = {
   // ===== 未寄出的信 =====
   showLetter() {
     this.el.letterDetail.classList.add('show');
+    this.addFragment({
+      text: '皮箱里有一封未寄出的信。信写到一半就停了，"算了"两个字墨水已经渗开。信没有寄出，也没有写完。她在某个时刻决定不再继续。'
+    });
     this.markV2ItemExamined('letter');
   },
   closeLetter() {
@@ -2301,7 +2359,7 @@ const Game = {
   // ===== 场景收尾 + 碎片2 =====
   doV2Ending() {
     this.addFragment({
-      text: '"她说这株勿忘我来自高黎贡山。但标本盒里没有蓝色种——只有紫红。她把两次经历缝在一起了。情感是真的——她确实走过很多山。细节是乱的——她分不清\'发现\'和\'购买\'的时间线。那封没有写完的信还在皮箱里。\'算了\'那两个字上，墨水已经渗开了。"',
+      text: '她说这株勿忘我来自高黎贡山。但标本盒里没有蓝色种——只有紫红。她把两次经历缝在一起了。情感是真的——她确实走过很多山。细节是乱的——她分不清\'发现\'和\'购买\'的时间线。',
       verdict: '虚实判定：陈述为半真半假。证据：标本盒中无蓝色种 + 野外记录显示她休了半年假。',
     });
     
@@ -2355,8 +2413,8 @@ const Game = {
           }, 500);
           setTimeout(() => {
             this.showTransition(
-              '✅ 你发现了第二个矛盾的拼贴：\n赵奶奶把"高黎贡山采集紫红色标本"和"花卉市场购买蓝花"\n缝合成了"我从云南带回了这株蓝花"。\n情感是真的——她走过很多山。细节是乱的——蓝色种从未出现在野外记录中。',
-              '📓 虚实对账本已记录碎片 2/5',
+              '✅ 你发现了第二个矛盾的拼贴：\n赵奶奶把"高黎贡山采集紫红色标本"和"花卉市场购买蓝花"\n缝合成了"我从云南带回了这株蓝花"。\n\n皮箱中的记录本、工作证和未寄出的信，指向同一个时间线断裂的节点。\n情感是真的——她走过很多山。细节是乱的——蓝色种从未出现在野外记录中。',
+              '📓 虚实对账本已记录碎片 ' + this.notebookFragments.length + '/5',
               () => {
                 this.showSceneHint('探访二 · 完成。', 4000);
               }
