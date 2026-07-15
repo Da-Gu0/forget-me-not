@@ -51,6 +51,7 @@ body {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  visibility: hidden; /* 封面未消失前完全隐藏，避免闪回 */
 }
 
 /* ========== 顶部状态栏 ========== */
@@ -1465,7 +1466,414 @@ body {
 #zhao-hand-v2 { display: none !important; }
 #zhao-hand-v2.reaching { display: block !important; opacity: 1; }
 
+/* ========== 篇章入口封面 ========== */
+#cover-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: url('assets/zhao/想象中勿忘我的近景（纯背景无花无竹签）.png') center/cover no-repeat;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  transition: opacity 0.5s ease;
+}
+#cover-overlay::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(245,240,232,0.35);
+  pointer-events: none;
+}
+#cover-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cover-title {
+  font-family: 'Liu Jian Mao Cao', 'STKaiti', 'KaiTi', cursive;
+  font-size: clamp(48px, 9vw, 72px);
+  color: #5A7D8A;
+  line-height: 1.1;
+  letter-spacing: 8px;
+  text-shadow: 1px 2px 4px rgba(90,125,138,0.12);
+}
+
+.cover-subtitle {
+  font-family: 'Noto Serif SC', serif;
+  font-size: clamp(16px, 3.5vw, 22px);
+  color: #3A3434;
+  font-weight: 300;
+  letter-spacing: 6px;
+  margin-top: 2px;
+  position: relative;
+  display: inline-block;
+  padding: 0 20px;
+}
+.cover-subtitle::before,
+.cover-subtitle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 24px; height: 1px;
+  background: #A3C4CF;
+  opacity: 0.6;
+}
+.cover-subtitle::before { right: calc(100% + 6px); }
+.cover-subtitle::after  { left: calc(100% + 6px); }
+
+.cover-divider {
+  width: 70px; height: 2px;
+  background: linear-gradient(90deg, transparent, #F0C27A, #F0C27A, transparent);
+  margin: 24px auto;
+  opacity: 0.7;
+}
+
+.btn-cover-main {
+  display: inline-block;
+  padding: 15px 52px;
+  font-family: 'Noto Serif SC', serif;
+  font-size: 18px;
+  letter-spacing: 4px;
+  color: #FEFBF6;
+  background: linear-gradient(135deg, #7B9EAB, #5A7D8A);
+  border: none;
+  border-radius: 32px;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(90,125,138,0.25);
+  transition: transform 0.35s, box-shadow 0.35s;
+}
+.btn-cover-main:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 36px rgba(90,125,138,0.22);
+}
+.btn-cover-main:active {
+  transform: translateY(-1px) scale(0.97);
+}
+
+.cover-bottom-btns {
+  display: flex; gap: 24px; margin-top: 28px;
+}
+.cover-bottom-btns button {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 13px; font-weight: 300;
+  letter-spacing: 2px;
+  color: #6B6560;
+  background: none; border: none;
+  cursor: pointer;
+  padding: 4px 0;
+  border-bottom: 1px solid transparent;
+  transition: color 0.3s, border-color 0.3s;
+}
+.cover-bottom-btns button:hover {
+  color: #5A7D8A;
+  border-bottom-color: #7B9EAB;
+}
+
+/* 关于弹窗（封面内） */
+#cover-about-modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(60,50,40,0.45);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s;
+}
+#cover-about-modal.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+#cover-about-modal .cam-box {
+  background: #F5F0E8;
+  border-radius: 16px;
+  padding: 32px 28px 24px;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 16px 48px rgba(60,50,40,0.2);
+  position: relative;
+  text-align: left;
+  line-height: 1.85;
+  color: #3A3434;
+  font-family: 'Noto Serif SC', serif;
+  font-size: 14px;
+  transform: translateY(20px);
+  transition: transform 0.35s;
+}
+#cover-about-modal.active .cam-box {
+  transform: translateY(0);
+}
+#cover-about-modal .cam-box h3 {
+  font-family: 'Liu Jian Mao Cao', 'STKaiti', cursive;
+  font-size: 26px;
+  color: #5A7D8A;
+  text-align: center;
+  letter-spacing: 4px;
+  margin-bottom: 16px;
+}
+#cover-about-modal .cam-box p {
+  margin-bottom: 10px;
+  font-weight: 300;
+}
+#cover-about-modal .cam-box p.em {
+  font-weight: 400; color: #5A7D8A;
+}
+#cover-about-modal .cam-close {
+  position: absolute;
+  top: 12px; right: 16px;
+  width: 30px; height: 30px;
+  border: none; background: none;
+  font-size: 20px; color: #6B6560;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#cover-about-modal .cam-close:hover {
+  background: rgba(123,158,171,0.1);
+}
+#cover-about-modal .cam-flower {
+  text-align: center;
+  font-size: 20px;
+  margin-top: 12px;
+  opacity: 0.5;
+  letter-spacing: 3px;
+}
+
+@media (max-width: 480px) {
+  .cover-title { letter-spacing: 4px; }
+  .btn-cover-main { padding: 14px 44px; font-size: 16px; letter-spacing: 3px; }
+  .cover-bottom-btns { gap: 16px; }
+  .cover-leaf.left { left: 4%; } .cover-leaf.right { right: 4%; }
+  .cover-leaf { font-size: 20px; }
+}
+
+/* ========== 第二天转场 ========== */
+#day-transition-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: url('assets/zhao/大厅阳光.png') center/cover no-repeat;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+}
+#day-transition-overlay::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(245,240,232,0.28);
+  pointer-events: none;
+}
+#day-transition-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+  animation: dayTransition 3.7s ease-in-out forwards;
+}
+#day-transition-overlay .day-text {
+  position: relative;
+  font-family: 'Noto Serif SC', serif;
+  font-weight: 700;
+  font-size: 52px;
+  color: #7B9EAB;
+  letter-spacing: 8px;
+  text-shadow: 0 2px 10px rgba(245,240,232,0.7);
+  opacity: 0;
+}
+#day-transition-overlay.active .day-text {
+  animation: dayTextTransition 3.7s ease-in-out forwards;
+}
+@keyframes dayTransition {
+  0%    { opacity: 0; }
+  32%   { opacity: 1; }
+  73%   { opacity: 1; }
+  100%  { opacity: 0; }
+}
+@keyframes dayTextTransition {
+  0%    { opacity: 0; transform: translateY(14px); }
+  32%   { opacity: 1; transform: translateY(0); }
+  73%   { opacity: 1; transform: translateY(0); }
+  100%  { opacity: 0; transform: translateY(-10px); }
+}
+
+@media (max-width: 480px) {
+  #day-transition-overlay .day-text { font-size: 34px; letter-spacing: 4px; }
+}
+
+/* ========== 结尾 · 未完待续 ========== */
+#ending-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: url('assets/zhao/想象中勿忘我的近景（纯背景无花无竹签）.png') center/cover no-repeat;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.8s ease;
+}
+#ending-overlay::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(245,240,232,0.35);
+  pointer-events: none;
+}
+#ending-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#ending-overlay .end-title {
+  font-family: 'Liu Jian Mao Cao', 'STKaiti', 'KaiTi', cursive;
+  font-size: clamp(32px, 6vw, 44px);
+  color: #5A7D8A;
+  letter-spacing: 4px;
+  margin-bottom: 28px;
+  transform: translateY(12px);
+  opacity: 0;
+  transition: all 0.8s ease 0.4s;
+}
+#ending-overlay.active .end-title {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+#ending-overlay .end-body {
+  font-family: 'Noto Serif SC', serif;
+  font-size: clamp(15px, 3vw, 18px);
+  color: #3A3434;
+  font-weight: 300;
+  line-height: 2;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+  transform: translateY(12px);
+  opacity: 0;
+  transition: all 0.8s ease 0.7s;
+}
+#ending-overlay.active .end-body {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+#ending-overlay .end-divider {
+  color: #A3C4CF;
+  font-size: 14px;
+  letter-spacing: 4px;
+  margin-bottom: 18px;
+  opacity: 0;
+  transition: opacity 0.8s ease 1.0s;
+}
+#ending-overlay.active .end-divider {
+  opacity: 0.6;
+}
+
+#ending-overlay .end-hint {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 13px;
+  color: #7F8C8D;
+  font-weight: 300;
+  letter-spacing: 2px;
+  margin-bottom: 28px;
+  opacity: 0;
+  transition: opacity 0.8s ease 1.2s;
+}
+#ending-overlay.active .end-hint {
+  opacity: 0.7;
+}
+
+.btn-end-back {
+  display: inline-block;
+  padding: 13px 40px;
+  font-family: 'Noto Serif SC', serif;
+  font-size: 15px;
+  letter-spacing: 3px;
+  color: #FEFBF6;
+  background: linear-gradient(135deg, #7B9EAB, #5A7D8A);
+  border: none;
+  border-radius: 28px;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(90,125,138,0.25);
+  transition: transform 0.35s, box-shadow 0.35s;
+  transform: translateY(12px);
+  opacity: 0;
+  transition: transform 0.35s, box-shadow 0.35s, opacity 0.8s ease 1.5s, transform 0.8s ease 1.5s;
+}
+#ending-overlay.active .btn-end-back {
+  transform: translateY(0);
+  opacity: 1;
+}
+.btn-end-back:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 36px rgba(90,125,138,0.22);
+}
+.btn-end-back:active {
+  transform: translateY(-1px) scale(0.97);
+}
+
+@media (max-width: 480px) {
+  #ending-overlay .end-title { letter-spacing: 2px; margin-bottom: 20px; }
+  #ending-overlay .end-body { line-height: 1.8; }
+  .btn-end-back { padding: 12px 32px; font-size: 14px; }
+}
+
+/* ========== 落花纷飞动画 ========== */
+@keyframes fallPetal {
+  0%   { transform: translateY(-10vh) rotate(0deg) translateX(0); opacity: 0.85; }
+  15%  { transform: translateY(8vh) rotate(60deg) translateX(35px); opacity: 0.7; }
+  35%  { transform: translateY(30vh) rotate(160deg) translateX(-25px); opacity: 0.55; }
+  55%  { transform: translateY(55vh) rotate(260deg) translateX(45px); opacity: 0.4; }
+  75%  { transform: translateY(75vh) rotate(350deg) translateX(-35px); opacity: 0.2; }
+  100% { transform: translateY(110vh) rotate(430deg) translateX(15px); opacity: 0; }
+}
+@keyframes fallFlower {
+  0%   { transform: translateY(-8vh) rotate(0deg) scale(1); opacity: 0.65; }
+  20%  { transform: translateY(15vh) rotate(80deg) scale(1.05); opacity: 0.5; }
+  50%  { transform: translateY(45vh) rotate(200deg) scale(0.95); opacity: 0.35; }
+  80%  { transform: translateY(75vh) rotate(310deg) scale(1.02); opacity: 0.15; }
+  100% { transform: translateY(110vh) rotate(400deg) scale(1); opacity: 0; }
+}
+
+.floating-img {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform;
+}
+.floating-petal {
+  width: 26px;
+  animation: fallPetal 7s linear infinite;
+}
+.floating-flower {
+  width: 44px;
+  animation: fallFlower 10s linear infinite;
+}
+
+/* cover 略快 */
+#cover-overlay .floating-petal { animation-duration: 6s; }
+#cover-overlay .floating-flower { animation-duration: 9s; }
+/* ending 略慢更安静 */
+#ending-overlay .floating-petal { animation-duration: 9s; }
+#ending-overlay .floating-flower { animation-duration: 13s; }
+
+@media (max-width: 480px) {
+  .floating-petal { width: 18px; }
+  .floating-flower { width: 30px; }
+}
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Liu+Jian+Mao+Cao&family=Noto+Serif+SC:wght@300;400;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -1482,6 +1890,53 @@ body {
     <button id="notebook-close" onclick="Game.closeNotebook()">关闭</button>
   </div>
 </div>
+
+<!-- ====== 篇章入口封面 ====== -->
+<div id="cover-overlay">
+  <!-- 落花 · 花瓣 -->
+  <img class="floating-img floating-petal" src="assets/zhao/勿忘我花瓣.png" style="top:-5%; left:8%; animation-delay:0s;">
+  <img class="floating-img floating-petal" src="assets/zhao/勿忘我花瓣.png" style="top:2%; left:22%; animation-delay:1.3s;">
+  <img class="floating-img floating-petal" src="assets/zhao/勿忘我花瓣.png" style="top:-3%; right:18%; animation-delay:2.6s;">
+  <img class="floating-img floating-petal" src="assets/zhao/勿忘我花瓣.png" style="top:5%; right:5%; animation-delay:3.9s;">
+  <img class="floating-img floating-petal" src="assets/zhao/勿忘我花瓣.png" style="top:-8%; left:55%; animation-delay:0.7s;">
+  <img class="floating-img floating-petal" src="assets/zhao/勿忘我花瓣.png" style="top:10%; left:35%; animation-delay:2s;">
+  <img class="floating-img floating-petal" src="assets/zhao/勿忘我花瓣.png" style="top:0%; right:35%; animation-delay:3.2s;">
+  <img class="floating-img floating-petal" src="assets/zhao/勿忘我花瓣.png" style="top:-6%; left:75%; animation-delay:4.5s;">
+  <!-- 落花 · 花朵 -->
+  <img class="floating-img floating-flower" src="assets/zhao/勿忘我花.png" style="top:-4%; left:12%; animation-delay:0.5s;">
+  <img class="floating-img floating-flower" src="assets/zhao/勿忘我花.png" style="top:3%; right:12%; animation-delay:3s;">
+  <img class="floating-img floating-flower" src="assets/zhao/勿忘我花.png" style="top:-2%; left:45%; animation-delay:5.5s;">
+
+  <div class="cover-title">勿忘我</div>
+  <div class="cover-subtitle">赵奶奶篇</div>
+
+  <div class="cover-divider"></div>
+
+  <button class="btn-cover-main" onclick="Game.startFromCover()">开始故事</button>
+
+  <div class="cover-bottom-btns">
+    <button onclick="window.location.href='hall.html'">继续旅程</button>
+    <button onclick="Game.showCoverAbout()">关于</button>
+  </div>
+</div>
+
+<!-- 关于弹窗 -->
+<div id="cover-about-modal" onclick="Game.hideCoverAbout(event)">
+  <div class="cam-box" onclick="event.stopPropagation()">
+    <button class="cam-close" onclick="Game.hideCoverAbout()">×</button>
+    <h3>勿忘我</h3>
+    <p>《勿忘我》是一款以阿尔兹海默症患者真实视角为核心的交互式叙事游戏。</p>
+    <p>场景"时光驿站"以上海杨浦区殷行街道真实存在的认知症友好空间为原型。赵奶奶的故事融合了植物育种领域女性科研工作者群体的影子。</p>
+    <p class="em">游戏试图让玩家进入认知症患者眼中的世界——你看到的不一定是真的，你需要自己判断什么是事实，什么是记忆错乱。</p>
+    <p class="em">这不是一个"关怀老人"的故事。<br>这是一个关于"被看见"的故事。</p>
+    <div class="cam-flower">🌿 勿忘我 · 2026</div>
+  </div>
+</div>
+
+<!-- 背景音乐 -->
+<audio id="bgm" loop style="display:none;">
+  <source src="assets/audio/欢快、希望bgm.mp3" type="audio/mpeg">
+</audio>
 
 <!-- 主游戏窗口 -->
 <div id="game-wrapper">
@@ -1794,8 +2249,34 @@ const Game = {
     this.cacheDom();
     this.bindGlobalClick();
     this.resetScene();
-    // 启动探访一
-    setTimeout(() => this.startPhase('intro'), 600);
+    // 封面默认显示，等待玩家点击"开始故事"
+  },
+
+  // 从封面开始游戏
+  startFromCover() {
+    const cover = document.getElementById('cover-overlay');
+    if (cover) cover.classList.add('hidden');
+    this.playBGM();
+    setTimeout(() => this.startPhase('prologue'), 500);
+  },
+
+  showCoverAbout() {
+    document.getElementById('cover-about-modal').classList.add('active');
+  },
+
+  hideCoverAbout(e) {
+    if (e && e.target !== e.currentTarget) return;
+    document.getElementById('cover-about-modal').classList.remove('active');
+  },
+
+  // 结尾 · 未完待续
+  showEnding() {
+    const ending = document.getElementById('ending-overlay');
+    ending.classList.add('active');
+  },
+
+  hideEnding() {
+    window.location.href = 'hall.html';
   },
 
   cacheDom() {
@@ -1828,6 +2309,7 @@ const Game = {
     this.el.notebook   = $('notebook-overlay');
     this.el.nbFragments= $('notebook-fragments');
     this.el.toastCt    = $('toast-container');
+    this.el.bgm        = $('bgm');
     this.el.stick      = null; // 不再使用竹签UI
     this.el.sceneClickHint = $('scene-click-hint');
     this.el.dirtyStickPopup = $('dirty-stick-popup');
@@ -1841,6 +2323,19 @@ const Game = {
     this.el.workIdDetail   = $('work-id-detail');
     this.el.letterDetail   = $('letter-detail');
     this.el.v2CloseAll    = $('v2-close-all');
+  },
+
+  playBGM() {
+    if (!this.el.bgm) return;
+    this.el.bgm.volume = 0.55;
+    this.el.bgm.play().catch(() => {
+      // 浏览器自动播放策略可能阻止首次播放，等待用户第一次点击后重试
+      const resume = () => {
+        this.el.bgm.play().catch(() => {});
+        document.removeEventListener('click', resume);
+      };
+      document.addEventListener('click', resume);
+    });
   },
 
   bindGlobalClick() {
@@ -1870,6 +2365,9 @@ const Game = {
       if (e.code === 'Space' && this.typingTimer) {
         e.preventDefault();
         this.advanceDialogue();
+      }
+      if (e.key === 'Escape') {
+        this.hideCoverAbout();
       }
     });
   },
@@ -1975,6 +2473,7 @@ const Game = {
     this.el.hint.classList.remove('visible');
 
     switch(name) {
+      case 'prologue':        this.doPrologue(); break;
       case 'intro':           this.doIntro(); break;
       case 'touch_flower':    this.doTouchFlower(); break;
       case 'hover_mode':      this.doHoverMode(); break;
@@ -2037,6 +2536,11 @@ const Game = {
     if (entry.playerExpr) {
       this.el.playerSprite.src = 'assets/zhao/' + (exprMap[entry.playerExpr] || entry.playerExpr);
       this.el.playerArea.classList.remove('hidden');
+    }
+    
+    // 场景背景切换
+    if (entry.bg) {
+      this.setSceneBackground(entry.bg, !!entry.bgTrans);
     }
     
     // 特殊动画
@@ -2391,26 +2895,82 @@ const Game = {
     }
   },
 
+  // 第二天转场（陪伴一 → 陪伴二）
+  showDayTransition(callback) {
+    const el = document.getElementById('day-transition-overlay');
+    el.classList.add('active');
+    setTimeout(() => {
+      el.classList.remove('active');
+      if (callback) callback();
+    }, 3700);
+  },
+
   // ==============================
   //  剧情实现：各阶段具体流程
   // ==============================
 
+  // ------ 阶段0: 入场衔接 prologue ------
+  doPrologue() {
+    document.getElementById('chapter-label').textContent = '赵奶奶 · 入场衔接';
+    document.getElementById('game-wrapper').style.visibility = 'visible';
+    this.el.choices.classList.remove('active');
+    this.el.zhaoArea.classList.add('hidden');
+    this.el.playerArea.classList.add('hidden');
+    this.setSceneBackground('sucai/zhao/大厅阳光.png', true);
+    
+    this.runDialogueQueue([
+      { speaker: 'narrator', text: '我在时光驿站的大厅里站了一会儿。', speed: 45 },
+      { speaker: 'narrator', text: '阳光从落地窗照进来，在地板上拖出一道长长的光带。', speed: 45 },
+      { speaker: 'narrator', text: '空气里有消毒水和干花混在一起的味道——不浓，但一直在。', speed: 45 },
+      { speaker: 'narrator', text: '我低头看了一眼手里的名单。', speed: 45 },
+      { speaker: 'narrator', text: '五位老人。', speed: 55 },
+      { speaker: 'narrator', text: '林姐说每个人都有自己的习惯和节奏，第一次见面不用做什么特别的事，坐一会儿就行。', speed: 42 },
+      { speaker: 'narrator', text: '“赵奶奶住二楼走廊尽头那间，”林姐从茶水间探出头来说，“她今天上午一直坐在窗台前面，你直接上去就行。”', speed: 42 },
+      { speaker: 'narrator', text: '我点了点头，往楼梯方向走了两步，又停下来。', speed: 45 },
+      { speaker: 'narrator', text: '我：“她……知道我是什么人吗？”', speed: 110 },
+      { speaker: 'narrator', text: '林姐看了我一眼，表情没怎么变，但手上的动作停了一下。', speed: 42 },
+      { speaker: 'narrator', text: '林姐：“她知道有人会来。', speed: 100 },
+      { speaker: 'narrator', text: '至于是谁……她不太问了。”', speed: 95 },
+      { speaker: 'narrator', text: '她没再说什么，转身回去洗杯子了。', speed: 45 },
+      { speaker: 'narrator', text: '水龙头的声音在安静的走廊里响了一会儿。', speed: 48 },
+      { speaker: 'narrator', text: '我站在楼梯口，手里攥着那张名单。', speed: 45 },
+      { speaker: 'narrator', text: '阳光落在我脚前的地板上，像一个提醒。', speed: 48 },
+      { speaker: 'narrator', text: '我往上走了一步。', speed: 50, bg: 'sucai/zhao/二楼走廊.jpg', bgTrans: true },
+      { speaker: 'narrator', text: '二楼走廊比一楼安静得多。', speed: 48 },
+      { speaker: 'narrator', text: '地板是旧的木色，走上去偶尔会响一声。', speed: 48 },
+      { speaker: 'narrator', text: '我走到走廊尽头那间房门口。', speed: 45, bg: 'sucai/zhao/进门前转动把手.jpg', bgTrans: true },
+      { speaker: 'narrator', text: '门虚掩着，从门缝里能看到一个人坐在窗台前面，背对着门。', speed: 42 },
+      { speaker: 'narrator', text: '阳光落在她肩上，没有动。', speed: 50 },
+      { speaker: 'narrator', text: '像一幅静止的画。', speed: 55 },
+      { speaker: 'narrator', text: '我站了一小会儿。', speed: 50 },
+      { speaker: 'narrator', text: '说不清是犹豫什么——可能是不确定敲门会不会吓到她，也可能是因为林姐那句“至于是谁……她不太问了”一直在我脑子里转。', speed: 40 },
+      { speaker: 'narrator', text: '“不太问了”是什么意思？', speed: 50 },
+      { speaker: 'narrator', text: '是她不在乎了，还是她已经忘了“问”这件事该怎么做了？', speed: 42 },
+      { speaker: 'narrator', text: '我不知道。', speed: 55, bg: 'sucai/zhao/赵奶奶床边背影.png', bgTrans: true },
+      { speaker: 'narrator', text: '我抬手，在门框上轻轻敲了两下。', speed: 55 },
+    ], 0, () => {
+      setTimeout(() => this.startPhase('intro'), 1200);
+    });
+  },
+
   // ------ 阶段1: 开场 intro ------
   doIntro() {
+    document.getElementById('chapter-label').textContent = '赵奶奶 · 探访一 · 枯萎的花';
     this.el.choices.classList.remove('active');
     // 开场：赵奶奶背影
     this.el.zhaoSprite.src = 'assets/zhao/赵奶奶立绘-背影（透明）.png';
+    this.setSceneBackground('sucai/zhao/赵奶奶房间真实样子（有种子版）.png', true);
     
     this.runDialogueQueue([
       {
         speaker: 'narrator',
-        text: '推开门。房间不大，阳光从朝南的窗户斜进来，落在桌面上。窗台上放着一盆……花？或许曾经是花。现在只剩下灰褐色的干枯茎叶，弯折着。土已经干裂了。',
+        text: '你推开门。房间不大，阳光从朝南的窗户斜进来，落在桌面上。窗台上放着几盆花——曾经是花。现在只剩下干枯的茎叶，灰褐色的，弯折着。土已经干裂了。',
         speed: 40,
         zhaoExpr: '赵奶奶立绘-背影.png',
       },
       {
         speaker: 'narrator',
-        text: '赵奶奶坐在窗边，背对着门。我的脚步在木地板上发出轻微的吱呀声，她听到了，但没有立刻回头。她的肩膀动了一下，像是一个正在从很远的地方往回走的人。',
+        text: '赵奶奶坐在窗边，背对着门。听到你进来，她没有回头。',
         speed: 45,
         anim: 'zhao_turn',
         zhaoExpr: '赵奶奶立绘-背影.png',
@@ -2803,7 +3363,8 @@ const Game = {
     // 重置赵奶奶位置
     this.el.zhaoAreaV2.classList.remove('facing-player', 'turning');
     this.el.zhaoHandV2.classList.remove('reaching');
-    this.startPhase('v2_intro');
+    // 显示“第二天”转场，结束后进入探访二开场
+    this.showDayTransition(() => { this.startPhase('v2_intro'); });
   },
 
   // ------ v2 阶段1: 开场 + 获得钥匙 ------ 
@@ -2838,8 +3399,10 @@ const Game = {
         text: '林姐没有多解释，转身走了。你注意到她围裙上有"时光驿站"的logo，没有工牌。',
         speed: 50,
         exp: { zhao: 'back' },
-        startCb: () => { this.el.linAreaV2.classList.add('hidden'); },
-        cb: () => { this.setSceneBackground('assets/zhao/林姐围裙上的字.png', true); },
+        startCb: () => {
+          this.el.linAreaV2.classList.add('hidden');
+          this.setSceneBackground('assets/zhao/林姐围裙上的字.png', true);
+        },
       },
       {
         speaker: 'narrator',
@@ -3457,6 +4020,7 @@ const Game = {
               '📓 虚实对账本已记录碎片 ' + this.notebookFragments.length + '/5',
               () => {
                 this.showSceneHint('探访二 · 完成。', 4000);
+                setTimeout(() => { this.showEnding(); }, 5000);
               }
             );
           }, 1500);
@@ -3474,6 +4038,41 @@ document.getElementById('notebook-overlay').addEventListener('click', function(e
   if (e.target === this) Game.closeNotebook();
 });
 </script>
+<!-- ====== 第二天转场 ====== -->
+<div id="day-transition-overlay">
+  <div class="day-text">第二天</div>
+</div>
+
+<!-- ====== 结尾 · 未完待续 ====== -->
+<div id="ending-overlay">
+  <!-- 落花 · 花瓣 -->
+  <img class="floating-img floating-petal" src="assets/zhao/勿忘我花瓣.png" style="top:-5%; left:10%; animation-delay:0s;">
+  <img class="floating-img floating-petal" src="assets/zhao/勿忘我花瓣.png" style="top:3%; right:15%; animation-delay:1.8s;">
+  <img class="floating-img floating-petal" src="assets/zhao/勿忘我花瓣.png" style="top:-2%; left:30%; animation-delay:3.6s;">
+  <img class="floating-img floating-petal" src="assets/zhao/勿忘我花瓣.png" style="top:8%; right:30%; animation-delay:0.9s;">
+  <img class="floating-img floating-petal" src="assets/zhao/勿忘我花瓣.png" style="top:-7%; left:60%; animation-delay:2.7s;">
+  <img class="floating-img floating-petal" src="assets/zhao/勿忘我花瓣.png" style="top:1%; right:5%; animation-delay:4.5s;">
+  <img class="floating-img floating-petal" src="assets/zhao/勿忘我花瓣.png" style="top:6%; left:80%; animation-delay:1.2s;">
+  <img class="floating-img floating-petal" src="assets/zhao/勿忘我花瓣.png" style="top:-4%; right:45%; animation-delay:3s;">
+  <!-- 落花 · 花朵 -->
+  <img class="floating-img floating-flower" src="assets/zhao/勿忘我花.png" style="top:-3%; left:5%; animation-delay:1s;">
+  <img class="floating-img floating-flower" src="assets/zhao/勿忘我花.png" style="top:5%; right:8%; animation-delay:4s;">
+  <img class="floating-img floating-flower" src="assets/zhao/勿忘我花.png" style="top:-6%; left:42%; animation-delay:7s;">
+
+  <div class="end-title">赵奶奶篇 · 未完待续</div>
+
+  <div class="end-body">
+    她已经很久没有跟人讲过这些了。<br>
+    你把她的故事带走了。
+  </div>
+
+  <div class="end-divider">——— ✦ ———</div>
+
+  <div class="end-hint">更多篇章正在建设中……</div>
+
+  <button class="btn-end-back" onclick="Game.hideEnding()">回到篇章选择</button>
+</div>
+
 </body>
 </html>
 
