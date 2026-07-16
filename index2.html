@@ -1,0 +1,2153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>勿忘我 · 赵奶奶篇 · 探访三~五</title>
+<style>
+:root {
+  --blue-deep:    #4A7C96;
+  --blue-mid:     #6BA3BE;
+  --blue-light:   #B8D4E3;
+  --blue-pale:    #E4F0F7;
+  --blue-ghost:   #F0F6FA;
+  --white-warm:   #FDF8F3;
+  --cream:        #FFF8EC;
+  --yellow-sun:   #F2D07B;
+  --yellow-soft:  #F9E8B8;
+  --text-dark:    #2D3436;
+  --text-mid:     #555B5E;
+  --text-gray:    #7F8C8D;
+  --text-light:   #B2BEC3;
+  --orange-warm:  #E8A87C;
+  --shadow:       0 2px 16px rgba(74,124,150,0.12);
+  --shadow-lg:    0 8px 40px rgba(74,124,150,0.18);
+  --radius:       12px;
+  --radius-sm:    8px;
+  --transition:   0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:100vw; height:100vh; overflow:hidden; }
+body {
+  font-family: 'PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif;
+  background: linear-gradient(135deg, #2A4A5C 0%, #3A6275 30%, #4A7C96 60%, #3A6578 100%);
+  display:flex; justify-content:center; align-items:center;
+  user-select:none;
+}
+#game-wrapper {
+  width:100vw; height:100vh; background:linear-gradient(180deg,#FAFCFD,#F2F6FA);
+  position:relative; overflow:hidden; display:flex; flex-direction:column;
+}
+
+/* 顶部栏 */
+#top-bar {
+  height:44px; flex-shrink:0; background:linear-gradient(180deg,rgba(242,247,251,0.97),rgba(228,240,247,0.94));
+  border-bottom:1.5px solid rgba(107,163,190,0.25);
+  display:flex; align-items:center; justify-content:space-between; padding:0 20px; z-index:10;
+}
+#chapter-label { font-size:13px; color:var(--blue-deep); font-weight:500; letter-spacing:2px; }
+#trust-bar { display:flex; align-items:center; gap:6px; }
+#trust-bar .petal { width:20px; height:20px; border-radius:50% 50% 0 50%; background:var(--text-light); transition:all 0.6s ease; transform:rotate(-45deg); }
+#trust-bar .petal.collected { background:var(--blue-mid); box-shadow:0 0 8px rgba(107,163,190,0.4); }
+#notebook-btn {
+  width:36px; height:36px; border:none; background:linear-gradient(135deg,var(--blue-pale),#D6E8F2);
+  border-radius:var(--radius-sm); cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center;
+  transition:var(--transition); position:relative;
+}
+#notebook-btn:hover { background:linear-gradient(135deg,var(--blue-light),#C4DEEA); }
+#notebook-btn .badge {
+  position:absolute; top:-4px; right:-4px; width:18px; height:18px; border-radius:50%;
+  background:var(--yellow-sun); color:var(--text-dark); font-size:11px; font-weight:700;
+  display:none; align-items:center; justify-content:center;
+}
+
+/* 场景层 */
+#scene-layer {
+  flex:1; position:relative; overflow:hidden;
+  background: url('assets/zhao/zhao_nai_nai_fang_jian_zhu_shi_jiao.png') center center / cover no-repeat;
+}
+
+/* 场景过渡 */
+.scene-transition {
+  position:absolute; inset:0; background-size:cover; background-position:center;
+  z-index:0; pointer-events:none;
+  animation: gentle-fade-in 1.5s ease-out forwards;
+}
+@keyframes gentle-fade-in {
+  0% { opacity:0; filter:blur(6px) brightness(1.05); transform:scale(1.02); }
+  100% { opacity:1; filter:blur(0) brightness(1); transform:scale(1); }
+}
+
+/* 场景提示 */
+.scene-hint {
+  position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
+  background:rgba(42,74,92,0.92); color:var(--blue-pale);
+  font-size:13px; padding:8px 18px; border-radius:20px;
+  opacity:0; transition:opacity 0.5s; pointer-events:none; z-index:25; letter-spacing:1px;
+}
+.scene-hint.visible { opacity:1; }
+
+/* 通用悬停提示气泡 */
+.hover-tooltip {
+  position:absolute; bottom:88px;
+  background:linear-gradient(135deg,#F0F6FA,#E8F0F6); color:var(--text-dark);
+  font-size:13px; padding:10px 16px; border-radius:var(--radius-sm);
+  box-shadow:0 4px 20px rgba(74,124,150,0.18); white-space:nowrap;
+  opacity:0; transform:translateY(8px); transition:opacity 0.3s,transform 0.3s;
+  pointer-events:none; z-index:20; max-width:200px; white-space:normal; text-align:center;
+  line-height:1.6; border-left:3px solid var(--blue-mid);
+}
+.hover-tooltip.visible { opacity:1; transform:translateY(0); }
+
+/* ========== V3 桌上物品场景 ========== */
+#v3-desk {
+  position:absolute; inset:0; background:url('assets/zhao/shang_wu_fang_jian.png') center/cover no-repeat;
+  z-index:5; opacity:0; pointer-events:none; transition:opacity 0.6s;
+}
+#v3-desk.active { opacity:1; pointer-events:all; }
+
+.v3-desk-item {
+  position:absolute; cursor:pointer; transition:all 0.3s; z-index:10;
+  display:flex; flex-direction:column; align-items:center; gap:4px; font-size:40px;
+}
+.v3-desk-item:hover { transform:translateY(-4px) scale(1.05); filter:drop-shadow(0 4px 12px rgba(74,124,150,0.3)); }
+.v3-desk-item .v3-label { font-size:11px; color:var(--text-mid); background:rgba(255,255,255,0.85); padding:2px 8px; border-radius:4px; }
+.v3-desk-item.placed { opacity:0.6; pointer-events:none; }
+
+/* V3 通知书 -- 左上 */
+#v3-notice { left:10%; top:25%; }
+/* V3 蜡笔画 -- 右上 */
+#v3-drawing { left:55%; top:22%; }
+/* V3 记录本 -- 左下（初始隐藏，通知单拖后出现） */
+#v3-notebook-item { left:10%; bottom:18%; opacity:0; pointer-events:none; transition:opacity 0.5s; }
+#v3-notebook-item.visible { opacity:1; pointer-events:all; }
+
+/* V3 并排放置区域 */
+#v3-compare-zone {
+  position:absolute; bottom:8%; left:50%; transform:translateX(-50%);
+  width:70%; height:30%; border:2px dashed rgba(107,163,190,0.3);
+  border-radius:12px; display:flex; align-items:center; justify-content:center; gap:40px;
+  z-index:6; opacity:0; pointer-events:none; transition:opacity 0.5s;
+  background:rgba(228,240,247,0.15);
+}
+#v3-compare-zone.active { opacity:1; pointer-events:all; }
+#v3-compare-zone .v3-slot {
+  width:120px; height:90px; border:2px dashed rgba(107,163,190,0.4); border-radius:8px;
+  display:flex; align-items:center; justify-content:center; font-size:14px; color:var(--text-gray);
+  transition:all 0.3s;
+}
+#v3-compare-zone .v3-slot.filled { border-style:solid; border-color:var(--blue-mid); background:rgba(107,163,190,0.08); }
+#v3-compare-zone .v3-drop-item {
+  font-size:36px; cursor:grab; display:flex; flex-direction:column; align-items:center; gap:2px;
+}
+#v3-compare-zone .v3-drop-item .v3-drop-label { font-size:10px; color:var(--text-mid); }
+
+/* V3 蜡笔画 · 人脸浮现 */
+#v3-face-flash {
+  position:absolute; right:62%; top:32%;
+  width:60px; height:72px; border-radius:50% 50% 45% 45%;
+  background:rgba(126,168,200,0.6);
+  z-index:11; opacity:0; pointer-events:none; transition:opacity 0.3s;
+}
+#v3-face-flash.reveal { opacity:1; animation:v3-face-reveal 2.5s ease-out forwards; }
+@keyframes v3-face-reveal {
+  0% { opacity:0; filter:blur(8px); }
+  30% { opacity:0.7; filter:blur(0); }
+  100% { opacity:0; filter:blur(4px); }
+}
+
+/* V3 进修通知书特写弹窗 */
+#v3-notice-detail {
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:380px; max-height:340px; background:linear-gradient(180deg,#FDF8EE,#F5ECD8);
+  border-radius:10px; border:2px solid #C4B5A5; box-shadow:0 8px 40px rgba(0,0,0,0.25);
+  padding:24px; z-index:40; display:none; flex-direction:column; gap:12px;
+  font-family:'KaiTi','STKaiti','楷体',serif; font-size:15px; line-height:2;
+}
+#v3-notice-detail.show { display:flex; }
+
+/* ========== V4 日落综合征场景 ========== */
+#v4-scene {
+  position:absolute; inset:0; background:url('assets/zhao/huang_hun_shi_qi_fang_jian.png') center/cover no-repeat;
+  z-index:5; opacity:0; pointer-events:none; transition:opacity 0.6s;
+}
+#v4-scene.active { opacity:1; pointer-events:all; }
+
+/* V4 倒计时 */
+#v4-timer {
+  position:absolute; top:16px; left:50%; transform:translateX(-50%);
+  font-size:36px; font-weight:700; color:var(--orange-warm);
+  z-index:30; opacity:0; transition:all 0.3s;
+  text-shadow:0 0 12px rgba(232,168,124,0.3);
+}
+#v4-timer.active { opacity:1; }
+#v4-timer.urgent { color:#D35A4A; animation:v4-pulse 0.5s ease-in-out infinite; }
+@keyframes v4-pulse { 0%,100% { transform:translateX(-50%) scale(1); } 50% { transform:translateX(-50%) scale(1.15); } }
+
+/* V4 线索物品 */
+.v4-clue {
+  position:absolute; z-index:12; cursor:pointer; font-size:38px;
+  transition:all 0.3s; opacity:0; pointer-events:none;
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+}
+.v4-clue.visible { opacity:1; pointer-events:all; }
+.v4-clue:hover { transform:translateY(-4px) scale(1.08); filter:drop-shadow(0 4px 12px rgba(74,124,150,0.35)); }
+.v4-clue .v4-clue-label { font-size:10px; color:var(--text-mid); background:rgba(255,255,255,0.85); padding:1px 6px; border-radius:3px; }
+.v4-clue .v4-clue-label.dim { color:var(--text-gray); }
+
+/* V4 照片比对面板 */
+#v4-photo-compare {
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:400px; background:linear-gradient(180deg,#FAFCFD,#F2F6FA);
+  border-radius:12px; border:2px solid var(--blue-light); box-shadow:0 8px 40px rgba(0,0,0,0.2);
+  padding:20px; z-index:40; display:none; flex-direction:column; align-items:center; gap:16px;
+}
+#v4-photo-compare.show { display:flex; }
+#v4-photo-compare .compare-imgs { display:flex; gap:20px; align-items:center; }
+#v4-photo-compare .compare-img {
+  width:90px; height:110px; border-radius:8px; border:2px solid #ddd;
+  display:flex; align-items:center; justify-content:center; font-size:50px; background:#f0f0f0;
+}
+#v4-photo-compare .compare-result {
+  font-size:14px; color:var(--text-mid); padding:8px 16px; border-radius:8px; background:var(--blue-pale);
+  opacity:0; transition:opacity 0.5s;
+}
+#v4-photo-compare .compare-result.revealed { opacity:1; }
+
+/* V4 林姐面部轮廓 */
+#v4-lin-outline {
+  position:absolute; border:2px dashed rgba(107,163,190,0.5); border-radius:50%;
+  z-index:15; opacity:0; pointer-events:none; transition:opacity 0.5s;
+}
+
+/* ========== V5 最终场景 ========== */
+#v5-scene {
+  position:absolute; inset:0; background:url('assets/zhao/da_ting_yang_guang.png') center/cover no-repeat;
+  z-index:5; opacity:0; pointer-events:none; transition:opacity 0.6s;
+}
+#v5-scene.active { opacity:1; pointer-events:all; }
+
+/* V5 种子在手心 */
+#v5-seeds-hand {
+  position:absolute; bottom:8%; left:50%; transform:translateX(-50%);
+  display:flex; gap:6px; font-size:18px; z-index:12;
+  opacity:0; transition:opacity 0.6s;
+}
+#v5-seeds-hand.visible { opacity:1; }
+#v5-seeds-hand .seed { animation:v5-seed-glow 2s ease-in-out infinite; }
+#v5-seeds-hand .seed:nth-child(2) { animation-delay:0.3s; }
+#v5-seeds-hand .seed:nth-child(3) { animation-delay:0.6s; }
+#v5-seeds-hand .seed:nth-child(4) { animation-delay:0.9s; }
+@keyframes v5-seed-glow {
+  0%,100% { opacity:0.5; filter:brightness(1); }
+  50% { opacity:1; filter:brightness(1.3); }
+}
+
+/* V5 文本输入 */
+#v5-input-overlay {
+  position:absolute; bottom:30px; left:50%; transform:translateX(-50%);
+  z-index:30; display:flex; gap:10px; align-items:center;
+  opacity:0; pointer-events:none; transition:opacity 0.5s;
+}
+#v5-input-overlay.active { opacity:1; pointer-events:all; }
+#v5-input-box {
+  width:360px; padding:12px 16px; border:2px solid var(--blue-light); border-radius:22px;
+  font-size:14px; font-family:inherit; background:rgba(255,255,255,0.92);
+  outline:none; transition:border-color 0.3s;
+}
+#v5-input-box:focus { border-color:var(--blue-mid); }
+#v5-input-submit {
+  padding:10px 20px; border:none; border-radius:20px;
+  background:var(--blue-mid); color:white; font-size:14px; cursor:pointer;
+  transition:background 0.3s;
+}
+#v5-input-submit:hover { background:var(--blue-deep); }
+
+/* V5 最终告别 · 夜空 */
+#v5-final-bg {
+  position:absolute; inset:0; background:linear-gradient(180deg,#1a2a38,#2a4458,#3a6275);
+  z-index:4; opacity:0; pointer-events:none; transition:opacity 1.2s;
+}
+#v5-final-bg.active { opacity:1; }
+#v5-final-light {
+  position:absolute; right:15%; top:18%;
+  width:82px; height:94px; border-radius:4px;
+  background:radial-gradient(ellipse,rgba(242,208,123,0.25),rgba(242,208,123,0.08) 60%,transparent);
+  z-index:5; opacity:0; transition:opacity 1.5s;
+  animation:v5-light-flicker 4s ease-in-out infinite;
+}
+@keyframes v5-light-flicker {
+  0%,100% { opacity:0.7; }
+  50% { opacity:1; }
+}
+#v5-final-light.active { opacity:1; }
+
+/* ========== 角色区域 ========== */
+#zhao-area-v2 {
+  position:absolute; left:3%; bottom:170px; width:160px; height:260px; z-index:16; transition:opacity 0.6s;
+}
+#zhao-area-v2.hidden { opacity:0; pointer-events:none; }
+.zhao-layer {
+  position:absolute; inset:0; background-size:contain; background-repeat:no-repeat; background-position:center bottom;
+  transition:opacity 0.8s; pointer-events:none;
+}
+#zhao-back-v2 { background-image:url('assets/zhao/zhao_nai_nai_li_hui_bei_ying_tou_ming.png'); opacity:1; transform:scaleX(-1); }
+#zhao-face-v2 { background-image:url('assets/zhao/zhao_nai_nai_li_hui_zheng_chang_biao_qing_tou_ming.png'); opacity:0; transform:scaleX(-1); }
+#zhao-face-v2.sad { background-image:url('assets/zhao/zhao_nai_nai_li_hui_bei_shang_tou_ming.png'); }
+#zhao-area-v2.facing-player #zhao-back-v2 { opacity:0; }
+#zhao-area-v2.facing-player #zhao-face-v2 { opacity:1; }
+
+#player-area-v2 {
+  position:absolute; right:3%; bottom:170px; width:140px; height:260px; z-index:15; transition:opacity 0.6s;
+}
+#player-area-v2.hidden { opacity:0; pointer-events:none; }
+.player-layer {
+  position:absolute; inset:0; background-size:contain; background-repeat:no-repeat; background-position:center bottom;
+  transition:opacity 0.6s; pointer-events:none;
+}
+#player-normal-v2 { background-image:url('assets/zhao/zhu_jiao_wo_zheng_mian_li_hui_tou_ming.png'); opacity:1; }
+#player-smile-v2 { background-image:url('assets/zhao/zhu_jiao_wo_zheng_mian_wei_xiao_li_hui_tou_ming.png'); opacity:0; }
+#player-area-v2.smile #player-normal-v2 { opacity:0; }
+#player-area-v2.smile #player-smile-v2 { opacity:1; }
+
+#lin-area-v2 {
+  position:absolute; left:3%; bottom:170px; width:160px; height:260px; z-index:16; transition:opacity 0.6s;
+}
+#lin-area-v2.hidden { opacity:0; pointer-events:none; }
+#lin-sprite-v2 {
+  position:absolute; inset:0; background-image:url('assets/zhao/lin_jie.png');
+  background-size:contain; background-repeat:no-repeat; background-position:center bottom; pointer-events:none;
+}
+
+/* ========== 对话框 ========== */
+#dialogue-area {
+  position: absolute;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 94%;
+  max-width: 1040px;
+  min-height: 150px;
+  height: 170px;
+  z-index: 60;
+  padding: 22px 60px 36px;
+  box-sizing: border-box;
+  background: linear-gradient(180deg, rgba(246,251,254,0.98), rgba(233,244,251,0.96));
+  border: 4px double rgba(152,193,217,0.70);
+  border-radius: 28px;
+  box-shadow: 0 0 0 5px rgba(235,245,252,0.65), 0 10px 40px rgba(74,124,150,0.20);
+  display: flex;
+  flex-direction: column;
+}
+#dialogue-area::before {
+  content: '';
+  position: absolute;
+  top: -42px;
+  right: -30px;
+  width: 120px;
+  height: 120px;
+  background: url('assets/zhao/wu_wang_wo_hua.png') center/contain no-repeat;
+  pointer-events: none;
+  z-index: 65;
+  filter: drop-shadow(0 3px 6px rgba(74,124,150,0.25));
+}
+#speaker-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; min-height: 28px; align-self: flex-start; }
+.speaker-name { font-size: 13px; font-weight: 600; color: var(--text-mid); }
+.speaker-name.zhao { color: var(--blue-deep); }
+.speaker-name.player { color: #8B7355; }
+.speaker-name.narrator { color: var(--text-gray); font-style: italic; }
+.speaker-name.lin { color: #6B9E78; }
+#dialogue-text { flex: 1; font-size: 16px; line-height: 1.85; color: var(--text-dark); overflow-y: auto; display: flex; flex-direction: column; justify-content: center; text-align: center; padding: 0 30px; }
+#dialogue-text .typing-cursor { display: inline-block; width: 2px; height: 15px; background: var(--blue-mid); animation: blink 0.8s infinite; vertical-align: middle; margin-left: 2px; }
+@keyframes blink { 0%,50% { opacity: 1; } 51%,100% { opacity: 0; } }
+#continue-indicator { position: absolute; right: 28px; bottom: 18px; font-size: 13px; color: var(--blue-mid); opacity: 0; transition: opacity 0.4s; pointer-events: none; }
+#continue-indicator.show { opacity: 1; animation: float-hint 1.5s ease-in-out infinite; }
+@keyframes float-hint { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+/* 选项弹窗（居中竖排，每个选项独立一框） */
+#choices-container {
+  position:fixed; top:0; left:0; right:0; bottom:0; display:flex; flex-direction:column; gap:24px;
+  justify-content:center; align-items:center;
+  background: rgba(32,55,70,0.42);
+  opacity:0; pointer-events:none; transition:opacity 0.35s; z-index:30;
+}
+#choices-container.active { opacity:1; pointer-events:all; }
+.choice-btn {
+  width:640px; max-width:90vw; height:150px; padding:28px 48px; border:none; border-radius:var(--radius-sm);
+  background: url('assets/zhao/xuanxiangkuang.png') center center / 100% 100% no-repeat; color:var(--text-dark);
+  font-size:18px; cursor:pointer; text-align:center; transition:all 0.25s; line-height:1.8;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+.choice-btn:hover { transform:translateY(-3px) scale(1.02); filter:brightness(1.05); }
+.choice-btn:active { transform:scale(0.97); }
+.choice-btn .choice-label { display:block; font-size:13px; color:var(--blue-mid); margin-bottom:8px; font-weight:600; letter-spacing:1px; }
+
+/* 跳过剧情按钮 */
+#skip-story-btn {
+  position:absolute; left:16px; top:14px;
+  padding:6px 14px;
+  background:rgba(255,255,255,0.85);
+  border:1px solid rgba(107,163,190,0.35);
+  border-radius:var(--radius-sm);
+  color:var(--blue-deep);
+  font-size:13px; cursor:pointer;
+  transition:all 0.2s; z-index:20;
+  box-shadow:0 2px 6px rgba(74,124,150,0.10);
+}
+#skip-story-btn:hover { background:rgba(255,255,255,1); border-color:var(--blue-mid); transform:translateY(-1px); }
+#skip-story-btn:active { transform:scale(0.96); }
+#skip-story-btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
+
+/* ========== 对话框左侧UI按钮栏（横向排列） ========== */
+#dialogue-left-icons {
+  position:absolute; left:-8px; bottom:calc(100% + 8px);
+  display:flex; flex-direction:row; gap:6px;
+  z-index:62;
+}
+.dialogue-left-btn {
+  width:44px; height:44px; padding:2px;
+  border:none; border-radius:12px;
+  background: rgba(255,255,255,0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  cursor:pointer; transition: all 0.25s;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow: 0 2px 8px rgba(74,124,150,0.12);
+}
+.dialogue-left-btn img {
+  width:32px; height:32px; object-fit:contain;
+  transition: transform 0.25s;
+}
+.dialogue-left-btn:hover {
+  background: rgba(255,255,255,0.75);
+  transform: translateY(-3px);
+  box-shadow: 0 4px 14px rgba(74,124,150,0.22);
+}
+.dialogue-left-btn:hover img { transform: scale(1.08); }
+
+/* ========== 通用弹窗面板 ========== */
+.game-panel-overlay {
+  position:fixed; top:0; left:0; right:0; bottom:0;
+  background: rgba(20,30,40,0.72);
+  z-index:150;
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none;
+  transition: opacity 0.35s ease;
+}
+.game-panel-overlay.open { opacity:1; pointer-events:all; }
+.game-panel {
+  width:600px; max-height:82vh;
+  background: linear-gradient(175deg, #F2F7FA, #E8EFF4);
+  border-radius:18px;
+  box-shadow: 0 12px 56px rgba(20,35,50,0.40);
+  display:flex; flex-direction:column;
+  transform: translateY(24px);
+  transition: transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
+  overflow:hidden;
+}
+.game-panel-overlay.open .game-panel {
+  transform: translateY(0);
+}
+.game-panel-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:18px 24px 12px;
+  border-bottom: 1px solid rgba(152,193,217,0.3);
+}
+.game-panel-header h3 {
+  font-size:17px; color: var(--blue-deep);
+  display:flex; align-items:center; gap:8px;
+}
+.game-panel-header h3 span { font-size:20px; }
+.panel-close-btn {
+  width:32px; height:32px; border:none; border-radius:50%;
+  background: rgba(74,124,150,0.12); color: var(--blue-deep);
+  font-size:16px; cursor:pointer; display:flex; align-items:center;
+  justify-content:center; transition: all 0.2s;
+}
+.panel-close-btn:hover { background: rgba(74,124,150,0.25); }
+.game-panel-body {
+  flex:1; overflow-y:auto; padding:18px 24px 20px;
+}
+.game-panel-body::-webkit-scrollbar { width:5px; }
+.game-panel-body::-webkit-scrollbar-thumb { background:rgba(152,193,217,0.4); border-radius:3px; }
+
+/* ========== 设置面板 ========== */
+.setting-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 0; border-bottom:1px solid rgba(152,193,217,0.15);
+}
+.setting-row:last-child { border-bottom:none; }
+.setting-label {
+  font-size:14px; color: var(--text-mid); display:flex; align-items:center; gap:6px;
+}
+.setting-label .s-icon { font-size:16px; }
+.setting-control {
+  display:flex; align-items:center; gap:8px;
+}
+.setting-control input[type="range"] {
+  width:100px; accent-color: var(--blue-mid); height:6px;
+}
+.setting-control .val-text {
+  font-size:12px; color: var(--blue-mid); min-width:32px; text-align:right;
+}
+.speed-btn {
+  padding:4px 14px; border:1.5px solid var(--blue-light); border-radius:14px;
+  background:transparent; color:var(--text-mid); font-size:13px;
+  cursor:pointer; transition: all 0.2s;
+}
+.speed-btn.active {
+  background: var(--blue-mid); color:white; border-color:var(--blue-mid);
+}
+.speed-btn:hover { border-color: var(--blue-mid); }
+.toggle-switch {
+  position:relative; width:44px; height:24px; cursor:pointer;
+}
+.toggle-switch input { display:none; }
+.toggle-track {
+  position:absolute; inset:0; border-radius:12px;
+  background: #C8D6DB; transition: background 0.25s;
+}
+.toggle-switch input:checked + .toggle-track { background: var(--blue-mid); }
+.toggle-thumb {
+  position:absolute; top:3px; left:3px; width:18px; height:18px;
+  border-radius:50%; background:white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2); transition: left 0.25s;
+}
+.toggle-switch input:checked ~ .toggle-thumb { left:23px; }
+.panel-bottom-btn {
+  margin-top:14px; width:100%; padding:11px;
+  border:1.5px solid rgba(152,193,217,0.5); border-radius:12px;
+  background:transparent; color:var(--blue-deep); font-size:14px;
+  cursor:pointer; transition: all 0.25s;
+}
+.panel-bottom-btn:hover { background: rgba(152,193,217,0.15); border-color:var(--blue-mid); }
+
+/* ========== 存档/读档面板 ========== */
+.save-slots-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:10px;
+}
+.save-slot {
+  display:flex; align-items:center; gap:10px; padding:10px 12px;
+  border:1.5px solid rgba(152,193,217,0.25); border-radius:12px;
+  background: rgba(255,255,255,0.5); cursor:pointer;
+  transition: all 0.25s; min-height:52px;
+}
+.save-slot:hover { background: rgba(152,193,217,0.12); border-color:rgba(152,193,217,0.5); }
+.save-slot.empty { opacity:0.45; cursor:default; background:rgba(255,255,255,0.3); }
+.save-slot.empty:hover { background:rgba(255,255,255,0.3); border-color:rgba(152,193,217,0.25); }
+.save-slot-num {
+  width:44px; height:44px; border-radius:10px;
+  background:rgba(152,193,217,0.15); display:flex; align-items:center;
+  justify-content:center; font-size:16px; font-weight:600;
+  color:var(--blue-mid); flex-shrink:0;
+}
+.save-slot-info { flex:1; min-width:0; }
+.save-slot-info .slot-time { font-size:12px; color:var(--text-mid); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.save-slot-info .slot-chapter { font-size:11px; color:var(--text-gray); margin-top:2px; }
+.save-slot-info .slot-empty-text { font-size:13px; color:var(--text-light); }
+
+/* 确认弹窗 */
+.confirm-overlay {
+  position:fixed; top:0; left:0; right:0; bottom:0;
+  background: rgba(10,18,26,0.60); z-index:180;
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition: opacity 0.25s;
+}
+.confirm-overlay.open { opacity:1; pointer-events:all; }
+.confirm-box {
+  width:340px; background:linear-gradient(180deg,#FAFCFD,#F2F6FA);
+  border-radius:16px; padding:24px 28px; text-align:center;
+  box-shadow: 0 8px 40px rgba(20,35,50,0.35);
+  transform:translateY(16px); transition: transform 0.3s;
+}
+.confirm-overlay.open .confirm-box { transform:translateY(0); }
+.confirm-box .confirm-msg { font-size:15px; color:var(--text-dark); margin-bottom:20px; line-height:1.6; }
+.confirm-box .confirm-btns { display:flex; gap:12px; justify-content:center; }
+.confirm-box .confirm-btns button {
+  padding:8px 28px; border-radius:20px; font-size:14px; cursor:pointer; transition: all 0.2s;
+  border:1.5px solid rgba(152,193,217,0.5);
+}
+.confirm-box .btn-confirm {
+  background:var(--blue-mid); color:white; border-color:var(--blue-mid);
+}
+.confirm-box .btn-confirm:hover { background:var(--blue-deep); }
+.confirm-box .btn-cancel {
+  background:transparent; color:var(--text-mid);
+}
+.confirm-box .btn-cancel:hover { background:rgba(152,193,217,0.1); }
+
+/* ========== 历史记录面板 ========== */
+.history-list { display:flex; flex-direction:column; gap:8px; }
+.history-item {
+  padding:10px 14px; border-radius:10px;
+  background:rgba(255,255,255,0.55); border-left:3px solid var(--blue-light);
+  font-size:13px; line-height:1.7; color:var(--text-mid);
+}
+.history-item .h-speaker {
+  font-size:11px; color:var(--blue-mid); margin-bottom:2px; font-weight:600;
+}
+.history-item .h-speaker.narrator { color:var(--text-gray); }
+.history-placeholder { text-align:center; color:var(--text-light); font-size:14px; padding:40px 0; }
+
+/* 笔记本弹窗 */
+#notebook-overlay {
+  position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(32,55,70,0.65); z-index:100;
+  display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.3s;
+}
+#notebook-overlay.open { opacity:1; pointer-events:all; }
+#notebook-modal {
+  width:520px; max-height:460px; background:linear-gradient(180deg,#FAFCFD,#F2F6FA);
+  border-radius:16px; box-shadow:0 8px 48px rgba(42,74,92,0.25); padding:28px;
+  display:flex; flex-direction:column; gap:16px; transform:translateY(20px); transition:transform 0.3s;
+}
+#notebook-overlay.open #notebook-modal { transform:translateY(0); }
+#notebook-modal h3 { font-size:18px; color:var(--blue-deep); display:flex; align-items:center; gap:8px; }
+#notebook-fragments { flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:12px; }
+.fragment-card {
+  background:linear-gradient(135deg,#F4F8FC,#EBF3F8); border-radius:var(--radius-sm);
+  padding:14px 16px; border-left:3px solid var(--blue-mid); font-size:14px; line-height:1.7; color:var(--text-mid);
+}
+.fragment-card .frag-label { font-size:11px; color:var(--blue-mid); margin-bottom:4px; font-weight:600; letter-spacing:1px; }
+.fragment-card .frag-verdict { display:inline-block; margin-top:6px; font-size:12px; padding:3px 8px; border-radius:4px; background:var(--yellow-soft); color:#6B5A3A; }
+.fragment-card.empty { color:var(--text-light); font-style:italic; text-align:center; border-left-color:transparent; background:transparent; }
+#notebook-close { align-self:flex-end; padding:8px 24px; border:none; border-radius:var(--radius-sm); background:var(--blue-mid); color:white; font-size:14px; cursor:pointer; transition:background 0.2s; }
+#notebook-close:hover { background:var(--blue-deep); }
+
+/* Toast */
+.fragment-toast {
+  position:fixed; top:20px; left:50%; transform:translateX(-50%); background:var(--blue-deep); color:white;
+  font-size:14px; padding:12px 24px; border-radius:24px; box-shadow:var(--shadow); z-index:200;
+  animation:toast-in 0.5s ease-out, toast-out 0.5s 2.5s ease-in forwards;
+  display:flex; align-items:center; gap:8px;
+}
+@keyframes toast-in { from { opacity:0; transform:translateX(-50%) translateY(-20px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+@keyframes toast-out { from { opacity:1; } to { opacity:0; } }
+
+/* 过渡画面 */
+#transition-overlay {
+  position:absolute; inset:0; background:rgba(32,55,70,0.94); z-index:50;
+  display:flex; align-items:center; justify-content:center; flex-direction:column; gap:20px;
+  opacity:0; pointer-events:none; transition:opacity 0.6s;
+}
+#transition-overlay.active { opacity:1; pointer-events:all; }
+#transition-overlay .trans-text { color:var(--blue-pale); font-size:18px; text-align:center; line-height:1.8; max-width:420px; }
+#transition-overlay .trans-sub { color:var(--blue-light); font-size:14px; }
+#transition-overlay .trans-btn {
+  padding:12px 36px; border:1.5px solid var(--blue-mid); border-radius:24px;
+  background:transparent; color:var(--blue-light); font-size:15px; cursor:pointer; transition:all 0.3s;
+}
+#transition-overlay .trans-btn:hover { background:var(--blue-mid); border-color:var(--blue-light); color:white; }
+
+/* 记忆残影 */
+#ghost-figure {
+  position:absolute; z-index:8; pointer-events:none; opacity:0;
+  font-size:50px; filter:blur(4px) brightness(0.7) sepia(0.3);
+  transition:opacity 0.8s;
+}
+#ghost-figure.active { opacity:0.35; }
+
+/* 封面 */
+#cover-overlay {
+  position:fixed; top:0; left:0; right:0; bottom:0;
+  background:url('assets/zhao/xiang_xiang_zhong_wu_wang_wo_de_jin_jing_chun_bei_jing_wu_hua_wu_zhu_qian.png') center/cover no-repeat;
+  z-index:999; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;
+  transition:opacity 0.5s;
+}
+#cover-overlay::before { content:''; position:absolute; top:0; left:0; right:0; bottom:0; background:rgba(245,240,232,0.35); pointer-events:none; }
+#cover-overlay.hidden { opacity:0; pointer-events:none; }
+.cover-title { font-family:'Liu Jian Mao Cao','STKaiti','KaiTi',cursive; font-size:clamp(48px,9vw,72px); color:#5A7D8A; line-height:1.1; letter-spacing:8px; text-shadow:1px 2px 4px rgba(90,125,138,0.12); }
+.cover-subtitle { font-family:'Noto Serif SC',serif; font-size:clamp(16px,3.5vw,22px); color:#3A3434; font-weight:300; letter-spacing:6px; margin-top:2px; position:relative; display:inline-block; padding:0 20px; }
+.cover-subtitle::before,.cover-subtitle::after { content:''; position:absolute; top:50%; width:24px; height:1px; background:#A3C4CF; opacity:0.6; }
+.cover-subtitle::before { right:calc(100% + 6px); }
+.cover-subtitle::after  { left:calc(100% + 6px); }
+.cover-divider { width:70px; height:2px; background:linear-gradient(90deg,transparent,#F0C27A,#F0C27A,transparent); margin:24px auto; opacity:0.7; }
+.btn-cover-main { display:inline-block; padding:15px 52px; font-family:'Noto Serif SC',serif; font-size:18px; letter-spacing:4px; color:#FEFBF6; background:linear-gradient(135deg,#7B9EAB,#5A7D8A); border:none; border-radius:32px; cursor:pointer; box-shadow:0 4px 18px rgba(90,125,138,0.25); transition:transform 0.35s,box-shadow 0.35s; }
+.btn-cover-main:hover { transform:translateY(-3px); box-shadow:0 12px 36px rgba(90,125,138,0.22); }
+.btn-cover-main:active { transform:translateY(-1px) scale(0.97); }
+
+/* 结尾 */
+#ending-overlay {
+  position:fixed; top:0; left:0; right:0; bottom:0;
+  background:linear-gradient(180deg,#1a2a38,#2a4458,#3a6275);
+  z-index:1100; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;
+  opacity:0; pointer-events:none; transition:opacity 0.8s;
+}
+#ending-overlay.active { opacity:1; pointer-events:auto; }
+#ending-overlay .end-title { font-family:'Liu Jian Mao Cao','STKaiti','KaiTi',cursive; font-size:clamp(32px,6vw,44px); color:#B8D4E3; letter-spacing:4px; margin-bottom:28px; transform:translateY(12px); opacity:0; transition:all 0.8s ease 0.4s; }
+#ending-overlay.active .end-title { transform:translateY(0); opacity:1; }
+#ending-overlay .end-body { font-family:'Noto Serif SC',serif; font-size:clamp(15px,3vw,18px); color:#E4F0F7; font-weight:300; line-height:2; letter-spacing:2px; margin-bottom:20px; transform:translateY(12px); opacity:0; transition:all 0.8s ease 0.7s; }
+#ending-overlay.active .end-body { transform:translateY(0); opacity:1; }
+#ending-overlay .end-divider { color:#6BA3BE; font-size:14px; letter-spacing:4px; margin-bottom:18px; opacity:0; transition:opacity 0.8s ease 1.0s; }
+#ending-overlay.active .end-divider { opacity:0.6; }
+#ending-overlay .end-hint { font-family:'Noto Serif SC',serif; font-size:13px; color:#7F8C8D; font-weight:300; letter-spacing:2px; margin-bottom:28px; opacity:0; transition:opacity 0.8s ease 1.2s; }
+#ending-overlay.active .end-hint { opacity:0.7; }
+.btn-end-back { display:inline-block; padding:13px 40px; font-family:'Noto Serif SC',serif; font-size:15px; letter-spacing:3px; color:#FEFBF6; background:linear-gradient(135deg,#7B9EAB,#5A7D8A); border:none; border-radius:28px; cursor:pointer; box-shadow:0 4px 18px rgba(90,125,138,0.25); transform:translateY(12px); opacity:0; transition:transform 0.35s,box-shadow 0.35s,opacity 0.8s ease 1.5s,transform 0.8s ease 1.5s; }
+#ending-overlay.active .btn-end-back { transform:translateY(0); opacity:1; }
+.btn-end-back:hover { transform:translateY(-3px); box-shadow:0 12px 36px rgba(90,125,138,0.22); }
+
+/* 落花 */
+@keyframes fallPetal { 0% { transform:translateY(-10vh) rotate(0deg) translateX(0); opacity:0.85; } 100% { transform:translateY(110vh) rotate(430deg) translateX(15px); opacity:0; } }
+@keyframes fallFlower { 0% { transform:translateY(-8vh) rotate(0deg) scale(1); opacity:0.65; } 100% { transform:translateY(110vh) rotate(400deg) scale(1); opacity:0; } }
+.floating-img { position:absolute; pointer-events:none; z-index:0; will-change:transform; }
+.floating-petal { width:26px; animation:fallPetal 9s linear infinite; }
+.floating-flower { width:44px; animation:fallFlower 13s linear infinite; }
+#cover-overlay .floating-petal { animation-duration:6s; }
+#cover-overlay .floating-flower { animation-duration:9s; }
+
+@media (max-width:480px) {
+  .cover-title { letter-spacing:4px; }
+  .btn-cover-main { padding:14px 44px; font-size:16px; letter-spacing:3px; }
+  .floating-petal { width:18px; }
+  .floating-flower { width:30px; }
+  #v5-input-box { width:240px; }
+}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Liu+Jian+Mao+Cao&family=Noto+Serif+SC:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- Toast -->
+<div id="toast-container"></div>
+
+<!-- 笔记本弹窗 -->
+<div id="notebook-overlay">
+  <div id="notebook-modal">
+    <h3><span>📓</span> 虚实对账本</h3>
+    <div id="notebook-fragments">
+      <div class="fragment-card empty">还没有收集到碎片……</div>
+    </div>
+    <button id="notebook-close" onclick="Game.closeNotebook()">关闭</button>
+  </div>
+</div>
+
+<!-- ========== 设置面板 ========== -->
+<div id="settings-overlay" class="game-panel-overlay">
+  <div class="game-panel">
+    <div class="game-panel-header">
+      <h3><span>⚙️</span> 设置</h3>
+      <button class="panel-close-btn" onclick="Game.closePanel('settings')">✕</button>
+    </div>
+    <div class="game-panel-body">
+      <div class="setting-row">
+        <span class="setting-label"><span class="s-icon">🎵</span> 背景音乐音量</span>
+        <div class="setting-control">
+          <input type="range" id="set-bgm" min="0" max="100" value="70" oninput="Game.onSettingChange()">
+          <span class="val-text" id="set-bgm-val">70</span>
+        </div>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label"><span class="s-icon">🔊</span> 音效音量</span>
+        <div class="setting-control">
+          <input type="range" id="set-sfx" min="0" max="100" value="80" oninput="Game.onSettingChange()">
+          <span class="val-text" id="set-sfx-val">80</span>
+        </div>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label"><span class="s-icon">🔇</span> 静音</span>
+        <div class="setting-control">
+          <label class="toggle-switch"><input type="checkbox" id="set-mute" onchange="Game.onSettingChange()"><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+        </div>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label"><span class="s-icon">💬</span> 文字速度</span>
+        <div class="setting-control" id="text-speed-group">
+          <button class="speed-btn" data-speed="slow" onclick="Game.setSpeed('slow')">慢</button>
+          <button class="speed-btn active" data-speed="normal" onclick="Game.setSpeed('normal')">标准</button>
+          <button class="speed-btn" data-speed="fast" onclick="Game.setSpeed('fast')">快</button>
+        </div>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label"><span class="s-icon">⏭️</span> 自动播放</span>
+        <div class="setting-control">
+          <label class="toggle-switch"><input type="checkbox" id="set-autoplay" onchange="Game.onSettingChange()"><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+        </div>
+      </div>
+      <button class="panel-bottom-btn" onclick="Game.returnToMenu()">🏠 返回游戏主菜单</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 存档面板 ========== -->
+<div id="save-overlay" class="game-panel-overlay">
+  <div class="game-panel">
+    <div class="game-panel-header">
+      <h3><span>💾</span> 存档</h3>
+      <button class="panel-close-btn" onclick="Game.closePanel('save')">✕</button>
+    </div>
+    <div class="game-panel-body">
+      <div class="save-slots-grid" id="save-slots"></div>
+      <button class="panel-bottom-btn" style="margin-top:16px; color:#C0392B; border-color:rgba(192,57,43,0.35);" onclick="Game.clearAllSaves()">🗑️ 清空所有存档</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 读档面板 ========== -->
+<div id="load-overlay" class="game-panel-overlay">
+  <div class="game-panel">
+    <div class="game-panel-header">
+      <h3><span>📂</span> 读档</h3>
+      <button class="panel-close-btn" onclick="Game.closePanel('load')">✕</button>
+    </div>
+    <div class="game-panel-body">
+      <div class="save-slots-grid" id="load-slots"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 历史记录面板 ========== -->
+<div id="history-overlay" class="game-panel-overlay">
+  <div class="game-panel">
+    <div class="game-panel-header">
+      <h3><span>📜</span> 历史记录</h3>
+      <button class="panel-close-btn" onclick="Game.closePanel('history')">✕</button>
+    </div>
+    <div class="game-panel-body">
+      <div class="history-list" id="history-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 确认弹窗 ========== -->
+<div id="confirm-overlay" class="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-msg" id="confirm-msg"></div>
+    <div class="confirm-btns">
+      <button class="btn-confirm" id="confirm-yes">确认</button>
+      <button class="btn-cancel" id="confirm-no">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 封面 ====== -->
+<div id="cover-overlay">
+  <img class="floating-img floating-petal" src="assets/zhao/wu_wang_wo_hua_ban.png" style="top:-5%;left:8%;animation-delay:0s;">
+  <img class="floating-img floating-petal" src="assets/zhao/wu_wang_wo_hua_ban.png" style="top:2%;left:22%;animation-delay:1.3s;">
+  <img class="floating-img floating-petal" src="assets/zhao/wu_wang_wo_hua_ban.png" style="top:-3%;right:18%;animation-delay:2.6s;">
+  <img class="floating-img floating-petal" src="assets/zhao/wu_wang_wo_hua_ban.png" style="top:5%;right:5%;animation-delay:3.9s;">
+  <img class="floating-img floating-flower" src="assets/zhao/wu_wang_wo_hua.png" style="top:-4%;left:12%;animation-delay:0.5s;">
+  <img class="floating-img floating-flower" src="assets/zhao/wu_wang_wo_hua.png" style="top:3%;right:12%;animation-delay:3s;">
+  <div class="cover-title">勿忘我</div>
+  <div class="cover-subtitle">赵奶奶篇 · 探访三~五</div>
+  <div class="cover-divider"></div>
+  <button class="btn-cover-main" onclick="Game.startFromCover()">开始故事</button>
+</div>
+
+<!-- 主游戏窗口 -->
+<div id="game-wrapper" style="visibility:hidden;">
+  <!-- 顶部栏 -->
+  <div id="top-bar">
+    <div id="chapter-label">赵奶奶 · 探访三 · 自我美化的记忆</div>
+    <div id="trust-bar">
+      <div class="petal"></div><div class="petal"></div><div class="petal"></div>
+      <div class="petal"></div><div class="petal"></div>
+    </div>
+    <button id="notebook-btn" onclick="Game.openNotebook()">📓<span class="badge" id="frag-badge">0</span></button>
+  </div>
+
+  <!-- 场景层 -->
+  <div id="scene-layer">
+    <!-- V3 桌上场景 -->
+    <div id="v3-desk">
+      <div class="v3-desk-item" id="v3-notice" onclick="Game.onV3NoticeClick()">
+        📜 <span class="v3-label">进修通知书</span>
+      </div>
+      <div class="v3-desk-item" id="v3-drawing" title="蜡笔画">
+        🖼️ <span class="v3-label">蜡笔画</span>
+      </div>
+      <!-- 蜡笔画 · 空白人脸浮现层 -->
+      <div id="v3-face-flash"></div>
+      <div class="v3-desk-item" id="v3-notebook-item" onclick="Game.onV3NotebookClick()">
+        📒 <span class="v3-label">旧实验记录本</span>
+      </div>
+      <div class="scene-hint" id="v3-hint"></div>
+    </div>
+
+    <!-- V3 并排放置区域 -->
+    <div id="v3-compare-zone">
+      <div class="v3-slot" id="v3-slot-notice" ondragover="event.preventDefault()" ondrop="Game.onV3Drop(event,'notice')">放通知书</div>
+      <div class="v3-slot" id="v3-slot-notebook" ondragover="event.preventDefault()" ondrop="Game.onV3Drop(event,'notebook')">放记录本</div>
+    </div>
+
+    <!-- 通知书弹窗 -->
+    <div id="v3-notice-detail">
+      <div style="text-align:center;font-weight:600;font-size:16px;">📜 进修通知书</div>
+      <div style="text-align:center;">赵秀兰同志：<br>经研究决定，选派你赴北京植物研究所进修两年。<br>进修期满后回原单位晋升中级职称。</div>
+      <div style="text-align:right;margin-top:8px;">1989年7月</div>
+      <button class="v2-close-btn" onclick="Game.closeV3Notice()" style="align-self:center;padding:6px 20px;border:1.5px solid var(--blue-mid);border-radius:20px;background:transparent;color:var(--blue-deep);cursor:pointer;">收起</button>
+    </div>
+
+    <!-- 记忆残影 -->
+    <div id="ghost-figure">👵</div>
+
+    <!-- V4 黄昏场景 -->
+    <div id="v4-scene">
+      <div id="v4-timer">⏱ 0:08</div>
+      <!-- V4 线索物品 -->
+      <div class="v4-clue" id="v4-clue-photo" style="left:14%;top:28%;" onclick="Game.onV4ClueClick('photo')">
+        🖼️<span class="v4-clue-label">桌上相框</span>
+      </div>
+      <div class="v4-clue" id="v4-clue-drawer" style="right:18%;top:32%;" onclick="Game.onV4ClueClick('drawer')">
+        🗄️<span class="v4-clue-label">床头柜抽屉</span>
+      </div>
+      <div class="v4-clue" id="v4-clue-apron" style="right:30%;bottom:28%;" onclick="Game.onV4ClueClick('apron')">
+        👘<span class="v4-clue-label">墙上围裙</span>
+      </div>
+    </div>
+
+    <!-- V4 照片比对 -->
+    <div id="v4-photo-compare">
+      <h4>拖拽照片中的小女孩到林姐脸部轮廓</h4>
+      <div class="compare-imgs">
+        <div class="compare-img" id="v4-compare-child" draggable="true" ondragstart="Game.onV4DragStart(event)">👧</div>
+        <div class="compare-img" id="v4-compare-lin" ondragover="event.preventDefault()" ondrop="Game.onV4DropOnLin(event)">👩</div>
+      </div>
+      <div class="compare-result" id="v4-compare-result">相似度: --</div>
+      <button class="v2-close-btn" onclick="Game.closeV4PhotoCompare()" style="padding:6px 20px;border:1.5px solid var(--blue-mid);border-radius:20px;background:transparent;color:var(--blue-deep);cursor:pointer;">收起</button>
+    </div>
+
+    <!-- V5 最终场景 -->
+    <div id="v5-scene">
+      <div id="v5-seeds-hand">
+        <span class="seed">🟤</span><span class="seed">🟤</span><span class="seed">🟤</span><span class="seed">🟤</span>
+      </div>
+    </div>
+    <div id="v5-final-bg"><div id="v5-final-light"></div></div>
+
+    <!-- V5 输入框 -->
+    <div id="v5-input-overlay">
+      <input type="text" id="v5-input-box" placeholder="你会为现实中的认知症老人做一件事吗？哪怕只是一句话……" maxlength="200">
+      <button id="v5-input-submit" onclick="Game.onV5InputSubmit()">提交</button>
+    </div>
+
+    <!-- 场景提示 -->
+    <div class="scene-hint" id="scene-hint"></div>
+    <!-- 过渡层 -->
+    <div id="transition-overlay">
+      <div class="trans-text"></div>
+      <div class="trans-sub"></div>
+      <button class="trans-btn" onclick="Game.onTransitionContinue()">继续 →</button>
+    </div>
+  </div>
+
+  <!-- V2 CSS层角色 -->
+  <div id="zhao-area-v2" class="hidden">
+    <div id="zhao-back-v2" class="zhao-layer"></div>
+    <div id="zhao-face-v2" class="zhao-layer"></div>
+  </div>
+  <div id="lin-area-v2" class="hidden">
+    <div id="lin-sprite-v2"></div>
+  </div>
+  <div id="player-area-v2" class="hidden">
+    <div id="player-normal-v2" class="player-layer"></div>
+    <div id="player-smile-v2" class="player-layer"></div>
+  </div>
+
+  <!-- 对话区 -->
+  <div id="dialogue-area">
+    <div id="dialogue-left-icons">
+      <button class="dialogue-left-btn" title="设置" onclick="Game.openSettings()"><img src="assets/zhao/shezhi.png" alt="设置"></button>
+      <button class="dialogue-left-btn" title="存档" onclick="Game.saveGame()"><img src="assets/zhao/cundang.png" alt="存档"></button>
+      <button class="dialogue-left-btn" title="读档" onclick="Game.loadGame()"><img src="assets/zhao/dudang.png" alt="读档"></button>
+      <button class="dialogue-left-btn" title="历史记录" onclick="Game.openHistory()"><img src="assets/zhao/lishijilu.png" alt="历史记录"></button>
+      <button class="dialogue-left-btn" title="笔记本" onclick="Game.openNotebook()"><img src="assets/zhao/jizhangben.png" alt="笔记本"></button>
+    </div>
+    <button id="skip-story-btn" title="跳过剧情，跳到下一个选项">跳过剧情 ⏭</button>
+    <div id="speaker-row" style="display:none;">
+      <div class="speaker-name narrator">旁白</div>
+    </div>
+    <div id="dialogue-text"></div>
+    <div id="continue-indicator">点击继续 ▾</div>
+  </div>
+
+  <!-- 选项容器 -->
+  <div id="choices-container"></div>
+</div>
+
+<!-- ====== 结尾 ====== -->
+<div id="ending-overlay">
+  <div class="end-title">勿忘我 · 赵奶奶篇 · 完</div>
+  <div class="end-body">她问"你记得我吗？"<br>她不是在问主角——她在问屏幕前的你。</div>
+  <div class="end-divider">——— ✦ ———</div>
+  <div class="end-hint">风很轻。种子在你手心里，像几粒深褐色的句号。</div>
+  <button class="btn-end-back" onclick="Game.hideEnding()">回到篇章选择</button>
+</div>
+
+<script>
+// ==============================
+//  勿忘我 · 探访三~五 游戏引擎
+// ==============================
+
+const Game = {
+  phase: 'init',
+  currentVisit: 3,
+  dialogueReady: false,
+  notebookFragments: [],
+  typingTimer: null,
+  el: {},
+  v3NoticePlaced: false,
+  v3NotebookPlaced: false,
+  v3CompareDone: false,
+  v4TimerSec: 8,
+  v4TimerId: null,
+  v4TimerExpired: false,
+  v4ChoiceMade: false,
+  v4ClueChosen: null,
+  v5InputSubmitted: false,
+  v5ChoiceMade: null,
+
+  init() {
+    this.cacheDom();
+    this.initSettings();
+    this.bindEvents();
+    this.resetScene();
+  },
+
+  startFromCover() {
+    document.getElementById('cover-overlay').classList.add('hidden');
+    document.getElementById('game-wrapper').style.visibility = 'visible';
+    // 清除旧历史记录（上次遗留数据）
+    this._dialogueHistory = [];
+    localStorage.removeItem('heikesong_history');
+    // 封面隐藏后再开始
+    setTimeout(() => this.startPhase('v3_intro'), 400);
+  },
+
+  cacheDom() {
+    const $ = id => document.getElementById(id);
+    this.el.scene = $('scene-layer');
+    this.el.dialogue = $('dialogue-text');
+    this.el.choices = $('choices-container');
+    this.el.hint = $('scene-hint');
+    this.el.continue = $('continue-indicator');
+    this.el.speakerRow = $('speaker-row');
+    this.el.fragBadge = $('frag-badge');
+    this.el.trustBar = $('trust-bar');
+    this.el.notebook = $('notebook-overlay');
+    this.el.nbFragments = $('notebook-fragments');
+    this.el.toastCt = $('toast-container');
+    this.el.transition = $('transition-overlay');
+    this.el.chapterLabel = $('chapter-label');
+    // V2 layers
+    this.el.zhaoAreaV2 = $('zhao-area-v2');
+    this.el.zhaoBackV2 = $('zhao-back-v2');
+    this.el.zhaoFaceV2 = $('zhao-face-v2');
+    this.el.linAreaV2 = $('lin-area-v2');
+    this.el.playerAreaV2 = $('player-area-v2');
+    this.el.playerNormalV2 = $('player-normal-v2');
+    this.el.playerSmileV2 = $('player-smile-v2');
+    // V3
+    this.el.v3Desk = $('v3-desk');
+    this.el.v3Notice = $('v3-notice');
+    this.el.v3Drawing = $('v3-drawing');
+    this.el.v3NotebookItem = $('v3-notebook-item');
+    this.el.v3FaceFlash = $('v3-face-flash');
+    this.el.v3CompareZone = $('v3-compare-zone');
+    this.el.v3SlotNotice = $('v3-slot-notice');
+    this.el.v3SlotNotebook = $('v3-slot-notebook');
+    this.el.v3NoticeDetail = $('v3-notice-detail');
+    this.el.v3Hint = $('v3-hint');
+    // V4
+    this.el.v4Scene = $('v4-scene');
+    this.el.v4Timer = $('v4-timer');
+    this.el.v4PhotoCompare = $('v4-photo-compare');
+    this.el.v4CompareChild = $('v4-compare-child');
+    this.el.v4CompareLin = $('v4-compare-lin');
+    this.el.v4CompareResult = $('v4-compare-result');
+    // V5
+    this.el.v5Scene = $('v5-scene');
+    this.el.v5SeedsHand = $('v5-seeds-hand');
+    this.el.v5InputOverlay = $('v5-input-overlay');
+    this.el.v5InputBox = $('v5-input-box');
+    this.el.v5FinalBg = $('v5-final-bg');
+    this.el.v5FinalLight = $('v5-final-light');
+    this.el.ghostFigure = $('ghost-figure');
+    // 面板
+    this.el.settingsOv = $('settings-overlay');
+    this.el.saveOv     = $('save-overlay');
+    this.el.loadOv     = $('load-overlay');
+    this.el.historyOv  = $('history-overlay');
+    this.el.saveSlots  = $('save-slots');
+    this.el.loadSlots  = $('load-slots');
+    this.el.historyList= $('history-list');
+    this.el.confirmOv  = $('confirm-overlay');
+    this.el.confirmMsg = $('confirm-msg');
+    this.el.confirmYes = $('confirm-yes');
+    this.el.confirmNo  = $('confirm-no');
+    // 对话历史缓存
+    this._dialogueHistory = JSON.parse(localStorage.getItem('heikesong_history') || '[]');
+  },
+
+  bindEvents() {
+    document.getElementById('dialogue-area').addEventListener('click', (e) => {
+      if (e.target.closest('#choices-container')) return;
+      if (e.target.closest('#skip-story-btn')) return;
+      if (e.target.closest('#dialogue-left-icons')) return;
+      this.advanceDialogue();
+    });
+    const skipBtn = document.getElementById('skip-story-btn');
+    if (skipBtn) {
+      skipBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.skipToNextChoice();
+      });
+    }
+    this.el.scene.addEventListener('click', (e) => {
+      if (e.target.closest('#choices-container')) return;
+      if (e.target.closest('#transition-overlay')) return;
+      if (e.target.closest('#v3-compare-zone')) return;
+      if (e.target.closest('#v4-scene') && this.phase === 'v4_clues') return;
+      this.advanceDialogue();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && this.typingTimer) {
+        e.preventDefault();
+        this.advanceDialogue();
+      }
+    });
+    // V5 回车提交
+    this.el.v5InputBox.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') this.onV5InputSubmit();
+    });
+  },
+
+  resetScene() {
+    this.el.zhaoAreaV2?.classList.add('hidden');
+    this.el.playerAreaV2?.classList.add('hidden');
+    this.el.linAreaV2?.classList.add('hidden');
+    this.el.continue.classList.remove('show');
+    this.el.choices.classList.remove('active');
+    this.el.choices.innerHTML = '';
+    this.el.dialogue.innerHTML = '';
+    this.el.hint.classList.remove('visible');
+    this.el.transition.classList.remove('active');
+    this.el.scene.style.backgroundImage = "url('assets/zhao/zhao_nai_nai_fang_jian_zhu_shi_jiao.png')";
+    this.notebookFragments = [];
+    this.v3NoticePlaced = false; this.v3NotebookPlaced = false; this.v3CompareDone = false;
+    this.v4TimerSec = 8; this.v4TimerId = null; this.v4TimerExpired = false; this.v4ChoiceMade = false; this.v4ClueChosen = null;
+    this.v5InputSubmitted = false; this.v5ChoiceMade = null;
+    this.currentVisit = 3;
+    this.updateTrustBar();
+    this.updateNotebookUI();
+  },
+
+  setSceneBackground(url, withTransition = false) {
+    this.el.scene.querySelectorAll('.scene-transition').forEach(o => o.remove());
+    if (!withTransition) { this.el.scene.style.backgroundImage = `url('${url}')`; return; }
+    const overlay = document.createElement('div');
+    overlay.className = 'scene-transition';
+    overlay.style.backgroundImage = `url('${url}')`;
+    this.el.scene.appendChild(overlay);
+    setTimeout(() => {
+      this.el.scene.style.backgroundImage = `url('${url}')`;
+      overlay.remove();
+    }, 1500);
+  },
+
+  // ========== 阶段管理 ==========
+  startPhase(name) {
+    this.phase = name;
+    this.dialogueReady = false;
+    this.el.continue.classList.remove('show');
+    this.el.choices.classList.remove('active');
+    this.el.hint.classList.remove('visible');
+    switch(name) {
+      case 'v3_intro': this.doV3Intro(); break;
+      case 'v3_desk': this.doV3Desk(); break;
+      case 'v3_compare': this.doV3Compare(); break;
+      case 'v3_drawing': this.doV3Drawing(); break;
+      case 'v3_choice': this.doV3Choice(); break;
+      case 'v3_ending': this.doV3Ending(); break;
+      case 'v4_intro': this.doV4Intro(); break;
+      case 'v4_sundown': this.doV4Sundown(); break;
+      case 'v4_choice': this.doV4Choice(); break;
+      case 'v4_clues': this.doV4Clues(); break;
+      case 'v4_ending': this.doV4Ending(); break;
+      case 'v5_intro': this.doV5Intro(); break;
+      case 'v5_truth': this.doV5Truth(); break;
+      case 'v5_final': this.doV5Final(); break;
+      case 'v5_call_lin': this.doV5CallLin(); break;
+      case 'v5_hug': this.doV5Hug(); break;
+      case 'v5_seeds': this.doV5Seeds(); break;
+      case 'v5_ending': this.doV5Ending(); break;
+    }
+  },
+
+  // ========== 对话核心 ==========
+  runDialogueQueue(queue, startIndex = 0, onQueueEnd = null) {
+    this._dq = queue;
+    this._dqIdx = startIndex;
+    this._onQueueEnd = onQueueEnd;
+    this._showNextInQueue();
+  },
+
+  _showNextInQueue() {
+    if (this._dqIdx >= this._dq.length) { this.dialogueReady = false; this.el.continue.classList.remove('show'); return; }
+    const entry = this._dq[this._dqIdx];
+    this._currentEntry = entry;
+    this.dialogueReady = false;
+    this.el.continue.classList.remove('show');
+    this.setSpeaker(entry.speaker);
+    if (entry.exp) {
+      if (entry.exp.zhao) this.setZhaoExpression(entry.exp.zhao);
+      if (entry.exp.player) this.setPlayerExpression(entry.exp.player);
+    }
+    if (entry.bg) this.setSceneBackground(entry.bg, !!entry.bgTrans);
+    if (entry.startCb) entry.startCb();
+    this.typeText(entry.text, entry.speed || 50, () => {
+      this.dialogueReady = true;
+      this.el.continue.textContent = '点击继续 ▾';
+      this.el.continue.classList.add('show');
+      if (entry.cb) entry.cb();
+    });
+  },
+
+  advanceDialogue() {
+    if (this.typingTimer) {
+      clearInterval(this.typingTimer);
+      this.typingTimer = null;
+      this.el.dialogue.innerHTML = this._fullText + '<span class="typing-cursor"></span>';
+      this.dialogueReady = true;
+      this.el.continue.textContent = '点击继续 ▾';
+      this.el.continue.classList.add('show');
+      if (this._currentEntry && this._currentEntry.cb) this._currentEntry.cb();
+      return;
+    }
+    if (!this.dialogueReady) return;
+
+    // 玩家已看完当前句，准备进入下一句时才记录
+    this._recordHistory();
+
+    this._dqIdx++;
+    if (this._dqIdx >= this._dq.length) {
+      if (this._onQueueEnd) { const cb = this._onQueueEnd; this._onQueueEnd = null; cb(); }
+      return;
+    }
+    this._showNextInQueue();
+  },
+
+  // 记录到历史面板（避免重复写入同一句）
+  _recordHistory() {
+    if (!this._currentEntry) return;
+    const last = this._dialogueHistory[this._dialogueHistory.length - 1];
+    if (last && last.text === this._currentEntry.text && last.speaker === this._currentEntry.speaker) return;
+    const speakerNames = { narrator:'旁白', zhao:'赵奶奶', player:'你', lin:'林姐' };
+    this._dialogueHistory.push({
+      speaker: this._currentEntry.speaker,
+      speakerLabel: speakerNames[this._currentEntry.speaker] || this._currentEntry.speaker,
+      text: this._currentEntry.text,
+      time: Date.now()
+    });
+    if (this._dialogueHistory.length > 800) this._dialogueHistory = this._dialogueHistory.slice(-500);
+    localStorage.setItem('heikesong_history', JSON.stringify(this._dialogueHistory.slice(-300)));
+  },
+
+  // 跳过剧情：跳到当前对话队列中下一个带 cb（选项分支）的条目
+  skipToNextChoice() {
+    if (!this._dq || !this._dq.length) return;
+    if (this.typingTimer) {
+      clearInterval(this.typingTimer);
+      this.typingTimer = null;
+    }
+    let targetIdx = -1;
+    for (let i = this._dqIdx + 1; i < this._dq.length; i++) {
+      if (this._dq[i].cb) { targetIdx = i; break; }
+    }
+    if (targetIdx === -1) {
+      // 记录跳过的所有对话然后结束
+      this._recordSkipRange(this._dqIdx, this._dq.length - 1);
+      this._dqIdx = this._dq.length;
+      this.el.continue.classList.remove('show');
+      if (this._onQueueEnd) { const cb = this._onQueueEnd; this._onQueueEnd = null; cb(); }
+      return;
+    }
+    // 补录跳过的对话
+    this._recordSkipRange(this._dqIdx, targetIdx - 1);
+    this._dqIdx = targetIdx;
+    this._showNextInQueue();
+    requestAnimationFrame(() => {
+      if (this.typingTimer) {
+        clearInterval(this.typingTimer);
+        this.typingTimer = null;
+      }
+      this.el.dialogue.innerHTML = this._fullText + '<span class="typing-cursor"></span>';
+      this.dialogueReady = true;
+      this.el.continue.textContent = '点击继续 ▾';
+      this.el.continue.classList.add('show');
+      if (this._currentEntry && this._currentEntry.cb) this._currentEntry.cb();
+    });
+  },
+
+  // 批量补录跳过范围内的对话到历史
+  _recordSkipRange(fromIdx, toIdx) {
+    const speakerNames = { narrator:'旁白', zhao:'赵奶奶', player:'你', lin:'林姐' };
+    for (let i = fromIdx; i <= Math.min(toIdx, this._dq.length - 1); i++) {
+      const entry = this._dq[i];
+      const last = this._dialogueHistory[this._dialogueHistory.length - 1];
+      if (last && last.text === entry.text && last.speaker === entry.speaker) continue;
+      this._dialogueHistory.push({
+        speaker: entry.speaker,
+        speakerLabel: speakerNames[entry.speaker] || entry.speaker,
+        text: entry.text,
+        time: Date.now()
+      });
+    }
+    if (this._dialogueHistory.length > 800) this._dialogueHistory = this._dialogueHistory.slice(-500);
+    localStorage.setItem('heikesong_history', JSON.stringify(this._dialogueHistory.slice(-300)));
+  },
+
+  setSpeaker(type) {
+    const row = this.el.speakerRow;
+    const name = row.querySelector('.speaker-name');
+    if (type === 'narrator') {
+      row.style.display = 'none';
+      this.el.zhaoAreaV2?.classList.add('hidden');
+      this.el.playerAreaV2?.classList.add('hidden');
+      this.el.linAreaV2?.classList.add('hidden');
+    } else {
+      row.style.display = '';
+      name.className = 'speaker-name ' + type;
+      switch(type) {
+        case 'zhao':
+          name.textContent = '赵奶奶';
+          this.el.zhaoAreaV2?.classList.remove('hidden');
+          this.el.playerAreaV2?.classList.add('hidden');
+          this.el.linAreaV2?.classList.add('hidden');
+          break;
+        case 'player':
+          name.textContent = '你';
+          this.el.playerAreaV2?.classList.remove('hidden');
+          this.el.zhaoAreaV2?.classList.add('hidden');
+          this.el.linAreaV2?.classList.add('hidden');
+          break;
+        case 'lin':
+          name.textContent = '林姐';
+          this.el.linAreaV2?.classList.remove('hidden');
+          this.el.zhaoAreaV2?.classList.add('hidden');
+          this.el.playerAreaV2?.classList.add('hidden');
+          break;
+      }
+    }
+  },
+
+  typeText(text, speed, done) {
+    if (this.typingTimer) clearInterval(this.typingTimer);
+    // 应用文字速度设置
+    const spdMult = { slow: 1.6, normal: 1.0, fast: 0.55 }[this._textSpeed || 'normal'] || 1.0;
+    this._fullText = text;
+    this.el.dialogue.innerHTML = '';
+    this.el.continue.textContent = '点击跳过 ▾';
+    this.el.continue.classList.add('show');
+    let i = 0;
+    const adjSpeed = Math.max(8, Math.round(speed * spdMult));
+    this.typingTimer = setInterval(() => {
+      if (i < text.length) {
+        this.el.dialogue.innerHTML = text.slice(0, i + 1) + '<span class="typing-cursor"></span>';
+        i++;
+      } else {
+        clearInterval(this.typingTimer);
+        this.typingTimer = null;
+        this.el.dialogue.innerHTML = text + '<span class="typing-cursor"></span>';
+        // 自动播放
+        if (this._autoPlay && this._dq && this._dqIdx < this._dq.length) {
+          setTimeout(() => this.advanceDialogue(), 1200);
+        }
+        if (done) done();
+      }
+    }, adjSpeed);
+  },
+
+  setZhaoExpression(exp) {
+    const area = this.el.zhaoAreaV2; if (!area) return;
+    if (this.el.zhaoFaceV2) this.el.zhaoFaceV2.classList.remove('sad');
+    if (exp === 'back') {
+      area.classList.remove('facing-player');
+      if (this.el.zhaoBackV2) this.el.zhaoBackV2.style.display = '';
+      if (this.el.zhaoFaceV2) this.el.zhaoFaceV2.style.display = '';
+    } else if (exp === 'normal') {
+      area.classList.add('facing-player');
+      if (this.el.zhaoBackV2) this.el.zhaoBackV2.style.display = '';
+      if (this.el.zhaoFaceV2) this.el.zhaoFaceV2.style.display = '';
+    } else if (exp === 'sad') {
+      area.classList.add('facing-player');
+      if (this.el.zhaoFaceV2) this.el.zhaoFaceV2.classList.add('sad');
+      if (this.el.zhaoBackV2) this.el.zhaoBackV2.style.display = '';
+      if (this.el.zhaoFaceV2) this.el.zhaoFaceV2.style.display = '';
+    }
+  },
+
+  setPlayerExpression(exp) {
+    const area = this.el.playerAreaV2; if (!area) return;
+    if (this.el.playerNormalV2) this.el.playerNormalV2.style.display = '';
+    if (this.el.playerSmileV2) this.el.playerSmileV2.style.display = '';
+    if (exp === 'smile') area.classList.add('smile');
+    else area.classList.remove('smile');
+  },
+
+  showChoices(choices, onSelect) {
+    const ct = this.el.choices; ct.innerHTML = '';
+    choices.forEach(ch => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.innerHTML = `<span class="choice-label">${ch.label}</span>${ch.text}`;
+      btn.addEventListener('click', () => { ct.classList.remove('active'); ct.innerHTML = ''; if (onSelect) onSelect(ch.label); });
+      ct.appendChild(btn);
+    });
+    requestAnimationFrame(() => requestAnimationFrame(() => ct.classList.add('active')));
+  },
+
+  // ========== 笔记本 ==========
+  openNotebook() { this.el.notebook.classList.add('open'); },
+  closeNotebook() { this.el.notebook.classList.remove('open'); },
+
+  // ========== 面板系统 ==========
+  showPanel(name) {
+    const map = { settings:'settingsOv', save:'saveOv', load:'loadOv', history:'historyOv' };
+    const key = map[name];
+    if (!key) return;
+    if (name === 'save') this.renderSlots('save');
+    if (name === 'load') this.renderSlots('load');
+    if (name === 'history') this.renderHistory();
+    if (name === 'settings') this.loadSettings();
+    this.el[key].classList.add('open');
+  },
+  closePanel(name) {
+    const map = { settings:'settingsOv', save:'saveOv', load:'loadOv', history:'historyOv' };
+    const key = map[name];
+    if (!key) return;
+    this.el[key].classList.remove('open');
+  },
+  closeAllPanels() {
+    ['settingsOv','saveOv','loadOv','historyOv'].forEach(k => this.el[k].classList.remove('open'));
+  },
+
+  // ========== 设置 ==========
+  initSettings() {
+    const s = JSON.parse(localStorage.getItem('heikesong_settings') || '{}');
+    this._textSpeed = s.textSpeed || 'normal';
+    this._autoPlay = s.autoPlay || false;
+    this._bgmVol = s.bgmVol !== undefined ? s.bgmVol : 70;
+    this._sfxVol = s.sfxVol !== undefined ? s.sfxVol : 80;
+    this._muted = s.muted || false;
+  },
+  loadSettings() {
+    const bgm = document.getElementById('set-bgm');
+    const sfx = document.getElementById('set-sfx');
+    const mute = document.getElementById('set-mute');
+    const ap = document.getElementById('set-autoplay');
+    if (bgm) { bgm.value = this._bgmVol; document.getElementById('set-bgm-val').textContent = this._bgmVol; }
+    if (sfx) { sfx.value = this._sfxVol; document.getElementById('set-sfx-val').textContent = this._sfxVol; }
+    if (mute) mute.checked = this._muted;
+    if (ap) ap.checked = this._autoPlay;
+    document.querySelectorAll('#text-speed-group .speed-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.speed === this._textSpeed);
+    });
+  },
+  onSettingChange() {
+    const bgm = document.getElementById('set-bgm');
+    const sfx = document.getElementById('set-sfx');
+    const mute = document.getElementById('set-mute');
+    const ap = document.getElementById('set-autoplay');
+    if (bgm) { this._bgmVol = parseInt(bgm.value); document.getElementById('set-bgm-val').textContent = this._bgmVol; }
+    if (sfx) { this._sfxVol = parseInt(sfx.value); document.getElementById('set-sfx-val').textContent = this._sfxVol; }
+    if (mute) this._muted = mute.checked;
+    if (ap) this._autoPlay = ap.checked;
+    this.saveSettings();
+    this.applyVolume();
+  },
+  setSpeed(s) {
+    this._textSpeed = s;
+    document.querySelectorAll('#text-speed-group .speed-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.speed === s);
+    });
+    this.saveSettings();
+  },
+  saveSettings() {
+    localStorage.setItem('heikesong_settings', JSON.stringify({
+      textSpeed: this._textSpeed, autoPlay: this._autoPlay,
+      bgmVol: this._bgmVol, sfxVol: this._sfxVol, muted: this._muted,
+    }));
+  },
+  applyVolume() {
+    const bgm = document.getElementById('bgm');
+    if (!bgm) return;
+    bgm.volume = this._muted ? 0 : (this._bgmVol / 100);
+  },
+  openSettings() { this.showPanel('settings'); },
+  returnToMenu() {
+    this.closeAllPanels();
+    if (confirm('确定返回主菜单吗？当前进度将丢弃。')) {
+      location.reload();
+    }
+  },
+
+  // ========== 历史记录 ==========
+  openHistory() { this.showPanel('history'); },
+  renderHistory() {
+    const list = this.el.historyList;
+    if (!this._dialogueHistory.length) {
+      list.innerHTML = '<div class="history-placeholder">📜 还没有对话记录</div>';
+      return;
+    }
+    const recent = this._dialogueHistory.slice(-200);
+    list.innerHTML = recent.map(h => `<div class="history-item"><div class="h-speaker ${h.speaker}">${h.speakerLabel}</div><div class="h-text">${h.text}</div></div>`).join('');
+    list.scrollTop = list.scrollHeight;
+  },
+
+  // ========== 存档 ==========
+  saveGame() { this.showPanel('save'); },
+  loadGame() { this.showPanel('load'); },
+
+  _getSnapshot() {
+    return {
+      phase: this.phase,
+      fragments: this.notebookFragments,
+      currentVisit: this.currentVisit,
+      timestamp: Date.now(),
+    };
+  },
+
+  renderSlots(type) {
+    const ct = type === 'save' ? this.el.saveSlots : this.el.loadSlots;
+    let html = '';
+    for (let i = 0; i < 10; i++) {
+      const key = `heikesong_slot_${i}`;
+      const raw = localStorage.getItem(key);
+      const data = raw ? JSON.parse(raw) : null;
+      if (data) {
+        const time = new Date(data.timestamp).toLocaleString('zh-CN');
+        html += `<div class="save-slot" data-slot="${i}" onclick="Game.${type === 'save' ? 'onSaveSlotClick' : 'onLoadSlotClick'}(${i})"><div class="save-slot-num">${i + 1}</div><div class="save-slot-info"><div class="slot-time">${time}</div><div class="slot-chapter">${data.phase || '探访一'}</div></div></div>`;
+      } else {
+        html += `<div class="save-slot empty" data-slot="${i}" ${type === 'save' ? `onclick="Game.onSaveSlotClick(${i})"` : ''}><div class="save-slot-num">${i + 1}</div><div class="save-slot-info"><div class="slot-empty-text">空槽位</div></div></div>`;
+      }
+    }
+    ct.innerHTML = html;
+  },
+
+  onSaveSlotClick(slot) {
+    const key = `heikesong_slot_${slot}`;
+    const existing = localStorage.getItem(key);
+    const self = this;
+    if (existing) {
+      this.confirmDialog('此槽位已有存档，是否覆盖？', () => {
+        self._doSaveSlot(key);
+        self.closeAllPanels();
+        const toast = document.createElement('div');
+        toast.className = 'fragment-toast';
+        toast.textContent = '💾 存档 ' + (slot + 1) + ' 已覆盖';
+        document.getElementById('toast-container').appendChild(toast);
+        setTimeout(() => toast.remove(), 3200);
+      });
+    } else {
+      this._doSaveSlot(key);
+      this.closeAllPanels();
+      const toast = document.createElement('div');
+      toast.className = 'fragment-toast';
+      toast.textContent = '💾 已存档至槽位 ' + (slot + 1);
+      document.getElementById('toast-container').appendChild(toast);
+      setTimeout(() => toast.remove(), 3200);
+    }
+  },
+
+  _doSaveSlot(key) {
+    localStorage.setItem(key, JSON.stringify(this._getSnapshot()));
+  },
+
+  clearAllSaves() {
+    this.confirmDialog('确定清空所有存档吗？此操作不可恢复。', () => {
+      for (let i = 0; i < 10; i++) {
+        localStorage.removeItem(`heikesong_slot_${i}`);
+      }
+      this.renderSlots('save');
+      this.renderSlots('load');
+      const toast = document.createElement('div');
+      toast.className = 'fragment-toast';
+      toast.textContent = '🗑️ 已清空所有存档';
+      document.getElementById('toast-container').appendChild(toast);
+      setTimeout(() => toast.remove(), 3200);
+    });
+  },
+
+  onLoadSlotClick(slot) {
+    const key = `heikesong_slot_${slot}`;
+    const raw = localStorage.getItem(key);
+    if (!raw) return;
+    const self = this;
+    const data = JSON.parse(raw);
+    const time = new Date(data.timestamp).toLocaleString('zh-CN');
+    this.confirmDialog(`确定读取此存档？<br><small style="color:#7F8C8D">${time} · ${data.phase||'探访一'}</small>`, () => {
+      self.notebookFragments = data.fragments || [];
+      self.currentVisit = data.currentVisit || 1;
+      self.closeAllPanels();
+      self.resetScene();
+      self.updateNotebookUI();
+      const toast = document.createElement('div');
+      toast.className = 'fragment-toast';
+      toast.textContent = '📂 读档成功';
+      document.getElementById('toast-container').appendChild(toast);
+      setTimeout(() => toast.remove(), 3200);
+      if (data.phase) {
+        setTimeout(() => self.startPhase(data.phase), 400);
+      } else {
+        setTimeout(() => self.startPhase('v3_intro'), 400);
+      }
+    });
+  },
+
+  // ========== 确认弹窗 ==========
+  confirmDialog(msg, onYes) {
+    this.el.confirmMsg.innerHTML = msg;
+    this.el.confirmOv.classList.add('open');
+    const cleanup = () => { this.el.confirmOv.classList.remove('open'); };
+    const yes = () => { cleanup(); onYes(); };
+    const no = () => { cleanup(); };
+    this.el.confirmYes.onclick = yes;
+    this.el.confirmNo.onclick = no;
+    this.el.confirmOv.onclick = function(e) { if (e.target === this) { cleanup(); } };
+  },
+
+  addFragmentLabel(visit, label, verdict) {
+    const idx = visit - 3;
+    this.notebookFragments[idx] = { label, verdict, visit };
+    this.updateTrustBar();
+    this.updateNotebookUI();
+    const msg = `📓 碎片 ${idx + 3}/5 已记录`;
+    const toast = document.createElement('div');
+    toast.className = 'fragment-toast';
+    toast.textContent = msg;
+    this.el.toastCt.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  },
+
+  updateNotebookUI() {
+    const ct = this.el.nbFragments;
+    let html = '';
+    for (let i = 0; i < 3; i++) {
+      const f = this.notebookFragments[i];
+      if (f) {
+        html += `<div class="fragment-card"><div class="frag-label">📓 碎片 ${i+3}/5 · 探访${['三','四','五'][i]}</div>${f.label}<br><span class="frag-verdict">${f.verdict}</span></div>`;
+      } else {
+        html += `<div class="fragment-card empty">碎片 ${i+3}/5 尚未解锁……</div>`;
+      }
+    }
+    ct.innerHTML = html;
+    const badge = this.el.fragBadge;
+    const count = this.notebookFragments.filter(Boolean).length;
+    if (count > 0) { badge.style.display = 'flex'; badge.textContent = count + 2; }
+    else { badge.style.display = 'none'; }
+  },
+
+  updateTrustBar() {
+    const petals = this.el.trustBar.querySelectorAll('.petal');
+    const count = this.notebookFragments.filter(Boolean).length + 2;
+    petals.forEach((p, i) => { if (i < count) p.classList.add('collected'); else p.classList.remove('collected'); });
+  },
+
+  // ========== 转场 ==========
+  showTransition(text, sub, onContinue) {
+    const t = this.el.transition;
+    t.querySelector('.trans-text').textContent = text;
+    t.querySelector('.trans-sub').textContent = sub || '';
+    t.classList.add('active');
+    this._onTransContinue = onContinue;
+  },
+  onTransitionContinue() {
+    this.el.transition.classList.remove('active');
+    if (this._onTransContinue) { const cb = this._onTransContinue; this._onTransContinue = null; cb(); }
+  },
+  showEnding() { document.getElementById('ending-overlay').classList.add('active'); },
+  hideEnding() { window.location.href = 'hall.html'; },
+
+  // ===================================================================
+  //  探访三 · 自我美化的记忆
+  // ===================================================================
+  doV3Intro() {
+    this.currentVisit = 3;
+    this.el.chapterLabel.textContent = '赵奶奶 · 探访三 · 自我美化的记忆';
+    this.setSceneBackground('assets/zhao/shang_wu_fang_jian.png', true);
+    this.el.scene.style.backgroundImage = this.el.scene.style.backgroundImage; // force
+    this.runDialogueQueue([
+      { speaker:'narrator', text:'你下午再来时，赵奶奶正坐在桌前。桌上摊着两样东西——左边是一张泛黄的进修通知书，右边是一幅蜡笔画。', speed:45, exp:{zhao:'back'} },
+      { speaker:'zhao', text:'那时候……我选了带孩子。', speed:50, exp:{zhao:'normal'} },
+      { speaker:'player', text:'您以前想过去北京？', speed:45 },
+      { speaker:'zhao', text:'他们让我去。学两年。回来能升职称。……孩子那时候刚上小学。', speed:40 },
+    ], 0, () => this.startPhase('v3_desk'));
+  },
+
+  doV3Desk() {
+    this.el.v3Desk.classList.add('active');
+    this.el.v3NotebookItem.classList.add('visible');
+    // 提示并排放置
+    this.el.v3Hint.textContent = '📋 把【进修通知书】和【旧实验记录本】并排放置';
+    this.el.v3Hint.classList.add('visible');
+    this.el.v3CompareZone.classList.add('active');
+    // 让桌面物品可拖拽
+    this.makeV3Draggable('v3-notice', 'notice');
+    this.makeV3Draggable('v3-notebook-item', 'notebook');
+  },
+
+  makeV3Draggable(elId, type) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    el.draggable = true;
+    el.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('text/plain', type);
+    });
+  },
+
+  onV3Drop(e, type) {
+    e.preventDefault();
+    const slotId = type === 'notice' ? 'v3-slot-notice' : 'v3-slot-notebook';
+    const slot = document.getElementById(slotId);
+    if (slot.classList.contains('filled')) return;
+    slot.classList.add('filled');
+    slot.textContent = type === 'notice' ? '📜 进修通知书' : '📒 实验记录本';
+    if (type === 'notice') this.v3NoticePlaced = true;
+    if (type === 'notebook') this.v3NotebookPlaced = true;
+    const el = document.getElementById(type === 'notice' ? 'v3-notice' : 'v3-notebook-item');
+    if (el) el.classList.add('placed');
+    if (this.v3NoticePlaced && this.v3NotebookPlaced) {
+      setTimeout(() => this.startPhase('v3_compare'), 600);
+    }
+  },
+
+  onV3NoticeClick() {
+    this.el.v3NoticeDetail.classList.add('show');
+  },
+  closeV3Notice() {
+    this.el.v3NoticeDetail.classList.remove('show');
+  },
+
+  onV3NotebookClick() {
+    // 直接拖到对比区
+    if (!this.v3NotebookPlaced) {
+      this.onV3Drop({preventDefault:()=>{}}, 'notebook');
+    }
+  },
+
+  doV3Compare() {
+    this.el.v3Hint.classList.remove('visible');
+    this.el.v3CompareZone.classList.remove('active');
+    this.runDialogueQueue([
+      { speaker:'narrator', text:'通知书日期是"1989年7月"。你翻开实验记录本，同一日期的页面写着——', speed:45,
+        startCb:() => { this.setSceneBackground('assets/zhao/shou_hui_ban_zhao_nai_nai_yan_zhong_de_fang_jian.png', true); } },
+      { speaker:'narrator', text:'"7月14日，授粉关键期。连续守夜第12天。北京来信了，没拆。拆了也没用。走不开。"', speed:40 },
+      { speaker:'narrator', text:'翻到下一页——夹着一张字条。她自己的笔迹：「不是选孩子。是选不了。两样都没捞着。」', speed:42,
+        startCb:() => {
+          // 残影动画
+          this.el.ghostFigure.classList.add('active');
+          setTimeout(() => this.el.ghostFigure.classList.remove('active'), 2800);
+        }
+      },
+      { speaker:'player', text:'您看到这个了吗？', speed:50, exp:{zhao:'normal'} },
+      { speaker:'zhao', text:'……什么？', speed:60, exp:{zhao:'normal'} },
+      { speaker:'narrator', text:'她没有回头。可能不想看。也可能早就看过，只是选择不记得。', speed:45, exp:{zhao:'back'} },
+    ], 0, () => this.startPhase('v3_drawing'));
+  },
+
+  doV3Drawing() {
+    this.el.v3Desk.classList.add('active');
+    this.runDialogueQueue([
+      { speaker:'narrator', text:'蜡笔画上是一个小女孩和一个大人——大人身体完整，但脸是一片空白。🎨 [placeholder: 蜡笔画素材]', speed:42,
+        startCb:() => {
+          document.getElementById('v3-drawing').style.animation = 'v3-pulse-draw 1.5s ease-in-out infinite';
+          const style = document.createElement('style');
+          style.textContent = '@keyframes v3-pulse-draw { 0%,100% { filter:drop-shadow(0 0 0 rgba(126,168,200,0)); } 50% { filter:drop-shadow(0 0 12px rgba(126,168,200,0.5)); } }';
+          document.head.appendChild(style);
+        }
+      },
+      { speaker:'zhao', text:'……不知道。看不清楚。……可能是孩子她爸。也可能是我。', speed:42, exp:{zhao:'normal'} },
+      { speaker:'player', text:'您怎么看不清？', speed:50 },
+      { speaker:'zhao', text:'没画完吧。那时候老不在家。在苗圃。孩子画我的时候，可能不记得我长什么样了。', speed:38 },
+    ], 0, () => {
+      // 触摸画中空白人脸 → 浮现
+      const drawEl = document.getElementById('v3-drawing');
+      drawEl.style.cursor = 'pointer';
+      drawEl.title = '点击画中空白的人脸';
+      this.el.v3Hint.textContent = '👉 点击蜡笔画中大人空白的人脸';
+      this.el.v3Hint.classList.add('visible');
+      const handler = (ev) => {
+        ev.stopPropagation();
+        this.el.v3Hint.classList.remove('visible');
+        this.el.v3FaceFlash.classList.add('reveal');
+        drawEl.removeEventListener('click', handler);
+        drawEl.style.cursor = '';
+        drawEl.title = '';
+        setTimeout(() => {
+          this.el.v3FaceFlash.classList.remove('reveal');
+          this.runDialogueQueue([
+            { speaker:'narrator', text:'人脸短暂浮现——那是赵奶奶三十多岁的样子。然后迅速消失。但她没有看到。', speed:42, exp:{zhao:'normal'} },
+          ], 0, () => this.startPhase('v3_choice'));
+        }, 2600);
+      };
+      drawEl.addEventListener('click', handler);
+    });
+  },
+
+  doV3Choice() {
+    this.el.v3Desk.classList.add('active');
+    this.runDialogueQueue([
+      { speaker:'narrator', text:'她的目光在进修通知书和孩子的画之间游移。最终，停在了画上。', speed:42 },
+      { speaker:'zhao', text:'……以前总觉得来得及。下次再陪。下次再去。下次……', speed:40, exp:{zhao:'sad'} },
+      { speaker:'narrator', text:'她把画折起来，放回抽屉。', speed:50, startCb:() => { if(this.el.v3Drawing) this.el.v3Drawing.style.opacity = '0'; } },
+      { speaker:'zhao', text:'……没有下次了。', speed:60, exp:{zhao:'sad'} },
+    ], 0, () => this.startPhase('v3_ending'));
+  },
+
+  doV3Ending() {
+    this.el.v3Desk.classList.remove('active');
+    this.setSceneBackground('assets/zhao/huang_hun_shi_qi_fang_jian.png', true);
+    this.runDialogueQueue([
+      { speaker:'narrator', text:'窗外，林姐抱着床单经过。窗玻璃倒影中短暂映出她的脸。', speed:45 },
+      { speaker:'zhao', text:'这些事……我都记不清了。但身体记得。每次走到那个苗圃的位置，腿就自己停下来。', speed:40, exp:{zhao:'back'} },
+    ], 0, () => {
+      this.addFragmentLabel(3,
+        '她说"我选了家庭"，但通知书和记录本日期重叠——她当时根本没得选。她给自己编了一个"主动选择"的故事，不然太痛了。孩子的画里大人的脸是空白。她连自己长什么样都没留给孩子。',
+        '虚实判定：半真半假。证据：通知书日期与授粉期重叠 + 夹层字条"两样都没捞着"。');
+      this.showTransition(
+        '✅ 你发现了第三个矛盾：她说"选了孩子"，实际是授粉期走不开——两样都没捞着。她给自己编了一个"主动选择"的故事。',
+        '📓 虚实对账本已记录碎片 3/5',
+        () => this.startPhase('v4_intro')
+      );
+    });
+  },
+
+  // ===================================================================
+  //  探访四 · 日落综合征
+  // ===================================================================
+  doV4Intro() {
+    this.currentVisit = 4;
+    this.el.chapterLabel.textContent = '赵奶奶 · 探访四 · 日落综合征';
+    this.setSceneBackground('assets/zhao/huang_hun_shi_qi_fang_jian.png', true);
+    this.el.v4Scene.classList.add('active');
+    this.el.scene.style.backgroundImage = "url('assets/zhao/huang_hun_shi_qi_fang_jian.png')";
+    this.runDialogueQueue([
+      { speaker:'narrator', text:'你黄昏时分推开门。光线从金黄变成橙红再变成灰蓝。赵奶奶站在窗台前，手指反复捻着枯花茎秆，视线频繁瞟向门口。', speed:40, exp:{zhao:'back'} },
+      { speaker:'zhao', text:'天黑了……我得回去……苗圃还没关门……', speed:42, exp:{zhao:'sad'} },
+      { speaker:'zhao', text:'今天星期几？明天是不是要开会？……不对，我退休了。不用开会了。那我要回家。我得回去。', speed:38, exp:{zhao:'sad'} },
+    ], 0, () => this.startPhase('v4_sundown'));
+  },
+
+  doV4Sundown() {
+    this.runDialogueQueue([
+      { speaker:'zhao', text:'我要回家……要回去……花还没浇……', speed:45, exp:{zhao:'sad'} },
+      { speaker:'narrator', text:'她的大脑在"回家"和"守夜"两个指令之间撕裂。两个声音都是她自己的。', speed:42 },
+      { speaker:'narrator', text:'林姐从门口走了进来。', speed:50,
+        startCb:() => { this.setSpeaker('lin'); this.el.linAreaV2?.classList.remove('hidden'); this.el.zhaoAreaV2?.classList.add('hidden'); }
+      },
+    ], 0, () => {
+      // 显示赵奶奶 + 林姐
+      this.el.linAreaV2?.classList.remove('hidden');
+      this.el.zhaoAreaV2?.classList.remove('hidden');
+      this.setSpeaker('zhao');
+      this.el.zhaoAreaV2?.classList.add('facing-player');
+      this.runDialogueQueue([
+        { speaker:'zhao', text:'你是谁？', speed:55, exp:{zhao:'sad'} },
+      ], 0, () => this.startPhase('v4_choice'));
+    });
+  },
+
+  doV4Choice() {
+    // 限时8秒倒计时
+    this.v4TimerSec = 8;
+    this.el.v4Timer.textContent = '⏱ 0:08';
+    this.el.v4Timer.classList.add('active');
+    this._v4TimeUp = false;
+    if (this.v4TimerId) clearInterval(this.v4TimerId);
+    this.v4TimerId = setInterval(() => {
+      this.v4TimerSec--;
+      this.el.v4Timer.textContent = `⏱ 0:0${this.v4TimerSec}`;
+      if (this.v4TimerSec <= 3) this.el.v4Timer.classList.add('urgent');
+      if (this.v4TimerSec <= 0) {
+        clearInterval(this.v4TimerId);
+        this.v4TimerId = null;
+        this.el.v4Timer.classList.remove('active', 'urgent');
+        this._v4TimeUp = true;
+        if (!this.v4ChoiceMade) this.onV4TimeUp();
+      }
+    }, 1000);
+
+    this.showChoices([
+      { label:'A', text:'"妈，是我。"' },
+      { label:'B', text:'"赵阿姨，喝点水。"' },
+      { label:'C', text:'不说话，披外套，后退半步' },
+    ], (choice) => {
+      this.v4ChoiceMade = true;
+      if (this.v4TimerId) { clearInterval(this.v4TimerId); this.v4TimerId = null; }
+      this.el.v4Timer.classList.remove('active', 'urgent');
+      this.onV4ChoiceResult(choice);
+    });
+  },
+
+  onV4TimeUp() {
+    this.el.choices.classList.remove('active');
+    this.el.choices.innerHTML = '';
+    this.runDialogueQueue([
+      { speaker:'narrator', text:'时间到了。赵奶奶越来越焦躁——必须立刻做点什么。', speed:50 },
+    ], 0, () => this.onV4ChoiceResult('B')); // 默认B
+  },
+
+  onV4ChoiceResult(choice) {
+    const el = this.el;
+    if (choice === 'A') {
+      this.runDialogueQueue([
+        { speaker:'player', text:'妈，是我。', speed:45 },
+        { speaker:'narrator', text:'❌ 赵奶奶剧烈后退，碰倒了旁边的花盆。她的大脑处理不了"妈"这个词。', speed:40,
+          startCb:() => { el.zhaoAreaV2?.classList.add('hidden'); el.scene.style.backgroundImage = "url('assets/zhao/huang_hun_shi_qi_fang_jian.png')"; } },
+        { speaker:'zhao', text:'你……你不是！走开！', speed:55, exp:{zhao:'sad'},
+          startCb:() => { el.zhaoAreaV2?.classList.remove('hidden'); el.zhaoAreaV2?.classList.add('facing-player'); } },
+      ], 0, () => this.startPhase('v4_clues'));
+    } else if (choice === 'B') {
+      this.runDialogueQueue([
+        { speaker:'player', text:'赵阿姨，喝点水。', speed:45 },
+        { speaker:'narrator', text:'她接过水杯，但手仍然在发抖。焦虑没有完全平息。', speed:45, exp:{zhao:'normal'} },
+      ], 0, () => this.startPhase('v4_clues'));
+    } else {
+      this.runDialogueQueue([
+        { speaker:'narrator', text:'你没有说话。拿起椅背上的灰开衫，轻轻披在她肩上，然后后退了半步。', speed:42 },
+        { speaker:'narrator', text:'✅ 她的身体先于认知做出反应——手指本能地攥住了外套领子。"她的身体记忆还在。"', speed:40, exp:{zhao:'normal'},
+          startCb:() => { if(el.zhaoFaceV2) el.zhaoFaceV2.classList.remove('sad'); } },
+      ], 0, () => this.startPhase('v4_clues'));
+    }
+  },
+
+  doV4Clues() {
+    this.el.hint.classList.remove('visible');
+    // 显示三个线索
+    const clues = ['v4-clue-photo', 'v4-clue-drawer', 'v4-clue-apron'];
+    clues.forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('visible'); });
+    this.runDialogueQueue([
+      { speaker:'narrator', text:'在林姐安抚赵奶奶的时候，你可以翻找周围的一个线索。桌面、抽屉、围裙……哪里可能藏着真相？', speed:42 },
+      { speaker:'narrator', text:'选择一个线索来查看吧。🔍 [点击场景中的物品]', speed:45 },
+    ], 0, () => {
+      // 等待玩家点击线索
+      this.phase = 'v4_clues';
+      this.el.hint.textContent = '🔍 点击场景中的 [🖼️相框] [🗄️抽屉] [👘围裙] 查看线索';
+      this.el.hint.classList.add('visible');
+    });
+  },
+
+  onV4ClueClick(type) {
+    if (this.phase !== 'v4_clues') return;
+    this.el.hint.classList.remove('visible');
+    this.v4ClueChosen = type;
+    // 隐藏所有线索
+    ['v4-clue-photo','v4-clue-drawer','v4-clue-apron'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.classList.remove('visible');
+    });
+
+    if (type === 'photo') this.doV4Photo();
+    else if (type === 'drawer') this.doV4Drawer();
+    else if (type === 'apron') this.doV4Apron();
+  },
+
+  doV4Photo() {
+    this.runDialogueQueue([
+      { speaker:'narrator', text:'你拿起桌上倒扣的旧相框。年轻赵奶奶和小女孩站在花圃前，背面写着"1996年，小张5岁"。', speed:42 },
+      { speaker:'narrator', text:'小女孩的脸……和眼前的林姐很像。', speed:50 },
+    ], 0, () => {
+      this.el.v4PhotoCompare.classList.add('show');
+      // 设置拖拽比对
+      this.el.v4CompareChild.draggable = true;
+      this.el.continue.classList.remove('show');
+      this.dialogueReady = false;
+    });
+  },
+
+  onV4DragStart(e) { e.dataTransfer.setData('text/plain', 'child'); },
+  onV4DropOnLin(e) {
+    e.preventDefault();
+    this.el.v4CompareResult.textContent = '相似度: 92%';
+    this.el.v4CompareResult.classList.add('revealed');
+    setTimeout(() => {
+      this.el.v4PhotoCompare.classList.remove('show');
+      this.doV4PostClue();
+    }, 1800);
+  },
+
+  doV4Drawer() {
+    this.runDialogueQueue([
+      { speaker:'narrator', text:'你拉开床头柜半开的抽屉。里面有一张值班表——林姐名字后面括号写着"家属（女儿）"。', speed:42 },
+      { speaker:'narrator', text:'"家属"二字在"家属"与"护工"之间交替闪烁——她写的是"家属"，但养老院系统里登记的，是"护工"。', speed:40 },
+    ], 0, () => this.doV4PostClue());
+  },
+
+  doV4Apron() {
+    this.runDialogueQueue([
+      { speaker:'narrator', text:'你翻了翻墙上围裙的口袋。里面有一张今天的超市小票。', speed:45 },
+      { speaker:'narrator', text:'商品清单里有一项：「成人纸尿裤」。', speed:55 },
+      { speaker:'narrator', text:'她每天来照顾她妈妈。从买菜到换纸尿裤。从早上到黄昏。', speed:42 },
+    ], 0, () => this.doV4PostClue());
+  },
+
+  closeV4PhotoCompare() {
+    this.el.v4PhotoCompare.classList.remove('show');
+  },
+
+  doV4PostClue() {
+    this.runDialogueQueue([
+      { speaker:'narrator', text:'林姐正在帮赵奶奶整理外套衣角。动作很轻，很熟练——做了很多年的那种。', speed:45 },
+      { speaker:'zhao', text:'……谢谢你，姑娘。', speed:55, exp:{zhao:'normal'} },
+      { speaker:'narrator', text:'林姐没有纠正她。她转头对你说——', speed:50,
+        startCb:() => { this.el.zhaoAreaV2?.classList.add('hidden'); } },
+      { speaker:'lin', text:'她到这个点就这样。夏天六七点，冬天四五点。习惯了。',
+        startCb:() => { this.el.linAreaV2?.classList.remove('hidden'); } },
+    ], 0, () => this.startPhase('v4_ending'));
+  },
+
+  doV4Ending() {
+    this.el.v4Scene.classList.remove('active');
+    this.setSceneBackground('assets/zhao/huang_hun_shi_qi_fang_jian.png');
+    this.runDialogueQueue([
+      { speaker:'lin', text:'你也早点回吧。天黑了。', speed:55 },
+    ], 0, () => {
+      this.addFragmentLabel(4,
+        '不是护工。是女儿。她认不出她的时候，她就是护工。她每天黄昏都承受一次"被妈妈忘记"。她的方法是——不争辩，做该做的事。当语言失效时，一件外套和一个后退半步的动作，比任何话都管用。',
+        '虚实判定：事实。林姐是赵奶奶的女儿，在养老院以护工身份工作。证据：相框照片对照 + 值班表"家属"标记 + 超市小票。');
+      this.showTransition(
+        '✅ 你发现了第四个真相：林姐不是护工——是女儿。她每天黄昏都承受一次"被妈妈忘记"。她的方法是——不争辩，做该做的事。',
+        '📓 虚实对账本已记录碎片 4/5',
+        () => this.startPhase('v5_intro')
+      );
+    });
+  },
+
+  // ===================================================================
+  //  探访五 · 种下去（最终场景）
+  // ===================================================================
+  doV5Intro() {
+    this.currentVisit = 5;
+    this.el.chapterLabel.textContent = '赵奶奶 · 探访五 · 种下去';
+    this.el.linAreaV2?.classList.add('hidden');
+    this.el.v4Scene.classList.remove('active');
+    this.setSceneBackground('assets/zhao/da_ting_yang_guang.png', true);
+    this.runDialogueQueue([
+      { speaker:'narrator', text:'你收拾东西准备离开。走到走廊尽头时，赵奶奶的门开了。', speed:45 },
+      { speaker:'narrator', text:'她穿着林姐披上的灰开衫，手里攥着几粒深褐色种子。她的声音不一样了——平稳、清晰，像从深水里浮上来的人终于吸到了一口空气。', speed:38 },
+      { speaker:'zhao', text:'你还没走啊。……拿着吧。随手撒就行。不用特别照顾。种不出来也没事。', speed:40, exp:{zhao:'normal'} },
+      { speaker:'player', text:'这是什么种子？', speed:50 },
+      { speaker:'zhao', text:'我育了三年才稳定下来的。第三批。我一直没给它取过名字。', speed:42, exp:{zhao:'normal'} },
+    ], 0, () => this.startPhase('v5_truth'));
+  },
+
+  doV5Truth() {
+    // 显示种子
+    this.el.v5SeedsHand.classList.add('visible');
+    this.runDialogueQueue([
+      { speaker:'narrator', text:'她看着你。眼神不是混乱的——是几十年观察植物练出来的专注。', speed:42, exp:{zhao:'normal'} },
+      { speaker:'zhao', text:'你不是我孙女。', speed:55, exp:{zhao:'normal'} },
+      { speaker:'narrator', text:'语气平静。不是问句。', speed:55 },
+      { speaker:'zhao', text:'你来这么多天，我问你的事你都答不上来。你爷爷叫什么，你小时候住哪条街——你都接不上。你是写东西的人吧？', speed:35, exp:{zhao:'normal'} },
+      { speaker:'zhao', text:'那你为什么来做这些？', speed:55, exp:{zhao:'normal'} },
+    ], 0, () => {
+      this.showChoices([
+        { label:'A', text:'外婆也患过这个病。' },
+        { label:'B', text:'我是一名作家。' },
+        { label:'C', text:'我在体验一个认知症游戏。' },
+        { label:'D', text:'我来参加比赛。' },
+      ], (choice) => {
+        this.v5ChoiceMade = choice;
+        this.startPhase('v5_final');
+      });
+    });
+  },
+
+  doV5Final() {
+    this.runDialogueQueue([
+      { speaker:'narrator', text:'她"嗯"了一声。没有评判。', speed:55, exp:{zhao:'normal'} },
+      { speaker:'zhao', text:'不管你为什么来的……你听完我的事了。那你记住一句话。', speed:42, exp:{zhao:'normal'} },
+      { speaker:'zhao', text:'我年轻的时候，是国内最早一批做植物育种的女性之一。我走过很多山，收集过很多标本。后来我有了自己的名字：赵秀兰。', speed:35, exp:{zhao:'normal'} },
+      { speaker:'zhao', text:'后来我结了婚。所有人都说——你们天生一对。然后我就成了张家铭的妻子。不出差，别人只问先生最近画了什么。我发表论文，别人只说，张家铭家属来了。', speed:32, exp:{zhao:'normal'} },
+      { speaker:'zhao', text:'家里需要人。他有画展要去。我得留在家里。等我再想做自己的时候——已经来不及了。我的标本、数据被别人接手了。整篇论文，署名没有我。', speed:30, exp:{zhao:'sad'} },
+      { speaker:'zhao', text:'你将来如果要走一条自己的路——别停下来。别为了任何人停下来。别像我一样。用一辈子去证明，我不只是他的妻子。', speed:32, exp:{zhao:'normal'} },
+      { speaker:'zhao', text:'你写完了……体验完了……比完赛了……你会记得我吗？还是只会记得——我玩过一个关于老人的游戏？', speed:35, exp:{zhao:'normal'} },
+      { speaker:'narrator', text:'她没等你回答。转身走回房间。', speed:55,
+        startCb:() => { this.el.zhaoAreaV2?.classList.remove('facing-player'); this.setZhaoExpression('back'); } },
+      { speaker:'zhao', text:'你帮我叫林姐过来。', speed:50 },
+    ], 0, () => this.startPhase('v5_call_lin'));
+  },
+
+  doV5CallLin() {
+    this.el.zhaoAreaV2?.classList.add('hidden');
+    this.el.v5SeedsHand.classList.remove('visible');
+    this.setSceneBackground('assets/zhao/lin_jie_zou_lang.png', true);
+    this.runDialogueQueue([
+      { speaker:'narrator', text:'林姐站在走廊窗边，手里拿着那件外套，像已经站了很久。',
+        startCb:() => { this.el.linAreaV2?.classList.remove('hidden'); } },
+    ], 0, () => this.startPhase('v5_hug'));
+  },
+
+  doV5Hug() {
+    this.setSceneBackground('assets/zhao/zhao_nai_nai_fang_jian_zhu_shi_jiao.png', true);
+    this.el.linAreaV2?.classList.add('hidden');
+    this.runDialogueQueue([
+      { speaker:'zhao', text:'你每天来陪我，每天给我换水，每天帮我把花转个方向。你做了很多年了。', speed:38, exp:{zhao:'normal'},
+        startCb:() => { this.el.zhaoAreaV2?.classList.remove('hidden'); this.el.zhaoAreaV2?.classList.add('facing-player'); } },
+      { speaker:'narrator', text:'林姐的嘴唇动了一下，但没有发出声音。', speed:55 },
+      { speaker:'zhao', text:'辛苦了。', speed:65, exp:{zhao:'normal'} },
+      { speaker:'narrator', text:'赵奶奶站起来，很稳地走过来——她抱住了林姐。很轻。但很稳。', speed:42 },
+      { speaker:'narrator', text:'林姐的手慢慢放在她背上。没有说话，也没有哭出声。但抱着她，抱了很久。', speed:42 },
+      { speaker:'narrator', text:'她可能还是不完全记得林姐是谁。但她记得"这个人在"。她记得"这个人一直在"。这就够了。', speed:40 },
+    ], 0, () => this.startPhase('v5_seeds'));
+  },
+
+  doV5Seeds() {
+    this.el.v5SeedsHand.classList.add('visible');
+    this.runDialogueQueue([
+      { speaker:'zhao', text:'那些种子，你带回去种吧。如果种出来了，你就知道。她确实活过。', speed:40, exp:{zhao:'normal'} },
+    ], 0, () => {
+      // 显示输入框
+      this.el.v5InputOverlay.classList.add('active');
+      this.el.v5InputBox.value = '';
+      this.el.v5InputBox.focus();
+      this.el.v5InputBox.placeholder = '你会为现实中的认知症老人做一件事吗？哪怕只是一句话……';
+      this.el.continue.classList.remove('show');
+      this.dialogueReady = false;
+    });
+  },
+
+  onV5InputSubmit() {
+    const val = this.el.v5InputBox.value.trim();
+    if (!val) return;
+    this.v5InputSubmitted = true;
+    this.el.v5InputOverlay.classList.remove('active');
+    this.el.v5InputBox.value = '';
+    this.startPhase('v5_ending');
+  },
+
+  doV5Ending() {
+    this.el.zhaoAreaV2?.classList.add('hidden');
+    this.el.v5SeedsHand.classList.remove('visible');
+    this.el.v5FinalBg.classList.add('active');
+    this.el.v5FinalLight.classList.add('active');
+    document.getElementById('game-wrapper').style.background = 'linear-gradient(180deg,#1a2a38,#2a4458,#3a6275)';
+    this.runDialogueQueue([
+      { speaker:'narrator', text:'你走出时光驿站。天已经黑透了。路灯亮了。', speed:45 },
+      { speaker:'narrator', text:'你低头看手心——那几粒种子还在。深褐色的，很小，像随时会被风吹走。', speed:42 },
+      { speaker:'narrator', text:'回头看一眼。赵奶奶房间的灯还亮着，昏黄的，暖暖的。林姐的身影从窗前经过，拉上了窗帘。', speed:38 },
+      { speaker:'narrator', text:'风很轻。种子在你手心里，像几粒深褐色的句号。', speed:50 },
+    ], 0, () => {
+      this.addFragmentLabel(5,
+        '她说"你记得我吗？"她说"别像我一样。"她不是在问主角——她在问屏幕前的你。',
+        '最后的清醒：在五个探访中，她第一次完全清醒。她把自己的名字、她走过的山、她失去的一切，都交给了你。');
+      setTimeout(() => this.showEnding(), 1500);
+    });
+  },
+};
+
+// ========== 启动 ==========
+window.addEventListener('DOMContentLoaded', () => Game.init());
+// 面板点击遮罩关闭
+['settings-overlay','save-overlay','load-overlay','history-overlay'].forEach(id => {
+  document.getElementById(id).addEventListener('click', function(e) {
+    if (e.target === this) {
+      const name = id.replace('-overlay','');
+      Game.closePanel(name);
+    }
+  });
+});
+</script>
+
+</body>
+</html>
