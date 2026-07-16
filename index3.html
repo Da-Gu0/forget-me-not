@@ -2703,20 +2703,36 @@ body {
   opacity: 0.55; filter: blur(0);
 }
 
-/* 关闭提示 · 最后淡入 · 轻轻的上浮 */
+/* 回到主页面按钮 · 最后淡入 */
 #ending-overlay .end-layer-close {
-  position: absolute; bottom: 48px; z-index: 2;
+  position: absolute; bottom: 48px; z-index: 3;
   font-family: 'Noto Serif SC', serif;
-  font-size: clamp(11px, 1.4vw, 12px);
-  color: #A0B8C4;
-  font-weight: 300;
+  font-size: clamp(12px, 1.6vw, 14px);
+  color: #5A8A9E;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(90, 138, 158, 0.35);
+  border-radius: 999px;
+  padding: 10px 28px;
+  font-weight: 400;
   letter-spacing: 2px;
   opacity: 0; transform: translateY(6px);
-  transition: opacity 1s ease 3.3s, transform 1s ease 3.3s;
-  cursor: default;
+  transition: opacity 1s ease 3.3s, transform 1s ease 3.3s, background 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 4px 14px rgba(90, 138, 158, 0.12);
 }
 #ending-overlay.active .end-layer-close {
-  opacity: 0.55; transform: translateY(0);
+  opacity: 1; transform: translateY(0);
+}
+#ending-overlay .end-layer-close:hover {
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 6px 20px rgba(90, 138, 158, 0.22);
+  transform: translateY(-2px);
+}
+#ending-overlay .end-layer-close:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(90, 138, 158, 0.16);
 }
 
 @media (max-width: 480px) {
@@ -4334,14 +4350,34 @@ const Game = {
   showEnding() {
     const ending = document.getElementById('ending-overlay');
     ending.classList.add('active');
-    // 点击任意位置关闭结尾画面
-    ending.onclick = () => this.hideEnding();
+    // 结尾页不再响应整屏点击，只能通过“回到主页面”按钮返回
   },
 
   hideEnding() {
     const ending = document.getElementById('ending-overlay');
     ending.classList.remove('active');
-    ending.onclick = null;
+  },
+
+  returnToCover() {
+    // 隐藏结尾，回到主页面封面，并重置状态
+    this.hideEnding();
+    document.getElementById('game-wrapper').style.visibility = 'hidden';
+    const cover = document.getElementById('cover-overlay');
+    if (cover) cover.classList.remove('hidden');
+
+    // 重置游戏状态
+    this.phase = null;
+    this._dialogueHistory = [];
+    localStorage.removeItem('heikesong_history');
+    this.notebookFragments = [];
+    this.updateNotebookUI();
+    this.closeAllPanels();
+    this.resetScene();
+    if (this.typingTimer) { clearInterval(this.typingTimer); this.typingTimer = null; }
+    this.dialogueReady = false;
+    document.getElementById('dialogue-text').textContent = '';
+    document.getElementById('choices-container').innerHTML = '';
+    document.getElementById('chapter-label').textContent = '赵奶奶 · 探访一 · 初见';
   },
 
   cacheDom() {
@@ -7971,7 +8007,7 @@ document.getElementById('notebook-overlay').addEventListener('click', function(e
   <div class="end-layer-4">更多故事持续制作中，敬请期待</div>
 
   <!-- 关闭提示 · 最最后淡入 -->
-  <div class="end-layer-close">点击任意位置 · 回到篇章选择</div>
+  <button class="end-layer-close" onclick="Game.returnToCover()">回到主页面</button>
 </div>
 
 </body>
