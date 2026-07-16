@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>勿忘我 · 赵奶奶篇</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Liu+Jian+Mao+Cao&family=Noto+Serif+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue:        #7B9EAB;
+  --blue-deep:   #5A7D8A;
+  --blue-light:  #A3C4CF;
+  --blue-pale:   #D4E5EA;
+  --cream:       #F5F0E8;
+  --cream-dark:  #E8E0D1;
+  --yellow:      #F0C27A;
+  --yellow-dark: #D4A855;
+  --text:        #3A3434;
+  --text-light:  #6B6560;
+  --white:       #FEFBF6;
+  --shadow:      0 4px 20px rgba(90,125,138,0.15);
+  --shadow-hover:0 12px 36px rgba(90,125,138,0.22);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Noto Serif SC', 'Source Han Serif SC', 'SimSun', serif;
+  background: var(--cream);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+}
+
+/* 背景纹理 */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background:
+    radial-gradient(ellipse at 20% 40%, rgba(123,158,171,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 30%, rgba(240,194,122,0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 70%, rgba(123,158,171,0.04) 0%, transparent 55%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 纸张纹理覆盖 */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(120,100,80,0.015) 2px, rgba(120,100,80,0.015) 4px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ---- 主容器 ---- */
+#cover {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 520px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 32px;
+  text-align: center;
+}
+
+/* ---- 装饰：勿忘我花 ---- */
+.flower-decor {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 12px;
+  opacity: 0.7;
+}
+
+.flower-decor .petal {
+  width: 18px;
+  height: 18px;
+  background: var(--blue-light);
+  border-radius: 50% 50% 0 50%;
+  transform: rotate(-45deg);
+  box-shadow: 0 0 6px rgba(123,158,171,0.3);
+}
+
+.flower-decor .petal:nth-child(1) { transform: rotate(-135deg); background: var(--blue); }
+.flower-decor .petal:nth-child(2) { transform: rotate(-45deg);  background: var(--blue-light); }
+.flower-decor .petal:nth-child(3) { transform: rotate(45deg);   background: var(--blue); }
+.flower-decor .petal:nth-child(4) { transform: rotate(135deg);  background: var(--blue-light); }
+
+.flower-decor .center-dot {
+  width: 10px;
+  height: 10px;
+  background: var(--yellow);
+  border-radius: 50%;
+  position: absolute;
+  box-shadow: 0 0 4px rgba(240,194,122,0.5);
+}
+
+/* ---- 叶片装饰 ---- */
+.leaf-left, .leaf-right {
+  position: absolute;
+  top: 30%;
+  font-size: 28px;
+  opacity: 0.35;
+  pointer-events: none;
+  animation: sway 6s ease-in-out infinite;
+}
+.leaf-left  { left: 12%; animation-delay: 0s; }
+.leaf-right { right: 12%; animation-delay: 3s; }
+
+@keyframes sway {
+  0%, 100% { transform: rotate(-8deg) translateY(0); }
+  50%      { transform: rotate(5deg) translateY(-6px); }
+}
+
+/* 顶部小花枝 */
+.top-sprig {
+  position: absolute;
+  top: 14%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 22px;
+  letter-spacing: 8px;
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* ---- 标题区 ---- */
+.title-area {
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.main-title {
+  font-family: 'Liu Jian Mao Cao', 'STKaiti', 'KaiTi', cursive;
+  font-size: clamp(48px, 9vw, 72px);
+  color: var(--blue-deep);
+  line-height: 1.1;
+  letter-spacing: 8px;
+  text-shadow: 1px 2px 4px rgba(90,125,138,0.12);
+  margin-bottom: 4px;
+}
+
+.sub-title {
+  font-family: 'Noto Serif SC', serif;
+  font-size: clamp(16px, 3.5vw, 22px);
+  color: var(--text);
+  font-weight: 300;
+  letter-spacing: 6px;
+  position: relative;
+  display: inline-block;
+  padding: 0 20px;
+}
+
+.sub-title::before,
+.sub-title::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 28px;
+  height: 1px;
+  background: var(--blue-light);
+  opacity: 0.6;
+}
+.sub-title::before { right: calc(100% + 8px); }
+.sub-title::after  { left: calc(100% + 8px); }
+
+/* ---- 分隔线 ---- */
+.divider {
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--yellow), var(--yellow), transparent);
+  border-radius: 1px;
+  margin: 28px auto;
+  opacity: 0.7;
+}
+
+/* ---- 主按钮 ---- */
+.btn-main {
+  display: inline-block;
+  padding: 16px 56px;
+  font-family: 'Noto Serif SC', serif;
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 4px;
+  color: var(--white);
+  background: linear-gradient(135deg, var(--blue), var(--blue-deep));
+  border: none;
+  border-radius: 32px;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(90,125,138,0.25);
+  transition: all 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-main::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 0; height: 0;
+  background: rgba(255,255,255,0.15);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.btn-main:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+  color: #fff;
+}
+.btn-main:active {
+  transform: translateY(-1px) scale(0.97);
+  box-shadow: 0 2px 10px rgba(90,125,138,0.2);
+}
+.btn-main:active::after {
+  width: 300px;
+  height: 300px;
+}
+
+.btn-main span {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- 底部小按钮 ---- */
+.bottom-btns {
+  display: flex;
+  gap: 28px;
+  margin-top: 32px;
+}
+
+.btn-sub {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 14px;
+  font-weight: 300;
+  letter-spacing: 2px;
+  color: var(--text-light);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 0;
+  position: relative;
+  transition: color 0.3s;
+}
+
+.btn-sub::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--blue);
+  transition: width 0.3s;
+}
+
+.btn-sub:hover {
+  color: var(--blue-deep);
+}
+.btn-sub:hover::after {
+  width: 100%;
+}
+
+/* ---- 关于弹窗 ---- */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(60,50,40,0.45);
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s;
+}
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-box {
+  background: var(--cream);
+  border-radius: 16px;
+  padding: 36px 32px 28px;
+  max-width: 440px;
+  width: 90%;
+  box-shadow: 0 16px 48px rgba(60,50,40,0.2);
+  position: relative;
+  text-align: left;
+  line-height: 1.85;
+  color: var(--text);
+  font-size: 15px;
+  transform: translateY(20px);
+  transition: transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+.modal-overlay.active .modal-box {
+  transform: translateY(0);
+}
+
+.modal-box h3 {
+  font-family: 'Liu Jian Mao Cao', 'STKaiti', 'KaiTi', cursive;
+  font-size: 28px;
+  color: var(--blue-deep);
+  text-align: center;
+  letter-spacing: 4px;
+  margin-bottom: 20px;
+}
+
+.modal-box p {
+  margin-bottom: 12px;
+  font-weight: 300;
+}
+
+.modal-box p.em {
+  font-weight: 400;
+  color: var(--blue-deep);
+}
+
+.modal-box .modal-flower {
+  text-align: center;
+  font-size: 24px;
+  margin-top: 16px;
+  opacity: 0.6;
+  letter-spacing: 4px;
+}
+
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  font-size: 22px;
+  color: var(--text-light);
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, background 0.2s;
+}
+.modal-close:hover {
+  color: var(--text);
+  background: rgba(123,158,171,0.12);
+}
+
+/* ---- 底部版权 ---- */
+.footer-note {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: var(--text-light);
+  letter-spacing: 2px;
+  opacity: 0.5;
+  z-index: 1;
+}
+
+/* ---- 响应式 ---- */
+@media (max-width: 480px) {
+  #cover { padding: 32px 24px; }
+  .main-title { letter-spacing: 4px; }
+  .btn-main { padding: 14px 44px; font-size: 16px; letter-spacing: 3px; }
+  .bottom-btns { gap: 20px; }
+  .modal-box { padding: 28px 24px 22px; font-size: 14px; }
+  .leaf-left, .leaf-right { font-size: 20px; }
+  .leaf-left { left: 6%; } .leaf-right { right: 6%; }
+}
+</style>
+</head>
+<body>
+
+<!-- 叶片装饰 -->
+<div class="leaf-left">🌿</div>
+<div class="leaf-right">🌿</div>
+
+<!-- 主容器 -->
+<div id="cover">
+
+  <!-- 勿忘我花 -->
+  <div class="flower-decor" style="position:relative;">
+    <div class="petal"></div>
+    <div class="petal"></div>
+    <div class="petal"></div>
+    <div class="petal"></div>
+    <div class="center-dot"></div>
+  </div>
+
+  <!-- 标题 -->
+  <div class="title-area">
+    <div class="main-title">勿忘我</div>
+    <div class="sub-title">赵奶奶篇</div>
+  </div>
+
+  <!-- 分隔线 -->
+  <div class="divider"></div>
+
+  <!-- 开始故事 -->
+  <button class="btn-main" onclick="startStory()"><span>开始故事</span></button>
+
+  <!-- 底部按钮 -->
+  <div class="bottom-btns">
+    <button class="btn-sub" onclick="continueJourney()">继续旅程</button>
+    <button class="btn-sub" onclick="showAbout()">关于</button>
+  </div>
+</div>
+
+<!-- 关于弹窗 -->
+<div class="modal-overlay" id="about-modal" onclick="maybeCloseAbout(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="hideAbout()">×</button>
+    <h3>勿忘我</h3>
+    <p>《勿忘我》是一款以阿尔兹海默症患者真实视角为核心的交互式叙事游戏。</p>
+    <p>场景"时光驿站"以上海杨浦区殷行街道真实存在的认知症友好空间为原型。赵奶奶的故事融合了植物育种领域女性科研工作者群体的影子。</p>
+    <p class="em">游戏试图让玩家进入认知症患者眼中的世界——你看到的不一定是真的，你需要自己判断什么是事实，什么是记忆错乱。</p>
+    <p class="em">这不是一个"关怀老人"的故事。<br>这是一个关于"被看见"的故事。</p>
+    <div class="modal-flower">🌿 勿忘我 · 2026</div>
+  </div>
+</div>
+
+<script>
+function startStory() {
+  window.location.href = 'index.html';
+}
+
+function continueJourney() {
+  // 返回篇章选择 / 时光驿站大厅（后续可替换为实际路径）
+  window.location.href = 'hall.html';
+}
+
+function showAbout() {
+  document.getElementById('about-modal').classList.add('active');
+}
+
+function hideAbout() {
+  document.getElementById('about-modal').classList.remove('active');
+}
+
+function maybeCloseAbout(e) {
+  if (e.target === e.currentTarget) hideAbout();
+}
+
+// ESC关闭弹窗
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') hideAbout();
+});
+</script>
+
+</body>
+</html>

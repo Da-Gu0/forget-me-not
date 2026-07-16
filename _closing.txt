@@ -1,0 +1,12 @@
+};
+
+// ========== 启动游戏 ==========
+window.addEventListener('DOMContentLoaded', () => Game.init());
+
+// 点击笔记本遮罩关闭
+document.getElementById('notebook-overlay').addEventListener('click', function(e) {
+  if (e.target === this) Game.closeNotebook();
+});
+</script>
+</body>
+</html>
