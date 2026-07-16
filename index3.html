@@ -3472,8 +3472,8 @@ body {
 @keyframes v5-light-bloom { 0% { width:0; height:0; } 100% { width:600px; height:600px; } }
 
 #v5-input-overlay {
-  display:none; position:absolute; bottom:40px; left:50%; transform:translateX(-50%);
-  gap:10px; z-index:20; align-items:center;
+  display:none; position:absolute; bottom:210px; left:50%; transform:translateX(-50%);
+  gap:10px; z-index:62; align-items:center;
 }
 #v5-input-overlay.active { display:flex; }
 #v5-input-box {
@@ -4726,11 +4726,7 @@ const Game = {
       // 探访二阶段
       case 'v2_intro':        this.doV2Intro(); break;
       case 'v2_interact':     this.doV2Interact(); break;
-      case 'v2_specimen':     this.doV2Specimen(); break;
-      case 'v2_notebook':     this.doV2Notebook(); break;
-      case 'v2_workid':       this.doV2WorkId(); break;
-      case 'v2_letter':       this.doV2Letter(); break;
-      case 'v2_check_all':    this.doV2CheckAll(); break;
+
       case 'v2_ending':       this.doV2Ending(); break;
       case 'v3_intro':        this.doV3Intro(); break;
       case 'v3_intro_2':      this.doV3Intro2(); break;
@@ -4843,8 +4839,8 @@ const Game = {
 
   advanceDialogue() {
     if (this._transitionLock) return;
-    // V4线索阶段剧情锁：未集齐全部线索前，点击继续无响应
-    if (this.phase === 'v4_clues') {
+    // V4线索阶段剧情锁：线索对话播完后才锁定，对话队列未播完前允许正常推进
+    if (this.phase === 'v4_clues' && !(this._dq && this._dqIdx < this._dq.length)) {
       if (!this._v4AllCluesDone) {
         this.showSceneHint('🔍 还有线索未收集，请继续查看房间内的物品（相框/抽屉/围裙）', 2500);
         return;
@@ -4974,7 +4970,7 @@ const Game = {
     // 3. 按当前探访分组跳跃
     const phaseGroups = {
       v1: ['prologue','intro','touch_flower','hover_mode','probe_stick','flower_question','collect_seeds','scene_ending'],
-      v2: ['v2_intro','v2_interact','v2_specimen','v2_notebook','v2_workid','v2_letter','v2_check_all','v2_ending'],
+      v2: ['v2_intro','v2_interact','v2_ending'],
       v3: ['v3_intro','v3_intro_2','v3_intro_2_continue','v3_phase2','v3_phase3','v3_painting_after','v3_ending'],
       v4: ['v4_intro','v4_sundown','v4_choice','v4_clues','v4_ending'],
       v5: ['v5_intro','v5_truth','v5_final','v5_call_lin','v5_hug','v5_seeds','v5_ending'],
@@ -6700,10 +6696,6 @@ const Game = {
   },
 
   // ===== 全部查看完毕 =====
-  doV2CheckAll() {
-    // 此阶段由 onV2AllExamined 触发
-  },
-
   // ===== 场景收尾 + 碎片2 =====
   doV2Ending() {
     this.addFragment({
