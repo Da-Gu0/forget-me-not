@@ -255,6 +255,45 @@ body{
 /* 通用淡入淡出 */
 #ending.fading-out{opacity:0;transition:opacity 1.5s ease;}
 
+/* ===== 房间探索层（探访一之前的"自由探索"环节） ===== */
+#room-exploration{position:absolute;inset:0;z-index:48;background:#000;overflow:hidden;}
+#re-bg-wrap{position:absolute;inset:0;}
+#re-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+#re-hint{position:absolute;left:50%;top:6%;transform:translateX(-50%);font-family:var(--body-font);font-size:15px;color:rgba(245,237,224,0.88);letter-spacing:2px;text-shadow:0 2px 10px rgba(0,0,0,0.6);z-index:50;opacity:0;transition:opacity 1s ease 0.3s;}
+#room-exploration.active #re-hint{opacity:1;}
+/* 9 个热区（完全透明，hover 无视觉变化，只改变鼠标指针） */
+.hotspot{position:absolute;background:transparent;border:none;border-radius:0;cursor:pointer;padding:0;margin:0;z-index:49;}
+/* 调试模式：URL 加 ?debug=1 时显示半透明热区 */
+#room-exploration.debug .hotspot{background:rgba(255,80,80,0.18);border:1px dashed rgba(255,80,80,0.7);}
+/* 坐下按钮 */
+#re-sit-btn{
+  position:absolute;right:4%;bottom:6%;z-index:51;
+  font-family:var(--body-font);font-size:16px;letter-spacing:2px;
+  color:var(--paper);background:rgba(74,64,56,0.78);
+  border:1.5px solid rgba(196,168,122,0.6);border-radius:22px;
+  padding:12px 24px;cursor:pointer;backdrop-filter:blur(4px);
+  transition:background .2s ease, border-color .2s ease, transform .15s ease;
+}
+#re-sit-btn:hover{background:rgba(196,168,122,0.85);border-color:rgba(255,235,180,0.95);transform:translateY(-1px);}
+/* 物品描述独立文字框（不混用对话气泡） */
+#item-popup{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(520px,82%);z-index:60;
+  background:linear-gradient(180deg,rgba(245,237,224,0.97) 0%,rgba(232,218,196,0.97) 100%);
+  border:1.5px solid rgba(139,115,85,0.6);border-radius:14px;
+  padding:28px 32px 24px;box-shadow:0 8px 40px rgba(0,0,0,0.35);
+  font-family:var(--body-font);color:#3a2f25;
+}
+#item-popup-name{font-size:22px;font-weight:600;color:#5c3a1f;margin-bottom:12px;letter-spacing:1px;}
+#item-popup-desc{font-size:16px;line-height:1.75;color:#4a4038;}
+#item-popup-close{
+  position:absolute;right:14px;top:10px;width:32px;height:32px;
+  background:transparent;border:none;font-size:24px;color:#8B7355;
+  cursor:pointer;border-radius:50%;transition:background .15s ease;
+  line-height:1;padding:0;
+}
+#item-popup-close:hover{background:rgba(139,115,85,0.18);}
+
 /* 选项 */
 #choices{position:absolute;left:50%;transform:translateX(-50%);bottom:170px;width:min(560px,80%);z-index:21;display:flex;flex-direction:column;gap:12px;}
 .choice{
@@ -404,6 +443,35 @@ body{
       <button class="m-btn" onclick="startGame()">继续旅程 <small id="contTime"></small></button>
       <button class="m-btn" onclick="showAbout()">关于</button>
     </div>
+  </section>
+
+  <!-- ===== 房间探索层（探访一之前的"自由探索"环节） ===== -->
+  <section id="room-exploration" style="display:none;">
+    <div id="re-bg-wrap">
+      <img id="re-bg" src="wang_assets/wang_room_bg.jpg?v=5" alt="王爷爷的房间" />
+      <!-- 11 个物品热区（按图实际位置 + 上移 3% 校准 · 1024×576 视觉） -->
+      <div class="hotspot" data-item="奖状与小梅的画" style="left:0%;top:12%;width:15%;height:13%;"></div>
+      <div class="hotspot" data-item="破旧公文包" style="left:2%;top:45%;width:14%;height:10%;"></div>
+      <div class="hotspot" data-item="钥匙" style="left:44%;top:55%;width:6%;height:6%;"></div>
+      <div class="hotspot" data-item="中山装" style="left:25%;top:16%;width:18%;height:38%;"></div>
+      <div class="hotspot" data-item="铁盒子" style="left:4%;top:40%;width:20%;height:18%;"></div>
+      <div class="hotspot" data-item="日历" style="left:42%;top:35%;width:7%;height:14%;"></div>
+      <div class="hotspot" data-item="抽屉（上）" style="left:43%;top:50%;width:11%;height:7%;"></div>
+      <div class="hotspot" data-item="抽屉（下）" style="left:43%;top:58%;width:12%;height:14%;"></div>
+      <div class="hotspot" data-item="糖醋排骨" style="left:65%;top:48%;width:15%;height:11%;"></div>
+      <div class="hotspot" data-item="勿忘我花" style="left:77%;top:35%;width:9%;height:24%;"></div>
+      <div class="hotspot" data-item="红拖鞋" style="left:80%;top:83%;width:11%;height:13%;"></div>
+      <!-- 坐下按钮 -->
+      <button id="re-sit-btn">坐下跟王爷爷说说话</button>
+    </div>
+    <!-- 物品描述文字框（默认隐藏） -->
+    <div id="item-popup" style="display:none;">
+      <div id="item-popup-name"></div>
+      <div id="item-popup-desc"></div>
+      <button id="item-popup-close">×</button>
+    </div>
+    <!-- 顶部提示 -->
+    <div id="re-hint">点击房间里的物品查看 · 看完后坐下跟王爷爷说说话</div>
   </section>
 
   <!-- ===== 游戏界面 ===== -->
@@ -1109,12 +1177,69 @@ body{
     }
   }
   function startGame(){
+    // 改为：先显示房间探索层（不进 game），等用户点"坐下"再进探访一
     document.getElementById('menu').classList.add('hidden');
-    document.getElementById('game').classList.add('active');
-    replayList.length=0; setPetals(0); idx=0; renderStep(0);
-    const last=loadSaves().find(s=>s);
-    document.getElementById('contTime').textContent = last?('· '+last.time):'';
+    const re = document.getElementById('room-exploration');
+    re.style.display = 'block';
+    // 调试模式：URL 加 ?debug=1 时显示热区边界
+    if (/[?&]debug=1\b/.test(location.search)) re.classList.add('debug');
+    // 用 rAF 加 active class，触发 CSS 渐入
+    requestAnimationFrame(() => re.classList.add('active'));
+    // 不调 renderStep(0)，等"坐下"按钮触发
   }
+
+  /* ===== 房间探索层逻辑 ===== */
+  // 11 个物品的占位描述（key 跟 hotspot data-item 对应）
+  const ITEM_DESCRIPTIONS = {
+    '红拖鞋': '这是一双褪色的红色绒面拖鞋，并排放在床边的地面上。',
+    '破旧公文包': '一个深棕色的旧公文包，皮质已经磨白，提手处有裂痕。',
+    '铁盒子': '一个方形铁盒，表面有锈迹，半开着，露出里面泛黄的纸边。',
+    '日历': '一本翻页式旧日历，纸张泛黄，其中一天被画了一个圈。',
+    '钥匙': '一把铜色旧钥匙，很小，钥匙环上缠着旧线。',
+    '中山装': '一件深灰色旧中山装，挂在衣柜里，挂得整齐。',
+    '勿忘我花': '一盆淡蓝色的小花，花盆是红陶土色的，放在窗台上。',
+    '糖醋排骨': '一盘糖醋排骨，放在餐桌上的白瓷盘里，已经凉了。',
+    '奖状与小梅的画': '墙上的旧奖状和一幅彩色铅笔画，画的是老人和一个小女孩。',
+    '抽屉（上）': '床头柜的上层抽屉，木质把手磨得发亮。',
+    '抽屉（下）': '床头柜的下层抽屉，把手有些松动。'
+  };
+
+  // 点击热区 → 弹文字框
+  document.querySelectorAll('#room-exploration .hotspot').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const name = el.dataset.item;
+      const desc = ITEM_DESCRIPTIONS[name] || '（暂无描述）';
+      document.getElementById('item-popup-name').textContent = name;
+      document.getElementById('item-popup-desc').textContent = desc;
+      document.getElementById('item-popup').style.display = 'block';
+      console.log('[room] 点击物品:', name);
+    });
+  });
+
+  // 关闭文字框（点 × 按钮 或 文字框外部）
+  document.getElementById('item-popup-close').addEventListener('click', () => {
+    document.getElementById('item-popup').style.display = 'none';
+  });
+  document.getElementById('item-popup').addEventListener('click', (e) => {
+    if(e.target.id === 'item-popup') {
+      document.getElementById('item-popup').style.display = 'none';
+    }
+  });
+
+  // 坐下按钮 → 隐藏房间探索层 + 显示 game + 启动探访一
+  document.getElementById('re-sit-btn').addEventListener('click', () => {
+    console.log('[room] 坐下 → 进探访一');
+    const re = document.getElementById('room-exploration');
+    re.classList.remove('active');
+    setTimeout(() => {
+      re.style.display = 'none';
+      document.getElementById('game').classList.add('active');
+      replayList.length=0; setPetals(0); idx=0; renderStep(0);
+      const last=loadSaves().find(s=>s);
+      document.getElementById('contTime').textContent = last?('· '+last.time):'';
+    }, 400);  // 给 CSS 渐出一点时间
+  });
   function backToMenu(){
     document.getElementById('game').classList.remove('active');
     document.getElementById('menu').classList.remove('hidden');
