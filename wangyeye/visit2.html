@@ -1,0 +1,2455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>勿忘我 · 赵奶奶篇 · 探访二 · 标本盒</title>
+<style>
+/* ========== 勿忘我色调系统 ========== */
+:root {
+  --blue-deep:    #4A7C96;
+  --blue-mid:     #6BA3BE;
+  --blue-light:   #B8D4E3;
+  --blue-pale:    #E4F0F7;
+  --blue-ghost:   #F0F6FA;
+  --white-warm:   #FDF8F3;
+  --cream:        #FFF8EC;
+  --yellow-sun:   #F2D07B;
+  --yellow-soft:  #F9E8B8;
+  --text-dark:    #2D3436;
+  --text-mid:     #555B5E;
+  --text-gray:    #7F8C8D;
+  --text-light:   #B2BEC3;
+  --soil-dry:     #D4C5B9;
+  --soil-wet:     #8B7355;
+  --stem-green:   #7DAA92;
+  --stem-dry:     #B5A48C;
+  --flower-blue:  #7EA8C8;
+  --shadow:       0 2px 16px rgba(74,124,150,0.12);
+  --shadow-lg:    0 8px 40px rgba(74,124,150,0.18);
+  --radius:       12px;
+  --radius-sm:    8px;
+  --transition:   0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html, body {
+  width:100vw; height:100vh; margin:0; padding:0; overflow:hidden;
+}
+body {
+  font-family: 'PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif;
+  background: linear-gradient(135deg, #2A4A5C 0%, #3A6275 30%, #4A7C96 60%, #3A6578 100%);
+  display:flex; justify-content:center; align-items:center;
+  user-select:none;
+}
+
+#game-wrapper {
+  width: 100vw; height: 100vh;
+  background: linear-gradient(180deg, #FAFCFD, #F2F6FA);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ========== 顶部状态栏 ========== */
+#top-bar {
+  height: 44px; flex-shrink:0;
+  background: linear-gradient(180deg, rgba(242,247,251,0.97), rgba(228,240,247,0.94));
+  border-bottom: 1.5px solid rgba(107,163,190,0.25);
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 0 20px; z-index:10;
+}
+#chapter-label {
+  font-size:13px; color: var(--blue-deep); font-weight:500;
+  letter-spacing:2px;
+}
+#trust-bar {
+  display:flex; align-items:center; gap:6px;
+}
+#trust-bar .petal {
+  width:20px; height:20px; border-radius:50% 50% 0 50%;
+  background: var(--text-light); transition: all 0.6s ease;
+  transform: rotate(-45deg);
+}
+#trust-bar .petal.collected {
+  background: var(--blue-mid); box-shadow: 0 0 8px rgba(107,163,190,0.4);
+}
+#notebook-btn {
+  width:36px; height:36px; border:none; background: linear-gradient(135deg, var(--blue-pale), #D6E8F2);
+  border-radius: var(--radius-sm); cursor:pointer;
+  font-size:18px; display:flex; align-items:center; justify-content:center;
+  transition: var(--transition);
+  position:relative;
+}
+#notebook-btn:hover { background: linear-gradient(135deg, var(--blue-light), #C4DEEA); }
+#notebook-btn .badge {
+  position:absolute; top:-4px; right:-4px;
+  width:18px; height:18px; border-radius:50%;
+  background: var(--yellow-sun); color: var(--text-dark);
+  font-size:11px; font-weight:700; display:flex;
+  align-items:center; justify-content:center;
+  display:none;
+}
+
+/* ========== 场景层 ========== */
+#scene-layer {
+  flex:1; position:relative; overflow:hidden;
+  background: url('sucai/zhao/zhao_room_real_with_seeds.png') center center / cover no-repeat;
+}
+
+/* 场景过渡动画 */
+.scene-transition {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  z-index: 0; pointer-events: none;
+  animation: sceneFadeIn 1.5s ease forwards;
+}
+@keyframes sceneFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* 窗户（与背景图片融合，保持不可见但保留位置参照） */
+#window-frame {
+  position:absolute; top:30px; right:40px;
+  width:280px; height:200px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  box-shadow: none;
+  overflow:hidden;
+  pointer-events: none;
+}
+#window-frame::before,
+#window-frame::after {
+  display: none;
+}
+/* 地板光斑（保留，与背景融合） */
+#floor-spot {
+  position:absolute; top:200px; left:280px;
+  width:180px; height:60px;
+  background: radial-gradient(ellipse, rgba(242,208,123,0.12) 0%, transparent 70%);
+  transform: skewX(-15deg); border-radius:50%;
+}
+
+/* 窗台（与背景图片融合，保持不可见但保留位置参照） */
+#windowsill {
+  position:absolute; top:235px; right:24px;
+  width:316px; height:22px;
+  background: transparent;
+  border-radius: 4px;
+  box-shadow: none;
+  pointer-events: none;
+}
+.pot-slot {
+  position:absolute; bottom:143px;
+  width:72px; height:72px;
+  cursor:pointer; transition: var(--transition);
+  display:flex; align-items:center; justify-content:center;
+  flex-direction:column; z-index:5;
+}
+.pot-slot:hover { transform: translateY(-3px); }
+.pot-slot.left  { right:220px; }
+.pot-slot.mid   { right:124px; }
+.pot-slot.right { right:28px;  }
+/* 确保花盆在所有装饰元素之上，不被遮挡 */
+.pot-slot { z-index: 16 !important; }
+
+/* 花盆容器 */
+.pot-body {
+  width:48px; height:36px; border-radius: 6px 6px 10px 10px;
+  background: linear-gradient(180deg, #8AA4B0, #6B8898);
+  box-shadow: 0 2px 6px rgba(74,124,150,0.2);
+  position:relative; z-index:1;
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px;
+}
+
+/* 植物层（记忆/现实） */
+.plant-layer {
+  position:absolute; bottom:34px;
+  width:52px; height:48px;
+  display:flex; align-items:flex-end; justify-content:center;
+  font-size:28px; transition: opacity 0.8s ease, filter 0.8s ease;
+  pointer-events:none;
+}
+.plant-reality {
+  opacity:1; filter: saturate(0.3) brightness(0.9);
+}
+.plant-memory {
+  opacity:0; filter: saturate(1.2) brightness(1.1);
+}
+
+/* 认知残影状态 */
+.pot-slot.memory-active .plant-reality { opacity:0; }
+.pot-slot.memory-active .plant-memory { opacity:1; }
+.pot-slot.memory-fading .plant-reality { opacity:1; }
+.pot-slot.memory-fading .plant-memory { opacity:0; }
+
+/* 土壤层 */
+.soil-display {
+  position:absolute; bottom:29px; width:40px; height:8px;
+  border-radius: 3px 3px 0 0; z-index:2; pointer-events:none;
+  transition: background 0.6s ease;
+}
+.soil-dry {
+  background: linear-gradient(180deg, #C8D4DB, #B8C6D0);
+  box-shadow: inset 0 -1px 0 rgba(0,0,0,0.06);
+}
+.soil-wet {
+  background: linear-gradient(180deg, #6B8A9A, #4E6F7F);
+  box-shadow: inset 0 -1px 0 rgba(0,0,0,0.12);
+}
+
+/* 悬停提示气泡 */
+.hover-tooltip {
+  position:absolute; bottom:88px;
+  background: linear-gradient(135deg, #F0F6FA, #E8F0F6);
+  color: var(--text-dark);
+  font-size:13px; padding: 10px 16px; border-radius: var(--radius-sm);
+  box-shadow: 0 4px 20px rgba(74,124,150,0.18); white-space:nowrap;
+  opacity:0; transform:translateY(8px);
+  transition: opacity 0.3s, transform 0.3s;
+  pointer-events:none; z-index:20;
+  max-width: 200px; white-space: normal; text-align:center;
+  line-height:1.6; border-left: 3px solid var(--blue-mid);
+}
+.hover-tooltip.visible { opacity:1; transform:translateY(0); }
+
+/* 悬停进度条 */
+.hover-progress {
+  position:absolute; bottom:60px; left:50%; transform:translateX(-50%);
+  width:40px; height:4px; background: rgba(107,163,190,0.2);
+  border-radius:2px; opacity:0; transition: opacity 0.3s; z-index:6;
+}
+.hover-progress.show { opacity:1; }
+.hover-progress-fill {
+  height:100%; width:0%; border-radius:2px;
+  background: var(--blue-mid); transition: width 0.1s linear;
+}
+
+/* 花盆上的种子 */
+.pot-seeds {
+  position:absolute; bottom:28px; left:50%; transform:translateX(-50%);
+  font-size:12px; opacity:0; pointer-events:none; z-index:7;
+  transition: opacity 0.5s;
+}
+.pot-seeds.visible { opacity:1; pointer-events:all; cursor:pointer; }
+.pot-seeds.collected { opacity:0; }
+
+/* 工具盒 */
+#tool-box {
+  position:absolute; right:80px; bottom:50px;
+  font-size:40px; cursor:pointer; z-index:20;
+  opacity:0; pointer-events:none; transition: all 0.5s;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15));
+}
+#tool-box.visible { opacity:1; pointer-events:all; }
+#tool-box:hover { transform: translateY(-4px); filter: drop-shadow(0 4px 12px rgba(74,124,150,0.3)); }
+#tool-box.picked { opacity:0.3; pointer-events:none; }
+
+/* 竹签探针 */
+#bamboo-stick {
+  position:absolute; right:60px; bottom:80px;
+  font-size:32px; z-index:21;
+  opacity:0; pointer-events:none; transition: all 0.4s;
+  transform: rotate(-30deg);
+}
+#bamboo-stick.equipped { opacity:1; }
+#bamboo-stick.poking {
+  animation: stick-poke 0.8s ease-in-out;
+}
+@keyframes stick-poke {
+  0%   { transform: rotate(-30deg) translate(0, 0); }
+  50%  { transform: rotate(-60deg) translate(-80px, 60px); }
+  100% { transform: rotate(-30deg) translate(-80px, 60px); }
+}
+#bamboo-stick.pull {
+  animation: stick-pull 0.6s ease-in forwards;
+}
+@keyframes stick-pull {
+  0%   { transform: rotate(-30deg) translate(-80px, 60px); opacity:1; }
+  100% { transform: rotate(-30deg) translate(-120px, -40px); opacity:1; }
+}
+
+
+
+/* 场景提示标签 */
+.scene-hint {
+  position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
+  background: rgba(42,74,92,0.92); color: var(--blue-pale);
+  font-size:13px; padding: 8px 18px; border-radius: 20px;
+  opacity:0; transition: opacity 0.5s;
+  pointer-events:none; z-index:25;
+  letter-spacing:1px;
+}
+.scene-hint.visible { opacity:1; }
+
+/* 赵奶奶角色区域 */
+#zhao-area {
+  position:absolute; left:40px; bottom:0;
+  width:160px; height:260px;
+  z-index:14;
+  transition: opacity 0.6s ease;
+}
+#zhao-area.hidden { opacity:0; pointer-events:none; }
+.zhao-layer {
+  position:absolute; inset:0;
+  background-size: contain; background-repeat: no-repeat; background-position: center bottom;
+  transition: opacity 0.8s ease, transform 0.8s ease;
+  pointer-events:none;
+}
+#zhao-back {
+  background-image: url('assets/zhao/zhao_portrait_back_transparent.png');
+  opacity:1; transform: scaleX(-1);
+}
+#zhao-face {
+  background-image: url('assets/zhao/zhao_portrait_normal_transparent.png');
+  opacity:0; transform: scaleX(-1);
+}
+#zhao-face.sad {
+  background-image: url('assets/zhao/zhao_portrait_sad_transparent.png');
+}
+#zhao-area.facing-player #zhao-back { opacity:0; }
+#zhao-area.facing-player #zhao-face { opacity:1; }
+#zhao-area.turning #zhao-back { animation: zhao-turn-out 2s ease-out forwards; }
+#zhao-area.turning #zhao-face { animation: zhao-turn-in 2s ease-out forwards; }
+@keyframes zhao-turn-out {
+  0%   { opacity:1; transform: scaleX(-1) translateX(0); }
+  50%  { opacity:0.5; transform: scaleX(-0.5) translateX(20px); }
+  100% { opacity:0; transform: scaleX(0) translateX(40px); }
+}
+@keyframes zhao-turn-in {
+  0%   { opacity:0; transform: scaleX(0) translateX(-40px); }
+  50%  { opacity:0.5; transform: scaleX(-0.5) translateX(-20px); }
+  100% { opacity:1; transform: scaleX(-1) translateX(0); }
+}
+
+/* 主角角色区域 */
+#player-area {
+  position:absolute; right:40px; bottom:0;
+  width:140px; height:260px;
+  z-index:13;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+#player-area.hidden { opacity:0; pointer-events:none; }
+.player-layer {
+  position:absolute; inset:0;
+  background-size: contain; background-repeat: no-repeat; background-position: center bottom;
+  transition: opacity 0.6s ease;
+  pointer-events:none;
+}
+#player-normal {
+  background-image: url('assets/zhao/protag_me_front_portrait_transparent.png');
+  opacity:1;
+}
+#player-smile {
+  background-image: url('assets/zhao/protag_me_front_smile_transparent.png');
+  opacity:0;
+}
+#player-area.smile #player-normal { opacity:0; }
+#player-area.smile #player-smile { opacity:1; }
+
+/* 林姐角色区域 */
+#lin-area {
+  position:absolute; left:40px; bottom:0;
+  width:160px; height:260px;
+  z-index:14;
+  transition: opacity 0.6s ease;
+}
+#lin-area.hidden { opacity:0; pointer-events:none; }
+#lin-sprite {
+  position:absolute; inset:0;
+  background-image: url('assets/zhao/linjie.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  pointer-events:none;
+}
+
+/* 赵奶奶手部 */
+#zhao-hand {
+  position:absolute; left:50%; bottom:40px; margin-left:-18px;
+  font-size:36px; opacity:0; transition: all 0.6s;
+  z-index:15;
+}
+#zhao-hand.reaching { opacity:1; animation: hand-reach 1.5s ease-out forwards; }
+@keyframes hand-reach {
+  0%   { transform: translate(0, 0); }
+  100% { transform: translate(0, -85px); }
+}
+
+/* ========== 底部对话框 ========== */
+#dialogue-area {
+  height: 160px; flex-shrink:0;
+  background: linear-gradient(0deg, rgba(244,248,252,0.99), rgba(235,242,248,0.97));
+  border-top: 2px solid rgba(107,163,190,0.25);
+  position:relative; z-index:15;
+  display:flex; flex-direction:column;
+  padding: 16px 24px;
+}
+
+/* 说话人名称 */
+#speaker-row {
+  display:flex; align-items:center; gap:10px; margin-bottom:8px;
+  min-height:28px;
+}
+.speaker-name {
+  font-size:13px; font-weight:600; color: var(--text-mid);
+}
+.speaker-name.zhao   { color: var(--blue-deep); }
+.speaker-name.player { color: #8B7355; }
+.speaker-name.narrator { color: var(--text-gray); font-style:italic; }
+
+/* 对话文字 */
+#dialogue-text {
+  flex:1; font-size:15px; line-height:1.9; color: var(--text-dark);
+  overflow-y:auto; position:relative;
+}
+#dialogue-text .typing-cursor {
+  display:inline-block; width:2px; height:15px; background: var(--blue-mid);
+  animation: blink 0.8s infinite; vertical-align:middle; margin-left:2px;
+}
+@keyframes blink {
+  0%, 50% { opacity:1; }
+  51%, 100% { opacity:0; }
+}
+/* 语气标签 */
+.tone-tag {
+  display:inline-block; font-size:11px; padding:2px 6px; border-radius:4px;
+  background: var(--blue-pale); color: var(--blue-deep);
+  margin-left:6px; font-weight:400;
+}
+
+/* "继续"指示器 */
+#continue-indicator {
+  position:absolute; right:28px; bottom:20px;
+  font-size:13px; color: var(--blue-mid); opacity:0;
+  transition: opacity 0.4s; pointer-events:none;
+}
+#continue-indicator.show { opacity:1; animation: float-hint 1.5s ease-in-out infinite; }
+@keyframes float-hint {
+  0%, 100% { transform:translateY(0); }
+  50% { transform:translateY(-4px); }
+}
+
+/* ========== 选项按钮 ========== */
+#choices-container {
+  position:absolute; bottom:24px; left:24px; right:24px;
+  display:flex; gap:12px; justify-content:center;
+  opacity:0; transform:translateY(20px);
+  transition: opacity 0.4s, transform 0.4s;
+  pointer-events:none; z-index:20;
+}
+#choices-container.active {
+  opacity:1; transform:translateY(0); pointer-events:all;
+}
+.choice-btn {
+  flex:1; max-width:260px; padding:14px 20px;
+  border: 1.5px solid var(--blue-light); border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, #F8FAFC, #EEF4F8);
+  color: var(--text-dark);
+  font-size:14px; cursor:pointer; text-align:center;
+  transition: all 0.25s; line-height:1.5;
+  box-shadow: 0 1px 6px rgba(74,124,150,0.08);
+}
+.choice-btn:hover {
+  background: linear-gradient(135deg, var(--blue-pale), #D8EAF5);
+  border-color: var(--blue-mid);
+  transform: translateY(-2px); box-shadow: var(--shadow);
+}
+.choice-btn:active {
+  transform: scale(0.97);
+}
+.choice-btn .choice-label {
+  display:block; font-size:11px; color: var(--blue-mid); margin-bottom:4px;
+  font-weight:600; letter-spacing:1px;
+}
+
+/* ========== 笔记本弹窗 ========== */
+#notebook-overlay {
+  position:fixed; top:0; left:0; right:0; bottom:0;
+  background: rgba(32,55,70,0.65); z-index:100;
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition: opacity 0.3s;
+}
+#notebook-overlay.open { opacity:1; pointer-events:all; }
+#notebook-modal {
+  width:520px; max-height:460px;
+  background: linear-gradient(180deg, #FAFCFD, #F2F6FA);
+  border-radius: 16px;
+  box-shadow: 0 8px 48px rgba(42,74,92,0.25); padding:28px;
+  display:flex; flex-direction:column; gap:16px;
+  transform:translateY(20px); transition: transform 0.3s;
+}
+#notebook-overlay.open #notebook-modal { transform:translateY(0); }
+#notebook-modal h3 {
+  font-size:18px; color: var(--blue-deep);
+  display:flex; align-items:center; gap:8px;
+}
+#notebook-modal h3 span { font-size:22px; }
+#notebook-fragments {
+  flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:12px;
+}
+.fragment-card {
+  background: linear-gradient(135deg, #F4F8FC, #EBF3F8);
+  border-radius: var(--radius-sm);
+  padding:14px 16px; border-left: 3px solid var(--blue-mid);
+  font-size:14px; line-height:1.7; color: var(--text-mid);
+  transition: all 0.3s;
+}
+.fragment-card .frag-label {
+  font-size:11px; color: var(--blue-mid); margin-bottom:4px;
+  font-weight:600; letter-spacing:1px;
+}
+.fragment-card .frag-verdict {
+  display:inline-block; margin-top:6px; font-size:12px;
+  padding:3px 8px; border-radius:4px;
+  background: var(--yellow-soft); color: #6B5A3A;
+}
+.fragment-card.empty {
+  color: var(--text-light); font-style:italic; text-align:center;
+  border-left-color: transparent; background: transparent;
+}
+#notebook-close {
+  align-self:flex-end; padding:8px 24px;
+  border:none; border-radius: var(--radius-sm);
+  background: var(--blue-mid); color: white;
+  font-size:14px; cursor:pointer;
+  transition: background 0.2s;
+}
+#notebook-close:hover { background: var(--blue-deep); }
+
+/* 碎片收集动画 */
+.fragment-toast {
+  position:fixed; top:20px; left:50%; transform:translateX(-50%);
+  background: var(--blue-deep); color: white;
+  font-size:14px; padding:12px 24px; border-radius: 24px;
+  box-shadow: var(--shadow); z-index:200;
+  animation: toast-in 0.5s ease-out, toast-out 0.5s 2.5s ease-in forwards;
+  display:flex; align-items:center; gap:8px;
+}
+@keyframes toast-in {
+  from { opacity:0; transform:translateX(-50%) translateY(-20px); }
+  to   { opacity:1; transform:translateX(-50%) translateY(0); }
+}
+@keyframes toast-out {
+  from { opacity:1; }
+  to   { opacity:0; }
+}
+
+/* ========== 过渡画面 ========== */
+#transition-overlay {
+  position:absolute; inset:0; background: rgba(32,55,70,0.94);
+  z-index:50; display:flex; align-items:center; justify-content:center;
+  flex-direction:column; gap:20px;
+  opacity:0; pointer-events:none; transition: opacity 0.6s;
+}
+#transition-overlay.active { opacity:1; pointer-events:all; }
+#transition-overlay .trans-text {
+  color: var(--blue-pale); font-size:18px; text-align:center; line-height:1.8;
+  max-width:420px;
+}
+#transition-overlay .trans-sub {
+  color: var(--blue-light); font-size:14px;
+}
+#transition-overlay .trans-btn {
+  padding:12px 36px; border: 1.5px solid var(--blue-mid); border-radius: 24px;
+  background: transparent; color: var(--blue-light); font-size:15px;
+  cursor:pointer; transition: all 0.3s;
+}
+#transition-overlay .trans-btn:hover {
+  background: var(--blue-mid); border-color: var(--blue-light); color: white;
+}
+
+/* ========== 茎秆断裂特效 ========== */
+#stem-break-fx {
+  position:absolute; top:180px; right:180px;
+  font-size:40px; opacity:0; z-index:12; pointer-events:none;
+  transition: all 0.4s;
+}
+#stem-break-fx.breaking {
+  opacity:1;
+  animation: break-fall 0.9s ease-in forwards;
+}
+@keyframes break-fall {
+  0%   { transform:rotate(0deg) translateY(0); opacity:1; }
+  40%  { transform:rotate(-30deg) translateY(8px); opacity:0.9; }
+  100% { transform:rotate(-70deg) translateY(40px); opacity:0; }
+}
+
+/* 记忆闪回（探访一中的0.5秒闪现） */
+.memory-flash {
+  position:absolute; top:150px; right:100px;
+  width:80px; height:80px; border-radius: 8px;
+  background: radial-gradient(circle, rgba(107,163,190,0.5), rgba(126,168,200,0.3));
+  z-index:11; pointer-events:none; opacity:0;
+}
+.memory-flash.flashing {
+  animation: memory-pop 0.5s ease-out;
+}
+@keyframes memory-pop {
+  0%   { opacity:1; transform:scale(1.1); }
+  100% { opacity:0; transform:scale(0.8); }
+}
+
+/* ========== 探访二 · 标本盒 样式 ========== */
+#visit2-scene { position:absolute; inset:0; pointer-events:none; display:none; z-index:8; }
+#visit2-scene.active { display:block; pointer-events:all; }
+
+/* 皮箱 */
+#suitcase {
+  position:absolute; left:50%; bottom:40px; margin-left:-160px;
+  width:320px; height:200px;
+  background: linear-gradient(160deg, #8B6F5E, #6B5340, #5A4332);
+  border-radius: 10px 10px 4px 4px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3), inset 0 2px 0 rgba(255,255,255,0.08);
+  border: 2px solid #4A3528;
+  transition: all 0.8s ease;
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none;
+}
+#suitcase.visible { opacity:1; pointer-events:all; }
+#suitcase .lock-icon {
+  font-size:28px; opacity:0.6; transition: all 0.5s;
+}
+#suitcase.opened {
+  height:260px;
+  background: linear-gradient(160deg, #A08C7A, #7B6350, #5E4432);
+  border-radius: 10px 10px 0 0;
+}
+#suitcase.opened .lock-icon { opacity:0; }
+
+/* 皮箱内物品网格 */
+#suitcase-items {
+  position:absolute; left:50%; bottom:40px; margin-left:-160px;
+  width:320px; height:260px;
+  display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr;
+  gap:10px; padding: 20px 16px;
+  opacity:0; pointer-events:none; z-index:9;
+  transition: opacity 0.5s 0.4s;
+}
+#suitcase-items.visible { opacity:1; pointer-events:all; }
+#suitcase-items .v2-item {
+  background: linear-gradient(135deg, #F5EDE4, #EDE0D4);
+  border-radius: var(--radius-sm);
+  border: 1.5px solid #C4B5A5;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  cursor:pointer; transition: all 0.3s;
+  font-size:32px; gap:4px; position:relative;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+#suitcase-items .v2-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(74,124,150,0.2);
+  border-color: var(--blue-mid);
+}
+#suitcase-items .v2-item .v2-label {
+  font-size:11px; color: var(--text-mid); font-weight:500;
+}
+#suitcase-items .v2-item.examined {
+  opacity:0.5; pointer-events:none;
+}
+
+/* 标本盒内部展开 */
+#specimen-detail {
+  position:absolute; left:50%; top:50%; transform:translate(-50%, -50%);
+  width:460px; max-height:380px;
+  background: linear-gradient(180deg, #FAF7F3, #F2EBE2);
+  border-radius: 12px; border: 2px solid #C4B5A5;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+  padding:20px; z-index:30;
+  display:none; flex-direction:column; gap:12px;
+  overflow-y:auto;
+}
+#specimen-detail.show { display:flex; }
+#specimen-detail h4 {
+  font-size:15px; color: var(--text-dark); text-align:center;
+  border-bottom: 1px dashed #C4B5A5; padding-bottom:8px;
+}
+#specimen-detail .specimens-grid {
+  display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;
+}
+.specimen-card {
+  background: #F5EDE4; border-radius:6px; padding:8px;
+  text-align:center; font-size:12px; color: var(--text-mid);
+  border: 1px solid #DFD5C8; cursor:default;
+}
+.specimen-card.blue-flower {
+  border: 2px solid var(--blue-mid); cursor:pointer;
+  position:relative; transition: all 0.3s;
+  background: var(--blue-pale);
+  animation: blue-flower-pulse 1.5s ease-in-out infinite;
+}
+.specimen-card.blue-flower:hover {
+  background: #D0E6F0;
+  animation-duration: 0.8s;
+}
+@keyframes blue-flower-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(107,163,190,0.4); }
+  50% { box-shadow: 0 0 12px 4px rgba(107,163,190,0.25); }
+}
+.specimen-card .spec-emoji { font-size:24px; display:block; }
+
+/* 标签闪烁 */
+.spec-label-flicker {
+  font-size:10px; color: var(--text-mid); margin-top:4px;
+  transition: all 0.3s;
+}
+.spec-label-flicker.reality { color: #8B7355; }
+.spec-label-flicker.memory  { color: var(--blue-deep); }
+.flicker-highland { color: var(--blue-deep) !important; }
+.flicker-market  { color: #8B7355 !important; }
+
+/* 隐藏真相行 */
+.hidden-truth {
+  font-size:10px; color: #999; opacity:0; transition: opacity 0.6s;
+  margin-top:2px; font-style:italic;
+}
+.hidden-truth.revealed { opacity:1; }
+
+/* 野外记录本 - 翻页交互 */
+#field-notes-detail {
+  position:absolute; left:50%; top:50%; transform:translate(-50%, -50%);
+  width:460px;
+  background: linear-gradient(180deg, #FDF8EE, #F5ECD8);
+  border-radius: 10px; border: 2px solid #C4B5A5;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+  padding:20px 24px 16px; z-index:30;
+  display:none; flex-direction:column; gap:12px;
+}
+#field-notes-detail.show { display:flex; }
+.fn-pages-container {
+  position:relative; overflow:hidden;
+  width:100%; height:320px;
+  background: rgba(255,255,255,0.25);
+  border-radius:6px;
+}
+.fn-page {
+  position:absolute; top:0; left:0;
+  width:100%; height:100%;
+  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease;
+  pointer-events:none;
+  /* 默认隐藏右侧 */
+  transform:translateX(110%);
+  opacity:0;
+}
+.fn-page.active {
+  transform:translateX(0);
+  opacity:1;
+  pointer-events:auto;
+}
+.fn-page.exit-left {
+  transform:translateX(-110%);
+  opacity:0;
+}
+.fn-page.enter-right {
+  transform:translateX(110%);
+  opacity:0;
+}
+#field-notes-detail .note-page {
+  font-size:13px; color: var(--text-dark); line-height:2;
+  font-family: 'KaiTi','STKaiti','楷体',serif;
+  padding:16px 14px; background: rgba(255,255,255,0.5);
+  border-radius:6px; min-height:280px;
+}
+/* 分页指示器 */
+.fn-pagination {
+  display:flex; justify-content:center; gap:8px; padding:4px 0;
+}
+.fn-dot {
+  width:8px; height:8px; border-radius:50%;
+  background: #ccc; transition: background 0.3s;
+}
+.fn-dot.active { background: var(--blue-mid); }
+/* 翻页导航 */
+.fn-nav {
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+}
+.fn-btn {
+  padding:6px 16px; border: 1.5px solid var(--blue-mid);
+  border-radius: 16px; background: transparent;
+  color: var(--blue-deep); font-size:12px; cursor:pointer;
+  transition: all 0.3s; white-space:nowrap;
+}
+.fn-btn:hover:not(:disabled) { background: var(--blue-mid); color: white; }
+.fn-btn:disabled {
+  border-color: #ddd; color: #ccc; cursor: default; opacity:0.6;
+}
+.fn-page-indicator {
+  font-size:12px; color: var(--text-gray); min-width:36px; text-align:center;
+}
+.fn-close-btn { align-self:center; margin-top:4px; }
+
+/* 工作证 */
+#work-id-detail {
+  position:absolute; left:50%; top:50%; transform:translate(-50%, -50%);
+  width:360px;
+  background: transparent;
+  border:none; box-shadow:none;
+  padding:0; z-index:30;
+  display:none; flex-direction:column; align-items:center; gap:14px;
+  perspective: 1000px;
+}
+#work-id-detail.show { display:flex; }
+.id-flip-card {
+  width:240px; height:320px;
+  position:relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+#work-id-detail:hover .id-flip-card,
+.id-flip-card.flipped {
+  transform: rotateY(180deg);
+}
+.id-flip-card-front,
+.id-flip-card-back {
+  position:absolute; inset:0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background: linear-gradient(180deg, #FAF7F3, #F2EBE2);
+  border-radius: 10px; border: 2px solid #C4B5A5;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+  padding:24px;
+  display:flex; flex-direction:column; align-items:center; gap:14px;
+}
+.id-flip-card-back {
+  transform: rotateY(180deg);
+}
+#work-id-detail .id-photo-area {
+  width:90px; height:110px; border-radius:6px;
+  background: #DDD; position:relative; overflow:hidden;
+  flex-shrink:0;
+}
+.id-photo { font-size:60px; display:flex; align-items:center; justify-content:center;
+  width:100%; height:100%; position:absolute; top:0; left:0; }
+.id-photo.young {
+  background: url('assets/zhao/id_photo.png') center center / cover no-repeat;
+}
+.id-photo.zhou {
+  background: url('assets/zhao/laozhou_id_photo.png') center center / cover no-repeat;
+}
+#work-id-detail .id-info { text-align:center; font-size:13px; color: var(--text-mid); line-height:1.8; }
+#work-id-detail .id-info .hidden-note {
+  font-size:10px; color: rgba(0,0,0,0.2); margin-top:6px;
+  transition: color 0.6s;
+}
+#work-id-detail:hover .id-info .hidden-note { color: rgba(74,124,150,0.6); }
+
+/* 未寄出的信 */
+#letter-detail {
+  position:absolute; left:50%; top:50%; transform:translate(-50%, -50%);
+  width:auto; max-width:440px; max-height:420px;
+  background: transparent;
+  border:none; box-shadow: none;
+  display:none; flex-direction:column; align-items:center; gap:10px;
+  z-index:30;
+}
+#letter-detail.show { display:flex; }
+#letter-detail .letter-img {
+  max-width:100%; max-height:360px;
+  border-radius: 8px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+  transition: transform 0.3s;
+}
+#letter-detail .letter-img:hover { transform: scale(1.02); }
+
+/* 探访二结束按钮 */
+.v2-close-btn {
+  align-self:center; padding:8px 28px;
+  border: 1.5px solid var(--blue-mid); border-radius: 20px;
+  background: transparent; color: var(--blue-deep);
+  font-size:13px; cursor:pointer; transition: all 0.3s;
+}
+.v2-close-btn:hover { background: var(--blue-mid); color: white; }
+
+/* 探访二场景提示 */
+#v2-close-all {
+  position:absolute; bottom:30px; left:50%; transform:translateX(-50%);
+  padding:10px 30px;
+  border: none; border-radius: 22px;
+  background: var(--blue-mid); color: white;
+  font-size:14px; cursor:pointer; z-index:35;
+  opacity:0; pointer-events:none; transition: opacity 0.5s;
+  box-shadow: 0 4px 16px rgba(74,124,150,0.3);
+}
+#v2-close-all.visible { opacity:1; pointer-events:all; }
+#v2-close-all:hover { background: var(--blue-deep); }
+</style>
+</head>
+<body>
+
+<!-- 碎片收集提示 -->
+<div id="toast-container"></div>
+
+<!-- 笔记本弹窗 -->
+<div id="notebook-overlay">
+  <div id="notebook-modal">
+    <h3><span>📓</span> 虚实对账本</h3>
+    <div id="notebook-fragments">
+      <div class="fragment-card empty">还没有收集到碎片……</div>
+    </div>
+    <button id="notebook-close" onclick="Game.closeNotebook()">关闭</button>
+  </div>
+</div>
+
+<!-- 主游戏窗口 -->
+<div id="game-wrapper">
+  <!-- 顶部栏 -->
+  <div id="top-bar">
+    <div id="chapter-label">赵奶奶 · 探访一 · 枯萎的花</div>
+    <div id="trust-bar">
+      <div class="petal"></div>
+      <div class="petal"></div>
+      <div class="petal"></div>
+      <div class="petal"></div>
+      <div class="petal"></div>
+    </div>
+    <button id="notebook-btn" onclick="Game.openNotebook()">📓<span class="badge" id="frag-badge">0</span></button>
+  </div>
+
+  <!-- 场景层 -->
+  <div id="scene-layer">
+    <!-- 窗户 -->
+    <div id="window-frame"></div>
+    <div id="floor-spot"></div>
+    
+    <!-- 窗台 -->
+    <div id="windowsill"></div>
+    
+    <!-- 一盆花 -->
+    <div class="pot-slot left" data-pot="left" onmouseenter="Game.onPotEnter(this)" onmouseleave="Game.onPotLeave(this)" onclick="Game.onPotClick(this)">
+      <div class="plant-layer plant-memory">🌸🌿💧</div>
+      <div class="plant-layer plant-reality">🪴🥀🫙</div>
+      <div class="soil-display soil-dry"></div>
+      <div class="pot-body">🪴</div>
+      <div class="hover-tooltip"></div>
+      <div class="hover-progress"><div class="hover-progress-fill"></div></div>
+      <div class="pot-seeds">🟤🟤</div>
+    </div>
+    <div class="pot-slot mid" data-pot="mid" onmouseenter="Game.onPotEnter(this)" onmouseleave="Game.onPotLeave(this)" onclick="Game.onPotClick(this)">
+      <div class="plant-layer plant-memory">🌸🌿💧</div>
+      <div class="plant-layer plant-reality">🪴🥀🫙</div>
+      <div class="soil-display soil-dry"></div>
+      <div class="pot-body">🪴</div>
+      <div class="hover-tooltip"></div>
+      <div class="hover-progress"><div class="hover-progress-fill"></div></div>
+      <div class="pot-seeds">🟤🟤</div>
+    </div>
+    <div class="pot-slot right" data-pot="right" onmouseenter="Game.onPotEnter(this)" onmouseleave="Game.onPotLeave(this)" onclick="Game.onPotClick(this)">
+      <div class="plant-layer plant-memory">🌸🌿💧</div>
+      <div class="plant-layer plant-reality">🪴🥀🫙</div>
+      <div class="soil-display soil-dry"></div>
+      <div class="pot-body">🪴</div>
+      <div class="hover-tooltip"></div>
+      <div class="hover-progress"><div class="hover-progress-fill"></div></div>
+      <div class="pot-seeds">🟤🟤</div>
+    </div>
+
+    <!-- 记忆闪回层 -->
+    <div class="memory-flash" id="memory-flash"></div>
+
+    <!-- 茎秆断裂 -->
+    <div id="stem-break-fx">🍂</div>
+
+    <!-- 赵奶奶 -->
+    <div id="zhao-area" class="hidden">
+      <div id="zhao-back" class="zhao-layer"></div>
+      <div id="zhao-face" class="zhao-layer"></div>
+    </div>
+    <div id="zhao-hand">🤚</div>
+
+    <!-- 林姐 -->
+    <div id="lin-area" class="hidden">
+      <div id="lin-sprite"></div>
+    </div>
+
+    <!-- 主角 -->
+    <div id="player-area" class="hidden">
+      <div id="player-normal" class="player-layer"></div>
+      <div id="player-smile" class="player-layer"></div>
+    </div>
+
+    <!-- 工具盒 -->
+    <div id="tool-box" onclick="Game.onToolBoxClick()">🧰</div>
+    <!-- 竹签探针 -->
+    <div id="bamboo-stick">🥢</div>
+
+
+    <!-- ===== 探访二 · 标本盒 场景元素 ===== -->
+    <div id="visit2-scene">
+      <!-- 皮箱 -->
+      <div id="suitcase"><span class="lock-icon">🔒</span></div>
+      <!-- 皮箱内物品 -->
+      <div id="suitcase-items">
+        <div class="v2-item" data-item="specimen" onclick="Game.onV2ItemClick('specimen')">
+          📦<span class="v2-label">标本盒</span>
+        </div>
+        <div class="v2-item" data-item="notebook" onclick="Game.onV2ItemClick('notebook')">
+          📒<span class="v2-label">野外记录本</span>
+        </div>
+        <div class="v2-item" data-item="workid" onclick="Game.onV2ItemClick('workid')">
+          🪪<span class="v2-label">工作证</span>
+        </div>
+        <div class="v2-item" data-item="letter" onclick="Game.onV2ItemClick('letter')">
+          ✉️<span class="v2-label">未寄出的信</span>
+        </div>
+      </div>
+      <!-- 标本盒展开详情 -->
+      <div id="specimen-detail">
+        <h4>📦 标本盒 · 十二片干枯的勿忘我</h4>
+        <div class="specimens-grid" id="specimens-grid"></div>
+        <button class="v2-close-btn" onclick="Game.closeSpecimenBox()">合上标本盒</button>
+      </div>
+      <!-- 野外记录本详情 - 翻页交互 -->
+      <div id="field-notes-detail">
+        <div class="fn-pages-container">
+          <div class="fn-page active" data-page="1">
+            <div class="note-page">
+              <div style="font-weight:600; margin-bottom:8px; font-size:14px;">野外记录本 · 赵秀兰</div>
+              <div style="margin-bottom:6px;">1984年7月12日&emsp;晴&emsp;云南·高黎贡山北坡<br>海拔2800m&emsp;紫红色&emsp;生长于岩石缝隙，根系发达……</div>
+              <div style="margin-bottom:6px;">1984年7月15日&emsp;晴&emsp;云南·高黎贡山中段<br>海拔2600m&emsp;紫红色&emsp;花色较深……</div>
+              <div style="margin-bottom:6px;">1985年5月3日&emsp;多云&emsp;四川·雅安<br>白色&emsp;植株矮小……</div>
+              <div style="margin-bottom:6px;">1985年7月20日&emsp;晴&emsp;四川·峨眉山<br>淡紫色&emsp;生于溪边，土壤湿润……</div>
+              <div style="color:var(--text-gray);">……</div>
+              <div style="color:var(--text-gray); margin-top:4px;">字迹密密麻麻，每一笔都很用力。</div>
+            </div>
+          </div>
+          <div class="fn-page" data-page="2">
+            <div class="note-page">
+              <div style="font-weight:600; margin-bottom:8px; font-size:14px;">野外记录本 · 赵秀兰</div>
+              <div style="margin-bottom:30px; color:var(--text-gray);">1986年8月10日&emsp;阴&emsp;西藏……</div>
+              <div style="margin-bottom:30px; color:var(--text-gray); line-height:1.2;">
+                <span style="opacity:0.35;">——————</span><br>
+                <span style="opacity:0.25;">——————</span><br>
+                <span style="opacity:0.15;">——————</span>
+              </div>
+              <div style="text-align:center; color:var(--text-gray); margin-top:20px; font-size:13px;">
+                张家铭要办画展。我休了半年假。
+              </div>
+            </div>
+          </div>
+          <div class="fn-page" data-page="3">
+            <div class="note-page">
+              <div style="font-weight:600; margin-bottom:8px; font-size:14px;">野外记录本 · 赵秀兰</div>
+              <div style="margin-top:40px; text-align:center; color:var(--text-gray);">
+                老周接手了云南的项目，<br>让我安心照顾家里。
+              </div>
+            </div>
+          </div>
+          <div class="fn-page" data-page="4">
+            <div class="note-page" style="display:flex; align-items:center; justify-content:center; min-height:260px;">
+              <div style="color:#e0e0e0; text-align:center;"></div>
+            </div>
+          </div>
+          <div class="fn-page" data-page="5">
+            <div class="note-page" style="display:flex; align-items:center; justify-content:center; min-height:260px;">
+              <div style="color:#e0e0e0; text-align:center;"></div>
+            </div>
+          </div>
+          <div class="fn-page" data-page="6">
+            <div class="note-page" style="display:flex; align-items:center; justify-content:center; min-height:260px;">
+              <div style="color:#e0e0e0; text-align:center;"></div>
+            </div>
+          </div>
+          <div class="fn-page" data-page="7">
+            <div class="note-page" style="display:flex; align-items:center; justify-content:center; min-height:260px;">
+              <div style="color:#e0e0e0; text-align:center;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="fn-pagination">
+          <span class="fn-dot" data-dot="1"></span>
+          <span class="fn-dot" data-dot="2"></span>
+          <span class="fn-dot" data-dot="3"></span>
+          <span class="fn-dot" data-dot="4"></span>
+          <span class="fn-dot" data-dot="5"></span>
+          <span class="fn-dot" data-dot="6"></span>
+          <span class="fn-dot" data-dot="7"></span>
+        </div>
+        <div class="fn-nav">
+          <button class="fn-btn fn-prev" id="fn-prev-btn" onclick="Game.flipFieldNotesPage(-1)" disabled>◀ 上一页</button>
+          <span class="fn-page-indicator" id="fn-page-indicator">1/7</span>
+          <button class="fn-btn fn-next" id="fn-next-btn" onclick="Game.flipFieldNotesPage(1)" disabled>下一页 ▶</button>
+        </div>
+        <button class="v2-close-btn fn-close-btn" id="fn-close-btn" onclick="Game.closeFieldNotes()" style="display:none;">合上记录本</button>
+      </div>
+      <!-- 工作证详情 -->
+      <div id="work-id-detail">
+        <div class="id-flip-card">
+          <div class="id-flip-card-front">
+            <div class="id-photo-area">
+              <div class="id-photo young"></div>
+            </div>
+            <div class="id-info">
+              <div style="font-weight:600;">赵秀兰</div>
+              <div>助理研究员</div>
+              <div>植物研究所 · 第三研究室</div>
+              <div class="hidden-note">也做过一些事。</div>
+            </div>
+          </div>
+          <div class="id-flip-card-back">
+            <div class="id-photo-area">
+              <div class="id-photo zhou"></div>
+            </div>
+            <div class="id-info">
+              <div style="font-weight:600;">周乡良</div>
+              <div>研究员</div>
+              <div>植物研究所 · 第三研究室</div>
+            </div>
+          </div>
+        </div>
+        <button class="v2-close-btn" onclick="Game.closeWorkId()">收起工作证</button>
+      </div>
+      <!-- 未寄出的信详情 -->
+      <div id="letter-detail">
+        <img src="assets/zhao/letter.png" alt="未寄出的信" class="letter-img">
+        <button class="v2-close-btn" onclick="Game.closeLetter()">折起信纸</button>
+      </div>
+      <!-- 全部查看完毕按钮 -->
+      <button id="v2-close-all" onclick="Game.onV2AllExamined()">继续对话 →</button>
+    </div>
+
+    <!-- 场景提示 -->
+    <div class="scene-hint" id="scene-hint"></div>
+
+    <!-- 过渡层 -->
+    <div id="transition-overlay">
+      <div class="trans-text"></div>
+      <div class="trans-sub"></div>
+      <button class="trans-btn" onclick="Game.onTransitionContinue()">继续 →</button>
+    </div>
+  </div>
+
+  <!-- 对话区 -->
+  <div id="dialogue-area">
+    <div id="speaker-row" style="display:none;">
+      <div class="speaker-name narrator">旁白</div>
+    </div>
+    <div id="dialogue-text"></div>
+    <div id="continue-indicator">点击继续 ▾</div>
+  </div>
+
+  <!-- 选项容器 -->
+  <div id="choices-container"></div>
+</div>
+
+
+
+<script>
+// ==============================
+//  勿忘我 · 探访一 游戏引擎
+// ==============================
+
+const Game = {
+  // 状态
+  phase: 'init',
+  dialogueReady: false,
+  interactMode: false,
+  potsHovered: new Set(),
+  hoverStabilized: new Set(),
+  choiceD04: null,
+  notebookFragments: [],
+  typingTimer: null,
+  hasStick: false,
+  seedsCollected: false,
+  hoverPaused: false,
+  _hoverStartTimes: {},
+  // 探访二状态
+  currentVisit: 1,
+  v2ItemsExamined: new Set(),
+  v2AllExamined: false,
+  v2LabelStabilized: false,
+  v2FieldNotesPage: 1,
+  v2FieldNotesMaxPage: 7,
+  v2FieldNotesBusy: false,
+  v2FieldNotesAllFlipped: false,
+  v2SpecimenComplete: false,
+  
+  // DOM缓存
+  el: {},
+
+  // ========== 初始化 ==========
+  init() {
+    this.cacheDom();
+    this.bindGlobalClick();
+    this.resetScene();
+    // 直接启动探访二
+    setTimeout(() => this.startVisit2(), 600);
+  },
+
+  cacheDom() {
+    const $ = id => document.getElementById(id);
+    this.el.scene      = $('scene-layer');
+    this.el.dialogue   = $('dialogue-text');
+    this.el.choices    = $('choices-container');
+    this.el.hint       = $('scene-hint');
+    this.el.continue   = $('continue-indicator');
+    this.el.zhaoArea   = $('zhao-area');
+    this.el.zhaoBack   = $('zhao-back');
+    this.el.zhaoFace   = $('zhao-face');
+    this.el.zhaoHand   = $('zhao-hand');
+    this.el.playerArea = $('player-area');
+    this.el.linArea    = $('lin-area');
+    this.el.breakFx    = $('stem-break-fx');
+    this.el.memFlash   = $('memory-flash');
+    this.el.transition = $('transition-overlay');
+    this.el.speakerRow = $('speaker-row');
+    this.el.fragBadge  = $('frag-badge');
+    this.el.trustBar   = $('trust-bar');
+    this.el.notebook   = $('notebook-overlay');
+    this.el.nbFragments= $('notebook-fragments');
+    this.el.toastCt    = $('toast-container');
+    this.el.toolBox    = $('tool-box');
+    this.el.stick      = $('bamboo-stick');
+
+    this.el.v2Scene      = $('visit2-scene');
+    this.el.suitcase     = $('suitcase');
+    this.el.suitcaseItems= $('suitcase-items');
+    this.el.specimenDetail = $('specimen-detail');
+    this.el.specimensGrid  = $('specimens-grid');
+    this.el.fieldNotesDetail = $('field-notes-detail');
+    this.el.workIdDetail   = $('work-id-detail');
+    this.el.letterDetail   = $('letter-detail');
+    this.el.v2CloseAll    = $('v2-close-all');
+  },
+
+  bindGlobalClick() {
+    // 点击对话框区域推进对话
+    document.getElementById('dialogue-area').addEventListener('click', (e) => {
+      if (e.target.closest('#choices-container')) return;
+      this.advanceDialogue();
+    });
+    // 点击场景也推进（方便玩家）
+    this.el.scene.addEventListener('click', (e) => {
+      if (e.target.closest('.pot-slot')) return;
+      if (e.target.closest('#transition-overlay')) return;
+      if (e.target.closest('#tool-box')) return;
+      this.advanceDialogue();
+    });
+    // 空格键跳过打字
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && this.typingTimer) {
+        e.preventDefault();
+        this.advanceDialogue();
+      }
+    });
+  },
+
+  resetScene() {
+    this.el.zhaoArea.classList.remove('facing-player', 'turning');
+    this.el.zhaoArea.classList.add('hidden');
+    this.el.zhaoHand.classList.remove('reaching');
+    this.el.zhaoFace.classList.remove('sad');
+    this.el.linArea.classList.add('hidden');
+    this.el.playerArea.classList.remove('smile');
+    this.el.playerArea.classList.add('hidden');
+    this.el.breakFx.classList.remove('breaking');
+    this.el.memFlash.classList.remove('flashing');
+    this.el.transition.classList.remove('active');
+    this.el.continue.classList.remove('show');
+    this.el.choices.classList.remove('active');
+    this.el.choices.innerHTML = '';
+    this.el.dialogue.innerHTML = '';
+    this.el.toolBox.classList.remove('visible', 'picked');
+    this.el.stick.classList.remove('equipped', 'poking', 'pull');
+    // 重置花盆
+    document.querySelectorAll('.pot-slot').forEach(p => {
+      p.classList.remove('memory-active', 'memory-fading');
+      if (p._animFrame) cancelAnimationFrame(p._animFrame);
+      p._hovering = false;
+      p._probed = false;
+      const soil = p.querySelector('.soil-display');
+      if (soil) { soil.classList.remove('soil-wet'); soil.classList.add('soil-dry'); }
+      p.querySelector('.hover-tooltip')?.classList.remove('visible');
+      p.querySelector('.hover-progress')?.classList.remove('show');
+      p.querySelector('.pot-seeds')?.classList.remove('visible', 'collected');
+      const progFill = p.querySelector('.hover-progress-fill');
+      if (progFill) progFill.style.width = '0%';
+    });
+    this.el.hint.classList.remove('visible');
+    this.potsHovered.clear();
+    this.hoverStabilized.clear();
+    this.notebookFragments = [];
+    this.hasStick = false;
+    this.seedsCollected = false;
+    this.hoverPaused = false;
+    this._hoverStartTimes = {};
+    this.v2ItemsExamined = new Set();
+    this.v2AllExamined = false;
+    this.v2LabelStabilized = false;
+    this.v2SpecimenComplete = false;
+    this.currentVisit = 1;
+    // 探访二元素
+    this.el.v2Scene?.classList.remove('active');
+    this.el.suitcase?.classList.remove('opened', 'visible');
+    this.el.suitcaseItems?.classList.remove('visible');
+    this.el.specimenDetail?.classList.remove('show');
+    this.el.fieldNotesDetail?.classList.remove('show');
+    this.el.workIdDetail?.classList.remove('show');
+    this.el.letterDetail?.classList.remove('show');
+    this.el.v2CloseAll?.classList.remove('visible');
+    document.querySelectorAll('#suitcase-items .v2-item').forEach(el => el.classList.remove('examined'));
+    this.updateTrustBar();
+    this.updateNotebookUI();
+  },
+
+  // 动态切换场景背景
+  setSceneBackground(url, withTransition = false) {
+    if (!this.el.scene) return;
+    this.el.scene.querySelectorAll('.scene-transition').forEach(o => o.remove());
+    if (!withTransition) {
+      this.el.scene.style.backgroundImage = `url('${url}')`;
+      return;
+    }
+    const overlay = document.createElement('div');
+    overlay.className = 'scene-transition';
+    overlay.style.backgroundImage = `url('${url}')`;
+    this.el.scene.appendChild(overlay);
+    setTimeout(() => {
+      this.el.scene.style.backgroundImage = `url('${url}')`;
+      overlay.remove();
+    }, 1500);
+  },
+
+  // ========== 阶段管理 ==========
+  startPhase(name) {
+    this.phase = name;
+    this.dialogueReady = false;
+    this.interactMode = false;
+    this.el.continue.classList.remove('show');
+    this.el.choices.classList.remove('active');
+    this.el.hint.classList.remove('visible');
+
+    switch(name) {
+      case 'intro':           this.doIntro(); break;
+      case 'touch_flower':    this.doTouchFlower(); break;
+      case 'hover_mode':      this.doHoverMode(); break;
+      case 'probe_stick':     this.doProbeStick(); break;
+      case 'collect_seeds':   this.doCollectSeeds(); break;
+      case 'scene_ending':    this.doSceneEnding(); break;
+      // 探访二阶段
+      case 'v2_intro':        this.doV2Intro(); break;
+      case 'v2_interact':     this.doV2Interact(); break;
+      case 'v2_specimen':     this.doV2Specimen(); break;
+      case 'v2_notebook':     this.doV2Notebook(); break;
+      case 'v2_workid':       this.doV2WorkId(); break;
+      case 'v2_letter':       this.doV2Letter(); break;
+      case 'v2_check_all':    this.doV2CheckAll(); break;
+      case 'v2_ending':       this.doV2Ending(); break;
+    }
+  },
+
+  // ========== 对话核心 ==========
+  // queue: [{ speaker:'narrator'|'zhao'|'player', text, speed, cb?, anim? }]
+  runDialogueQueue(queue, startIndex = 0) {
+    this._dq = queue;
+    this._dqIdx = startIndex;
+    this._showNextInQueue();
+  },
+
+  _showNextInQueue() {
+    if (this._dqIdx >= this._dq.length) {
+      this.dialogueReady = false;
+      this.el.continue.classList.remove('show');
+      return;
+    }
+    const entry = this._dq[this._dqIdx];
+    this._currentEntry = entry;
+    this.dialogueReady = false;
+    this.el.continue.classList.remove('show');
+    
+    // 设置说话人
+    this.setSpeaker(entry.speaker);
+    
+    // 特殊动画
+    if (entry.anim) {
+      this.playAnimation(entry.anim);
+    }
+    
+    // 角色表情
+    if (entry.exp) {
+      if (entry.exp.zhao) this.setZhaoExpression(entry.exp.zhao);
+      if (entry.exp.player) this.setPlayerExpression(entry.exp.player);
+    }
+    
+    // 入口开始回调（如林姐渐显）
+    if (entry.startCb) entry.startCb();
+    
+    // 打字机效果
+    this.typeText(entry.text, entry.speed || 50, () => {
+      this.dialogueReady = true;
+      this.el.continue.textContent = '点击继续 ▾';
+      this.el.continue.classList.add('show');
+      if (entry.cb) entry.cb();
+    });
+  },
+
+  advanceDialogue() {
+    // 如果正在打字，跳过动画直接显示全部
+    if (this.typingTimer) {
+      clearInterval(this.typingTimer);
+      this.typingTimer = null;
+      this.el.dialogue.innerHTML = this._fullText + '<span class="typing-cursor"></span>';
+      this.dialogueReady = true;
+      this.el.continue.textContent = '点击继续 ▾';
+      this.el.continue.classList.add('show');
+      if (this._currentEntry && this._currentEntry.cb) this._currentEntry.cb();
+      return;
+    }
+    
+    if (!this.dialogueReady) return;
+    
+    this._dqIdx++;
+    this._showNextInQueue();
+  },
+
+  setSpeaker(type) {
+    const row = this.el.speakerRow;
+    const name = row.querySelector('.speaker-name');
+    // 默认隐藏所有角色立绘，由对应说话人时单独显现
+    this.el.zhaoArea.classList.add('hidden');
+    this.el.playerArea.classList.add('hidden');
+    // 林姐在旁白阶段由 startCb 单独控制，这里不强制隐藏
+    if (type !== 'narrator') this.el.linArea.classList.add('hidden');
+
+    if (type === 'narrator') {
+      // 旁白不显示角色名，隐藏整个说话人行
+      row.style.display = 'none';
+      return;
+    }
+    row.style.display = '';
+    name.className = 'speaker-name ' + type;
+    switch(type) {
+      case 'zhao':
+        name.textContent = '赵奶奶';
+        this.el.zhaoArea.classList.remove('hidden');
+        break;
+      case 'player':
+        name.textContent = '你';
+        this.el.playerArea.classList.remove('hidden');
+        break;
+      case 'lin':
+        name.textContent = '林姐';
+        this.el.linArea.classList.remove('hidden');
+        break;
+    }
+  },
+
+  setZhaoExpression(exp) {
+    if (!exp) return;
+    this.el.zhaoFace.classList.remove('sad');
+    if (exp === 'back') {
+      this.el.zhaoArea.classList.remove('facing-player');
+    } else if (exp === 'normal') {
+      this.el.zhaoArea.classList.add('facing-player');
+    } else if (exp === 'sad') {
+      this.el.zhaoArea.classList.add('facing-player');
+      this.el.zhaoFace.classList.add('sad');
+    }
+  },
+
+  setPlayerExpression(exp) {
+    if (exp === 'smile') this.el.playerArea.classList.add('smile');
+    else this.el.playerArea.classList.remove('smile');
+  },
+
+  typeText(text, speed, done) {
+    if (this.typingTimer) clearInterval(this.typingTimer);
+    this._fullText = text;
+    this.el.dialogue.innerHTML = '';
+    this.el.continue.textContent = '点击跳过 ▾';
+    this.el.continue.classList.add('show');
+    let i = 0;
+    this.typingTimer = setInterval(() => {
+      if (i < text.length) {
+        this.el.dialogue.innerHTML = text.slice(0, i + 1) + '<span class="typing-cursor"></span>';
+        i++;
+      } else {
+        clearInterval(this.typingTimer);
+        this.typingTimer = null;
+        this.el.dialogue.innerHTML = text + '<span class="typing-cursor"></span>';
+        if (done) done();
+      }
+    }, speed);
+  },
+
+  playAnimation(name) {
+    switch(name) {
+      case 'zhao_turn':
+        this.el.zhaoArea.classList.add('turning');
+        setTimeout(() => {
+          this.el.zhaoArea.classList.remove('turning');
+          this.el.zhaoArea.classList.add('facing-player');
+        }, 2000);
+        break;
+      case 'hand_reach':
+        this.el.suitcase.classList.add('visible');
+        this.el.zhaoHand.classList.add('reaching');
+        break;
+      case 'hand_retract':
+        this.el.zhaoHand.classList.remove('reaching');
+        break;
+      case 'stem_break':
+        this.el.breakFx.classList.add('breaking');
+        setTimeout(() => this.el.breakFx.classList.remove('breaking'), 1000);
+        break;
+      case 'memory_flash':
+        this.el.memFlash.classList.add('flashing');
+        setTimeout(() => this.el.memFlash.classList.remove('flashing'), 600);
+        break;
+    }
+  },
+
+  // ========== 选项系统 ==========
+  showChoices(choices, onSelect) {
+    // choices: [{label:'A', text:'...'}]
+    const ct = this.el.choices;
+    ct.innerHTML = '';
+    choices.forEach(ch => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.innerHTML = `<span class="choice-label">选项 ${ch.label}</span>${ch.text}`;
+      btn.addEventListener('click', () => {
+        ct.classList.remove('active');
+        ct.innerHTML = '';
+        if (onSelect) onSelect(ch.label);
+      });
+      ct.appendChild(btn);
+    });
+    // 短暂延迟后显示（让布局先算好）
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => ct.classList.add('active'));
+    });
+  },
+
+  // ========== 花盆悬停交互（3秒稳定机制）==========
+  onPotEnter(potEl) {
+    if (!this.interactMode || this.hoverPaused) return;
+    if (potEl._hovering) return;
+    if (this.hoverStabilized.has(potEl.dataset.pot)) return;
+    potEl._hovering = true;
+    
+    const potId = potEl.dataset.pot;
+    const soil = potEl.querySelector('.soil-display');
+    const tooltip = potEl.querySelector('.hover-tooltip');
+    const progBar = potEl.querySelector('.hover-progress');
+    const progFill = potEl.querySelector('.hover-progress-fill');
+    
+    // 初始状态：记忆浮现
+    potEl.classList.add('memory-active');
+    potEl.classList.remove('memory-fading');
+    soil.classList.remove('soil-dry');
+    soil.classList.add('soil-wet');
+    
+    progBar.classList.add('show');
+    progFill.style.width = '0%';
+    
+    // 3秒进度 + 认知残影闪烁
+    const startTime = Date.now();
+    const pot = potEl;
+    const self = this;
+    
+    function updateProgress() {
+      if (!pot._hovering || !self.interactMode || self.hoverPaused) {
+        progBar.classList.remove('show');
+        pot._hovering = false;
+        return;
+      }
+      const elapsed = Date.now() - startTime;
+      const pct = Math.min(elapsed / 3000 * 100, 100);
+      progFill.style.width = pct + '%';
+      
+      // 0-1.5s: 慢闪烁
+      // 1.5-2.5s: 加速闪烁
+      // 2.5-3s: 极速闪烁
+      if (pct < 100) {
+        let interval;
+        if (pct < 50) interval = 600;
+        else if (pct < 80) interval = 300;
+        else interval = 120;
+        
+        const phase = Math.floor(elapsed / interval) % 2;
+        if (phase === 0) {
+          pot.classList.remove('memory-active');
+          pot.classList.add('memory-fading');
+          soil.classList.remove('soil-wet');
+          soil.classList.add('soil-dry');
+        } else {
+          pot.classList.add('memory-active');
+          pot.classList.remove('memory-fading');
+          soil.classList.remove('soil-dry');
+          soil.classList.add('soil-wet');
+        }
+        pot._animFrame = requestAnimationFrame(updateProgress);
+      } else {
+        // 3秒到：稳定现实
+        pot.classList.remove('memory-active', 'memory-fading');
+        soil.classList.remove('soil-wet');
+        soil.classList.add('soil-dry');
+        progBar.classList.remove('show');
+        self.hoverStabilized.add(potId);
+        self.potsHovered.add(potId);
+        self.onHoverStabilized(potId);
+      }
+    }
+    
+    pot._animFrame = requestAnimationFrame(updateProgress);
+  },
+
+  onPotLeave(potEl) {
+    if (!potEl._hovering) return;
+    potEl._hovering = false;
+    if (potEl._animFrame) cancelAnimationFrame(potEl._animFrame);
+    clearTimeout(potEl._timer1);
+    clearTimeout(potEl._timer2);
+    
+    // 如果已稳定，不重置
+    if (this.hoverStabilized.has(potEl.dataset.pot)) {
+      potEl.querySelector('.hover-progress').classList.remove('show');
+      return;
+    }
+    
+    potEl.classList.remove('memory-active', 'memory-fading');
+    const soil = potEl.querySelector('.soil-display');
+    soil.classList.remove('soil-wet');
+    soil.classList.add('soil-dry');
+    potEl.querySelector('.hover-tooltip').classList.remove('visible');
+    potEl.querySelector('.hover-progress').classList.remove('show');
+  },
+
+  onHoverStabilized(potId) {
+    // 悬停3秒后触发
+    const tips = {
+      left:  '土干透了，茎都塌平了。',
+      mid:   '半死不活的，勉强立着。',
+      right: '这盆还撑着——土面干裂，但茎还在。',
+    };
+    const potEl = document.querySelector(`.pot-slot[data-pot="${potId}"]`);
+    if (potEl) {
+      const tooltip = potEl.querySelector('.hover-tooltip');
+      tooltip.textContent = tips[potId];
+      tooltip.classList.add('visible');
+      setTimeout(() => tooltip.classList.remove('visible'), 3000);
+    }
+    this.showSceneHint('🔍 土是干的——和赵奶奶说的不一样。', 2500);
+    
+    // 检查是否至少一盆已稳定，触发后续
+    if (this.hoverStabilized.size >= 1 && this.phase === 'hover_mode') {
+      if (this._hoverFallback) clearTimeout(this._hoverFallback);
+      if (this._hoverCompleteTimer) clearTimeout(this._hoverCompleteTimer);
+      this._hoverCompleteTimer = setTimeout(() => {
+        if (this.phase === 'hover_mode') {
+          this.interactMode = false;
+          this.el.hint.classList.remove('visible');
+          this.startPhase('probe_stick');
+        }
+      }, 2000);
+    }
+  },
+
+  // ========== 点击花盆（探针 / 种子）==========
+  onPotClick(potEl) {
+    if (this.phase === 'probe_stick' && this.hasStick && !potEl._probed) {
+      this.doProbeAction(potEl);
+      return;
+    }
+    if (this.phase === 'collect_seeds' && !this.seedsCollected) {
+      this.doCollectSeedsAction();
+      return;
+    }
+  },
+
+  onToolBoxClick() {
+    if (this.phase !== 'probe_stick' || this.hasStick) return;
+    this.hasStick = true;
+    this.el.toolBox.classList.add('picked');
+    this.el.stick.classList.add('equipped');
+    this.showSceneHint('🥢 拿着竹签，点击花盆戳进土里看看。', 3000);
+  },
+
+  // ========== 展示场景提示 ==========
+  showSceneHint(text, duration = 3000) {
+    this.el.hint.textContent = text;
+    this.el.hint.classList.add('visible');
+    clearTimeout(this._hintTimer);
+    this._hintTimer = setTimeout(() => {
+      this.el.hint.classList.remove('visible');
+    }, duration);
+  },
+
+  // ========== 笔记本系统 ==========
+  addFragment(fragment) {
+    this.notebookFragments.push(fragment);
+    this.updateTrustBar();
+    this.updateNotebookUI();
+    this.showToast(`📓 虚实对账本已记录 · 碎片 ${this.notebookFragments.length}/5`);
+  },
+
+  updateTrustBar() {
+    const petals = this.el.trustBar.querySelectorAll('.petal');
+    petals.forEach((p, i) => {
+      if (i < this.notebookFragments.length) {
+        p.classList.add('collected');
+      } else {
+        p.classList.remove('collected');
+      }
+    });
+    this.el.fragBadge.textContent = this.notebookFragments.length;
+    this.el.fragBadge.style.display = this.notebookFragments.length > 0 ? 'flex' : 'none';
+  },
+
+  updateNotebookUI() {
+    if (this.notebookFragments.length === 0) {
+      this.el.nbFragments.innerHTML = '<div class="fragment-card empty">还没有收集到碎片……</div>';
+      return;
+    }
+    this.el.nbFragments.innerHTML = this.notebookFragments.map((f, i) => `
+      <div class="fragment-card">
+        <div class="frag-label">碎片 ${i + 1}/5</div>
+        ${f.text}
+        ${f.verdict ? `<div class="frag-verdict">${f.verdict}</div>` : ''}
+      </div>
+    `).join('');
+  },
+
+  openNotebook() {
+    this.el.notebook.classList.add('open');
+  },
+  closeNotebook() {
+    this.el.notebook.classList.remove('open');
+  },
+
+  showToast(msg) {
+    const toast = document.createElement('div');
+    toast.className = 'fragment-toast';
+    toast.textContent = msg;
+    this.el.toastCt.appendChild(toast);
+    setTimeout(() => toast.remove(), 3200);
+  },
+
+  // ========== 过渡画面 ==========
+  showTransition(title, subtitle, callback) {
+    const ov = this.el.transition;
+    ov.querySelector('.trans-text').textContent = title;
+    ov.querySelector('.trans-sub').textContent = subtitle || '';
+    ov.classList.add('active');
+    this._transCallback = callback;
+  },
+  onTransitionContinue() {
+    this.el.transition.classList.remove('active');
+    if (this._transCallback) {
+      const cb = this._transCallback;
+      this._transCallback = null;
+      cb();
+    }
+  },
+
+  // ==============================
+  //  探访二 · 标本盒
+  // ==============================
+
+  startVisit2() {
+    this.currentVisit = 2;
+    document.getElementById('chapter-label').textContent = '赵奶奶 · 探访二 · 标本盒';
+    // 隐藏探访一专属元素
+    document.querySelectorAll('.pot-slot').forEach(p => { p.style.display = 'none'; });
+    this.el.toolBox.classList.remove('visible');
+    this.el.stick.classList.remove('equipped', 'poking', 'pull');
+    this.el.hint.classList.remove('visible');
+    // 重置赵奶奶位置
+    this.el.zhaoArea.classList.remove('facing-player', 'turning');
+    this.el.zhaoHand.classList.remove('reaching');
+    this.startPhase('v2_intro');
+  },
+
+  // ------ v2 阶段1: 开场 + 获得钥匙 ------ 
+  doV2Intro() {
+    this.el.v2Scene.classList.add('active');
+    this.runDialogueQueue([
+      {
+        speaker: 'narrator',
+        text: '你在门口等了几分钟。林姐从走廊那头走过来，手里拿着一把旧钥匙。',
+        speed: 50,
+        exp: { zhao: 'back' },
+        startCb: () => { this.el.linArea.classList.remove('hidden'); },
+      },
+      {
+        speaker: 'lin',
+        text: '她今天状态不太好，在休息。你先进去吧，她让我把这个给你。',
+        speed: 70,
+      },
+      {
+        speaker: 'player',
+        text: '这是什么？',
+        speed: 120,
+        exp: { player: 'normal' },
+      },
+      {
+        speaker: 'lin',
+        text: '床底下那个皮箱的钥匙。她说你可能想看里面的东西。',
+        speed: 70,
+      },
+      {
+        speaker: 'narrator',
+        text: '林姐没有多解释，转身走了。你注意到她围裙上有"时光驿站"的logo，没有工牌。',
+        speed: 50,
+        exp: { zhao: 'back' },
+        startCb: () => { this.el.linArea.classList.add('hidden'); },
+        cb: () => { this.setSceneBackground('assets/zhao/linjie_apron_text.png', true); },
+      },
+      {
+        speaker: 'narrator',
+        text: '你推开门。房间里很安静。阳光还是照在窗台上，那一盆枯花还在。',
+        speed: 55,
+        exp: { zhao: 'back' },
+        startCb: () => { this.setSceneBackground('assets/zhao/zhao_room_real_no_seeds.png', true); },
+      },
+      {
+        speaker: 'narrator',
+        text: '你蹲下来，用那把钥匙打开了床底下的旧皮箱。',
+        speed: 55,
+        anim: 'hand_reach',
+        exp: { zhao: 'back' },
+      },
+      {
+        speaker: 'narrator',
+        text: '皮箱内部整齐放着几样东西——标本盒、野外记录本、工作证、一封信。每一样都保存得很好，没有霉味，没有虫蛀。有人定期维护这些物品。',
+        speed: 45,
+        exp: { zhao: 'back' },
+        cb: () => {
+          // 显示皮箱并播放打开动画，切换背景
+          this.el.suitcase.classList.add('visible');
+          this.el.suitcase.classList.add('opened');
+          this.setSceneBackground('assets/zhao/box.png');
+          setTimeout(() => {
+            this.el.suitcaseItems.classList.add('visible');
+            this.showSceneHint('🔍 点击皮箱中的物品来查看。', 4000);
+          }, 500);
+          this.startPhase('v2_interact');
+        },
+      },
+    ]);
+  },
+
+  // ------ v2 阶段2: 自由交互 ------ 
+  doV2Interact() {
+    this.interactMode = true;
+    this.v2ItemsExamined.clear();
+    this.v2AllExamined = false;
+    this.el.v2CloseAll.classList.remove('visible');
+    // 重置所有物品状态
+    document.querySelectorAll('#suitcase-items .v2-item').forEach(el => el.classList.remove('examined'));
+  },
+
+  onV2ItemClick(itemType) {
+    if (!this.interactMode || this.phase !== 'v2_interact') return;
+    // 如果标本盒正在打开且未完成，不能切换到其他物品
+    if (itemType !== 'specimen' && this.el.specimenDetail.classList.contains('show') && !this.v2SpecimenComplete) {
+      this.showSceneHint('请先完成标本盒的互动。', 2000);
+      return;
+    }
+    // 关闭已打开的面板（各show函数会重新打开目标面板）
+    this.el.specimenDetail.classList.remove('show');
+    this.el.fieldNotesDetail.classList.remove('show');
+    this.el.workIdDetail.classList.remove('show');
+    this.el.letterDetail.classList.remove('show');
+    switch(itemType) {
+      case 'specimen': this.showSpecimenBox(); break;
+      case 'notebook': this.showFieldNotes(); break;
+      case 'workid':   this.showWorkId(); break;
+      case 'letter':   this.showLetter(); break;
+    }
+  },
+
+  markV2ItemExamined(itemType) {
+    this.v2ItemsExamined.add(itemType);
+    const el = document.querySelector(`#suitcase-items .v2-item[data-item="${itemType}"]`);
+    if (el) el.classList.add('examined');
+    // 检查是否全部看完
+    if (this.v2ItemsExamined.size >= 4 && !this.v2AllExamined) {
+      this.v2AllExamined = true;
+      this.el.v2CloseAll.classList.add('visible');
+      this.showSceneHint('✅ 四项物品都已查看。点击下方按钮继续。', 4000);
+    }
+  },
+
+  onV2AllExamined() {
+    this.el.v2CloseAll.classList.remove('visible');
+    this.interactMode = false;
+    this.el.specimenDetail.classList.remove('show');
+    this.el.fieldNotesDetail.classList.remove('show');
+    this.el.workIdDetail.classList.remove('show');
+    this.el.letterDetail.classList.remove('show');
+    this.el.suitcaseItems.classList.remove('visible'); // 箱子内容全部查看完毕后，隐藏中间物品网格 UI
+    this.setSceneBackground('assets/zhao/zhao_room_real_no_seeds.png');
+    this.startPhase('v2_ending');
+  },
+
+  // ===== 标本盒 =====
+  showSpecimenBox() {
+    // 生成12片标本
+    const specimens = [
+      { emoji:'🌸', color:'紫红', loc:'云南', year:'1984.7', isBlue:false },
+      { emoji:'💮', color:'紫色', loc:'四川', year:'1985.5', isBlue:false },
+      { emoji:'🏵️', color:'粉白', loc:'西藏', year:'1986.8', isBlue:false },
+      { emoji:'🌺', color:'紫红', loc:'云南', year:'1984.9', isBlue:false },
+      { emoji:'💐', color:'深紫', loc:'四川', year:'1985.7', isBlue:false },
+      { emoji:'🌷', color:'白色', loc:'西藏', year:'1986.5', isBlue:false },
+      { emoji:'🌼', color:'紫红', loc:'云南', year:'1983.6', isBlue:false },
+      { emoji:'🌻', color:'淡紫', loc:'四川', year:'1984.3', isBlue:false },
+      { emoji:'🌾', color:'粉白', loc:'西藏', year:'1987.4', isBlue:false },
+      { emoji:'🍀', color:'紫红', loc:'云南', year:'1985.8', isBlue:false },
+      { emoji:'🌿', color:'紫色', loc:'四川', year:'1986.6', isBlue:false },
+      { emoji:'🪻', color:'淡蓝', loc:'?', year:'2003', isBlue:true },
+    ];
+    
+    this.el.specimensGrid.innerHTML = specimens.map((s, i) => `
+      <div class="specimen-card ${s.isBlue ? 'blue-flower' : ''}" 
+           data-idx="${i}" 
+           ${s.isBlue ? 'onmouseenter="Game.onBlueLabelEnter(this)" onmouseleave="Game.onBlueLabelLeave(this)"' : ''}>
+        <span class="spec-emoji">${s.emoji}</span>
+        勿忘我（野外种）
+        <div class="spec-label-flicker">${s.loc} · ${s.year}</div>
+        ${s.isBlue ? '<div class="hidden-truth">2003年购于昆明花卉市场。3.5元。</div>' : ''}
+      </div>
+    `).join('');
+    
+    this.v2LabelStabilized = false;
+    this.v2LabelReady = false;
+    if (this._v2LabelTimer) clearTimeout(this._v2LabelTimer);
+    if (this._v2LabelAnim) cancelAnimationFrame(this._v2LabelAnim);
+    
+    this.el.specimenDetail.classList.add('show');
+    // 标记延迟到标本盒互动完全完成后
+    
+    // 对话框①：打开标本盒
+    this.runDialogueQueue([
+      {
+        speaker: 'narrator',
+        text: '我轻轻打开标本盒。里面压着十二片干枯的植物标本，每一片都贴着手写标签。',
+        speed: 45,
+        exp: { zhao: 'back' },
+      },
+      {
+        speaker: 'narrator',
+        text: '采集地点、年份、海拔、花色，每一项都记得清清楚楚。像一个很认真的人，在做一件她认为重要的事。云南、四川、西藏、贵州……时间跨了好几年。',
+        speed: 42,
+        exp: { zhao: 'back' },
+      },
+      {
+        speaker: 'narrator',
+        text: '我意识到她在做一件需要花费大量时间的事情。不太确定具体是什么，但我隐约感觉到——她以前是在做研究的人。',
+        speed: 42,
+        exp: { zhao: 'back' },
+        cb: () => { this.v2LabelReady = true; },
+      },
+    ]);
+  },
+
+  closeSpecimenBox() {
+    if (!this.v2SpecimenComplete) {
+      this.showSceneHint('请先完成蓝色标签的互动，再关闭标本盒。', 2500);
+      return;
+    }
+    this.el.specimenDetail.classList.remove('show');
+    if (this._v2LabelTimer) clearTimeout(this._v2LabelTimer);
+    if (this._v2LabelAnim) cancelAnimationFrame(this._v2LabelAnim);
+  },
+
+  onBlueLabelEnter(card) {
+    if (this.v2LabelStabilized || !this.v2LabelReady) return;
+    const label = card.querySelector('.spec-label-flicker');
+    const hidden = card.querySelector('.hidden-truth');
+    if (!label) return;
+    
+    const self = this;
+    const startTime = Date.now();
+    
+    function flicker() {
+      const elapsed = Date.now() - startTime;
+      if (elapsed >= 3000) {
+        // 3秒后：稳定显示真相
+        label.textContent = '昆明花卉市场 · 2003';
+        label.className = 'spec-label-flicker flicker-market';
+        if (hidden) hidden.classList.add('revealed');
+        self.v2LabelStabilized = true;
+        // 触发对话
+        self.triggerSpecimenDialogue();
+        return;
+      }
+      const interval = elapsed < 1500 ? 500 : elapsed < 2500 ? 250 : 100;
+      const phase = Math.floor(elapsed / interval) % 2;
+      label.textContent = phase === 0 ? '高黎贡山 · 1983' : '昆明花卉市场 · 2003';
+      label.className = phase === 0 ? 'spec-label-flicker flicker-highland' : 'spec-label-flicker flicker-market';
+      self._v2LabelAnim = requestAnimationFrame(flicker);
+    }
+    this._v2LabelAnim = requestAnimationFrame(flicker);
+  },
+
+  onBlueLabelLeave(card) {
+    if (this.v2LabelStabilized) return;
+    if (this._v2LabelAnim) cancelAnimationFrame(this._v2LabelAnim);
+    const label = card.querySelector('.spec-label-flicker');
+    if (label) {
+      label.textContent = '? · 2003';
+      label.className = 'spec-label-flicker';
+    }
+  },
+
+  triggerSpecimenDialogue() {
+    this.runDialogueQueue([
+      {
+        speaker: 'narrator',
+        text: '标本盒边缘有一个单独的标签，没有标本，只有一张纸条。正面写着"勿忘我（淡蓝）"，笔迹和其他的标签不一样——更淡更新，像是后来补写的。',
+        speed: 42,
+        exp: { zhao: 'back' },
+      },
+      {
+        speaker: 'narrator',
+        text: '我翻到背面，有两行字，不同笔迹，涂改过：\n第一行："2003年购于昆明花卉市场·3.5元"——被划掉了，划得很轻，像是不舍得完全抹掉。\n第二行："1984年7月·高黎贡山"——新写的，比第一行略重，像是刻意补上去的。',
+        speed: 38,
+        exp: { zhao: 'back' },
+      },
+      {
+        speaker: 'narrator',
+        text: '她为什么要写两个不同的产地？\n高黎贡山是野外采集，花卉市场是买的。在赵奶奶眼里，那是不一样的。或许写来自高黎贡山，更像一个研究者？\n但我也不能确定。这只是我的猜测。',
+        speed: 40,
+        exp: { zhao: 'back' },
+      },
+      // 对话框③：问赵奶奶
+      {
+        speaker: 'player',
+        text: '这株蓝色勿忘我……是哪里来的？',
+        speed: 80,
+        exp: { player: 'normal', zhao: 'normal' },
+      },
+      {
+        speaker: 'zhao',
+        text: '高黎贡山。',
+        speed: 100,
+        exp: { zhao: 'normal' },
+      },
+      {
+        speaker: 'narrator',
+        text: '她回答得很快，像是这个问题已经被问过很多次了。',
+        speed: 45,
+        exp: { zhao: 'normal' },
+      },
+      {
+        speaker: 'player',
+        text: '那这行被划掉的……"花卉市场"？',
+        speed: 80,
+        exp: { player: 'normal', zhao: 'sad' },
+      },
+      {
+        speaker: 'narrator',
+        text: '她没有立刻回答。她的目光落在那张标签上，停了一会儿。',
+        speed: 45,
+        exp: { zhao: 'sad' },
+      },
+      {
+        speaker: 'zhao',
+        text: '……花卉市场？我不记得了。',
+        speed: 120,
+        exp: { zhao: 'sad' },
+      },
+      {
+        speaker: 'narrator',
+        text: '她的语气没有躲闪，像是真的在回想，但什么都想不起来。她的眉头微微皱了一下，又松开了。',
+        speed: 42,
+        exp: { zhao: 'sad' },
+      },
+      {
+        speaker: 'zhao',
+        text: '是高黎贡山吧。我记得是。',
+        speed: 100,
+        exp: { zhao: 'sad' },
+      },
+      {
+        speaker: 'narrator',
+        text: '我不知道她是真的不记得了，还是她选择不记得了。',
+        speed: 50,
+        exp: { zhao: 'back' },
+        cb: () => {
+          this.v2SpecimenComplete = true;
+          this.markV2ItemExamined('specimen');
+          this.closeSpecimenBox();
+        },
+      },
+    ]);
+  },
+
+  // ===== 野外记录本 - 翻页交互 =====
+  showFieldNotes() {
+    // 重置状态
+    this.v2FieldNotesPage = 1;
+    this.v2FieldNotesBusy = true;
+    this.v2FieldNotesAllFlipped = false;
+    
+    // 显示面板，重置到第一页
+    this.el.fieldNotesDetail.classList.add('show');
+    this._fnShowPage(1);
+    this._fnUpdateNav();
+    
+    // 合并：打开记录本 + 第一页内容 对话
+    this.runDialogueQueue([
+      {
+        speaker: 'narrator',
+        text: '我从皮箱里拿出那本旧的野外记录本。封面已经磨得发白了，边角卷起，像是被人翻过很多遍。我翻开第一页。',
+        speed: 45,
+        exp: { zhao: 'back' },
+      },
+      {
+        speaker: 'narrator',
+        text: '纸上写满了字。日期、地点、气温、花色、土壤状况——每一条都记录得工工整整，偶尔在边上画一朵小花，标注着花瓣的形状。',
+        speed: 42,
+        exp: { zhao: 'back' },
+      },
+      {
+        speaker: 'narrator',
+        text: '"1984年7月12日，晴，云南，高黎贡山北坡，海拔2800m，紫红色，生长于岩石缝隙，根系发达……"',
+        speed: 40,
+        exp: { zhao: 'back' },
+      },
+      {
+        speaker: 'narrator',
+        text: '"1984年7月15日，晴，云南，高黎贡山中段，海拔2600m，紫红色，花色较深……"',
+        speed: 40,
+        exp: { zhao: 'back' },
+      },
+      {
+        speaker: 'narrator',
+        text: '"1985年5月3日，多云，四川，雅安，白色，植株矮小……"',
+        speed: 42,
+        exp: { zhao: 'back' },
+      },
+      {
+        speaker: 'narrator',
+        text: '我看着那些密密麻麻的字迹——她写得很认真，每一笔都很用力。像是在做一件她认为很重要的事，生怕漏掉什么。',
+        speed: 42,
+        exp: { zhao: 'back' },
+      },
+      {
+        speaker: 'player',
+        text: '她是真的在认真做这件事。日期、地点、颜色、土壤……她全都记下来了。',
+        speed: 60,
+        exp: { player: 'normal', zhao: 'back' },
+        cb: () => { this.v2FieldNotesBusy = false; this._fnUpdateNav(); },
+      },
+    ]);
+  },
+
+  flipFieldNotesPage(dir) {
+    if (this.v2FieldNotesBusy) return;
+    const target = this.v2FieldNotesPage + dir;
+    if (target < 1 || target > this.v2FieldNotesMaxPage) return;
+    
+    this.v2FieldNotesPage = target;
+    this.v2FieldNotesBusy = true;
+    this._fnShowPage(target);
+    this._fnUpdateNav();
+    
+    switch(target) {
+      case 2: this._startFNDialogue(2); break;
+      case 3: this._startFNDialogue(3); break;
+      case 7: this._startFNDialogue(7); break;
+      default: this.v2FieldNotesBusy = false; this._fnUpdateNav(); break;
+    }
+  },
+
+  // 每页对应的对话队列
+  _startFNDialogue(page) {
+    const queues = {
+      2: [
+        {
+          speaker: 'narrator',
+          text: '翻到后半部分，密度明显降了下来。有几页只有三两行，中间隔了大片的空白。像是写着写着，人走开了，很久没有回来。',
+          speed: 42,
+          exp: { zhao: 'back' },
+        },
+        {
+          speaker: 'narrator',
+          text: '"1986年8月10日，阴，西藏……"后面空了。日期、地点都写了，但没有记录花色，也没写土壤状况。像是一句话说到一半，被什么事情打断了。',
+          speed: 40,
+          exp: { zhao: 'back' },
+        },
+        {
+          speaker: 'narrator',
+          text: '再往后翻，有一页只写了一行字，孤零零地停在纸面中央：\n"张家铭要办画展。我休了半年假。"',
+          speed: 40,
+          exp: { zhao: 'sad' },
+        },
+        {
+          speaker: 'player',
+          text: '张家铭，这个名字出现得很突然。她原本在认真记录，然后忽然不记了。"休了半年假"……后半本记录本的空白，就是从这句开始的。',
+          speed: 50,
+          exp: { player: 'normal', zhao: 'sad' },
+        },
+        {
+          speaker: 'narrator',
+          text: '赵奶奶的表情变了，显示出一种"我不想看那个"的回避。',
+          speed: 40,
+          exp: { zhao: 'sad' },
+        },
+        {
+          speaker: 'zhao',
+          text: '……他画展那年，我没去野外。',
+          speed: 100,
+          exp: { zhao: 'sad' },
+        },
+        {
+          speaker: 'zhao',
+          text: '那时候觉得……以后还能去。',
+          speed: 90,
+          exp: { zhao: 'sad' },
+          cb: () => { this.v2FieldNotesBusy = false; this._fnUpdateNav(); },
+        },
+      ],
+      3: [
+        {
+          speaker: 'narrator',
+          text: '再往后翻。日期、地点、花色全都不见了。像是记录本的主人换了。',
+          speed: 42,
+          exp: { zhao: 'back' },
+        },
+        {
+          speaker: 'narrator',
+          text: '翻到最后一页有字的地方，上面写着：\n"老周接手了云南的项目，让我安心照顾家里。"',
+          speed: 42,
+          exp: { zhao: 'back' },
+        },
+        {
+          speaker: 'player',
+          text: '老周接手了。她休了半年假之后，项目被别人接手了。',
+          speed: 60,
+          exp: { player: 'normal', zhao: 'sad' },
+        },
+        {
+          speaker: 'zhao',
+          text: '……老周那个项目，我本来应该自己去。',
+          speed: 90,
+          exp: { zhao: 'sad' },
+        },
+        {
+          speaker: 'zhao',
+          text: '……算了。都过去了。',
+          speed: 100,
+          exp: { zhao: 'sad' },
+          cb: () => { this.v2FieldNotesBusy = false; this._fnUpdateNav(); },
+        },
+      ],
+      7: [
+        {
+          speaker: 'narrator',
+          text: '再往后翻。全是空白。\n从某一页开始，再也没有写过新的东西。那个在云南、四川、西藏记录花色的女人，不知道去哪了。',
+          speed: 42,
+          exp: { zhao: 'sad' },
+        },
+        {
+          speaker: 'zhao',
+          text: '那本本子，后来就没记了。',
+          speed: 100,
+          exp: { zhao: 'sad' },
+        },
+        {
+          speaker: 'narrator',
+          text: '她没有说为什么。',
+          speed: 55,
+          exp: { zhao: 'back' },
+          cb: () => {
+            this.v2FieldNotesAllFlipped = true;
+            this.addFragment({
+              text: '"前半部分密密麻麻，她在认真记录每一株花的细节。后半部分字迹越来越少，直到只剩空白。她说：\'张家铭要办画展，我休了半年假。\'又说：\'老周接手了云南的项目，他说你安心照顾家里。\'她的记录本在这里停了。再也没有新的日期。她其实还可以继续写。只是她没有。"',
+              verdict: '虚实判定：时间线吻合。前半本记录真实——日期、地点、花色均与标本匹配。后半本空白原因有二：张家铭办画展 → 休了半年假 → 项目被老周接手 → 再也没有回去。',
+            });
+            this.markV2ItemExamined('notebook');
+            this.v2FieldNotesBusy = false;
+            this._fnUpdateNav();
+          },
+        },
+      ],
+    };
+    
+    if (queues[page]) {
+      this.runDialogueQueue(queues[page]);
+    }
+  },
+
+  // 切换页面的视觉动画
+  _fnShowPage(page) {
+    const pages = this.el.fieldNotesDetail.querySelectorAll('.fn-page');
+    pages.forEach(p => {
+      const pn = parseInt(p.dataset.page);
+      p.classList.remove('active', 'exit-left', 'enter-right');
+      if (pn === page) p.classList.add('active');
+      else if (pn < page) p.classList.add('exit-left');
+      else p.classList.add('enter-right');
+    });
+    // 更新分页圆点
+    const dots = this.el.fieldNotesDetail.querySelectorAll('.fn-dot');
+    dots.forEach(d => {
+      d.classList.toggle('active', parseInt(d.dataset.dot) === page);
+    });
+    // 更新页码指示
+    const ind = document.getElementById('fn-page-indicator');
+    if (ind) ind.textContent = page + '/' + this.v2FieldNotesMaxPage;
+  },
+
+  // 更新翻页按钮状态
+  _fnUpdateNav() {
+    const p = this.v2FieldNotesPage;
+    const busy = this.v2FieldNotesBusy;
+    const prev = document.getElementById('fn-prev-btn');
+    const next = document.getElementById('fn-next-btn');
+    const close = document.getElementById('fn-close-btn');
+    
+    if (prev) prev.disabled = busy || p <= 1;
+    if (next) {
+      if (this.v2FieldNotesAllFlipped) {
+        next.style.display = 'none';
+      } else {
+        next.disabled = busy || p >= this.v2FieldNotesMaxPage;
+      }
+    }
+    if (close) {
+      close.style.display = this.v2FieldNotesAllFlipped ? '' : 'none';
+    }
+    const ind = document.getElementById('fn-page-indicator');
+    if (ind) ind.textContent = p + '/' + this.v2FieldNotesMaxPage;
+  },
+
+  closeFieldNotes() {
+    this.el.fieldNotesDetail.classList.remove('show');
+  },
+
+
+  // ===== 工作证 =====
+  showWorkId() {
+    this.el.workIdDetail.classList.add('show');
+    this.addFragment({
+      text: '赵秀兰，植物研究所第三研究室助理研究员。周乡良，同一研究室研究员。两张证件并排放在一起。她曾是认真的研究者，和认真的人共事。但研究记录到此为止。'
+    });
+    this.markV2ItemExamined('workid');
+  },
+  closeWorkId() {
+    this.el.workIdDetail.classList.remove('show');
+  },
+
+  // ===== 未寄出的信 =====
+  showLetter() {
+    this.el.letterDetail.classList.add('show');
+    this.addFragment({
+      text: '皮箱里有一封未寄出的信。信写到一半就停了，"算了"两个字墨水已经渗开。信没有寄出，也没有写完。她在某个时刻决定不再继续。'
+    });
+    this.markV2ItemExamined('letter');
+  },
+  closeLetter() {
+    this.el.letterDetail.classList.remove('show');
+  },
+
+  // ===== 全部查看完毕 =====
+  doV2CheckAll() {
+    // 此阶段由 onV2AllExamined 触发
+  },
+
+  // ===== 场景收尾 + 碎片2 =====
+  doV2Ending() {
+    this.addFragment({
+      text: '她说这株勿忘我来自高黎贡山。但标本盒里没有蓝色种——只有紫红。她把两次经历缝在一起了。情感是真的——她确实走过很多山。细节是乱的——她分不清\'发现\'和\'购买\'的时间线。',
+      verdict: '虚实判定：陈述为半真半假。证据：标本盒中无蓝色种 + 野外记录显示她休了半年假。',
+    });
+    
+    this.runDialogueQueue([
+      {
+        speaker: 'narrator',
+        text: '赵奶奶伸手摸了摸皮箱里的标本盒。',
+        speed: 55,
+        exp: { zhao: 'normal' },
+      },
+      {
+        speaker: 'zhao',
+        text: '这些……还留着呢。我以为丢了。',
+        speed: 110,
+        exp: { zhao: 'sad' },
+      },
+      {
+        speaker: 'narrator',
+        text: '她的手指在标本盒边缘停了一下。',
+        speed: 70,
+        exp: { zhao: 'sad' },
+      },
+      {
+        speaker: 'zhao',
+        text: '你不翻出来，我都忘了。',
+        speed: 120,
+        exp: { zhao: 'sad' },
+      },
+      {
+        speaker: 'narrator',
+        text: '她沉默了一会儿。',
+        speed: 100,
+        exp: { zhao: 'sad' },
+      },
+      {
+        speaker: 'zhao',
+        text: '忘了也好。忘了就不觉得可惜了。',
+        speed: 120,
+        exp: { zhao: 'sad' },
+      },
+      {
+        speaker: 'narrator',
+        text: '她把标本盒轻轻合上，放回皮箱里。动作很小心，像是怕碰碎什么。',
+        speed: 50,
+        exp: { zhao: 'sad' },
+        cb: () => {
+          this.el.suitcaseItems.classList.remove('visible');
+          setTimeout(() => {
+            this.el.suitcase.classList.remove('opened');
+            this.el.v2Scene.classList.remove('active');
+          }, 500);
+          setTimeout(() => {
+            this.showTransition(
+              '✅ 你发现了第二个矛盾的拼贴：\n赵奶奶把"高黎贡山采集紫红色标本"和"花卉市场购买蓝花"\n缝合成了"我从云南带回了这株蓝花"。\n\n皮箱中的记录本、工作证和未寄出的信，指向同一个时间线断裂的节点。\n情感是真的——她走过很多山。细节是乱的——蓝色种从未出现在野外记录中。',
+              '📓 虚实对账本已记录碎片 ' + this.notebookFragments.length + '/5',
+              () => {
+                this.showSceneHint('探访二 · 完成。', 4000);
+              }
+            );
+          }, 1500);
+        },
+      },
+    ]);
+  },
+};
+
+// ========== 启动游戏 ==========
+window.addEventListener('DOMContentLoaded', () => Game.init());
+
+// 点击笔记本遮罩关闭
+document.getElementById('notebook-overlay').addEventListener('click', function(e) {
+  if (e.target === this) Game.closeNotebook();
+});
+</script>
+
+
+<!-- 背景音乐 -->
+<audio id="bgm" loop preload="auto">
+  <source src="assets/audio/bgm.mp3" type="audio/mpeg">
+</audio>
+<script>
+  (function(){
+    const bgm = document.getElementById('bgm');
+    if (!bgm) return;
+    bgm.volume = 0.4;
+    function play(){ bgm.play().catch(err => console.log('BGM:', err.message)); }
+    document.addEventListener('click', play, {once:true});
+    document.addEventListener('keydown', play, {once:true});
+  })();
+</script>
+</body>
+</html>
+
