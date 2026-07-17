@@ -275,6 +275,120 @@ body{
   transition:background .2s ease, border-color .2s ease, transform .15s ease;
 }
 #re-sit-btn:hover{background:rgba(196,168,122,0.85);border-color:rgba(255,235,180,0.95);transform:translateY(-1px);}
+/* 出发/回到房间按钮（继承 re-sit-btn 风格，不同位置） */
+#re-go-btn,#re-back-to-room-btn{
+  position:absolute;z-index:51;font-family:var(--body-font);font-size:16px;letter-spacing:2px;
+  color:#fff5ec;background:rgba(74,64,56,0.78);
+  border:1.5px solid rgba(196,168,122,0.6);border-radius:22px;
+  padding:12px 24px;cursor:pointer;backdrop-filter:blur(4px);
+  transition:all .2s ease;
+}
+#re-go-btn{left:50%;bottom:6%;transform:translateX(-50%);}
+#re-back-to-room-btn{left:50%;bottom:6%;transform:translateX(-50%);}
+#re-go-btn:hover,#re-back-to-room-btn:hover{background:rgba(196,168,122,0.85);transform:translateX(-50%) translateY(-1px);border-color:rgba(255,235,180,0.95);}
+
+/* 铁盒热区光晕（解锁后） */
+.hotspot.unlocked[data-item="铁盒子"]{
+  animation:glow 1.6s ease-in-out infinite alternate;
+}
+@keyframes glow{
+  from{box-shadow:0 0 8px rgba(255,235,180,0.4);}
+  to{box-shadow:0 0 24px rgba(255,235,180,0.9);}
+}
+
+/* ===== 铁盒覆盖层 ===== */
+#tiehe-stage{position:absolute;inset:0;z-index:60;background:#000;transition:opacity .5s ease;}
+#th-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.55;display:block;}
+#th-close{
+  position:absolute;top:18px;right:22px;z-index:62;
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(74,64,56,0.78);border:1.5px solid rgba(196,168,122,0.6);
+  color:#fff5ec;font-size:26px;line-height:1;cursor:pointer;
+  font-family:system-ui;backdrop-filter:blur(4px);
+  transition:all .2s ease;display:flex;align-items:center;justify-content:center;
+}
+#th-close:hover{background:rgba(139,115,85,0.95);transform:scale(1.08);}
+/* 通用右上角 × 关闭按钮（所有查看场景都用） */
+#ms-close,#ol-close{
+  position:absolute;top:18px;right:22px;z-index:62;
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(74,64,56,0.78);border:1.5px solid rgba(196,168,122,0.6);
+  color:#fff5ec;font-size:26px;line-height:1;cursor:pointer;
+  font-family:system-ui;backdrop-filter:blur(4px);
+  transition:all .2s ease;display:flex;align-items:center;justify-content:center;
+}
+#ms-close:hover,#ol-close:hover{background:rgba(139,115,85,0.95);transform:scale(1.08);}
+#th-debt{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(560px,82%);max-height:80%;overflow-y:auto;
+  background:rgba(245,237,224,0.96);border-radius:14px;padding:24px 28px;
+  font-family:var(--body-font);box-shadow:0 8px 28px rgba(0,0,0,0.4);z-index:61;
+}
+#th-debt h2{font-size:22px;color:#5c3a1f;margin-bottom:16px;letter-spacing:2px;}
+#th-debt ul{list-style:none;padding:0;margin:0;}
+#th-debt li{font-size:17px;color:#4a4038;line-height:1.9;padding:4px 0;}
+#th-debt li.ok{color:#2d6e3e;}
+#th-debt li .ok{color:#2d6e3e;font-weight:700;margin-left:8px;}
+#th-debt li.bad{color:#a93d2a;font-weight:600;}
+#th-debt li .bad{color:#a93d2a;}
+#th-debt button{
+  margin-top:18px;display:block;margin-left:auto;margin-right:auto;
+  font-family:var(--title-font);font-size:16px;color:#fff5ec;
+  background:rgba(139,115,85,0.9);border:1px solid rgba(255,235,180,0.4);
+  border-radius:18px;padding:8px 22px;cursor:pointer;letter-spacing:1px;
+  transition:all .2s ease;
+}
+#th-debt button:hover{background:rgba(196,168,122,0.95);transform:translateY(-1px);}
+
+#th-cards{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(620px,86%);z-index:61;text-align:center;color:#fff5ec;
+  font-family:var(--body-font);
+}
+.th-tip{font-size:14px;color:rgba(245,237,224,0.85);letter-spacing:2px;margin-bottom:18px;text-shadow:0 2px 8px rgba(0,0,0,0.5);}
+#th-card-stage{
+  display:flex;align-items:center;gap:16px;justify-content:center;
+  background:rgba(245,237,224,0.96);border-radius:14px;padding:24px 18px;
+  box-shadow:0 8px 28px rgba(0,0,0,0.4);color:#4a4038;
+}
+#th-card-text{flex:1;font-size:18px;line-height:1.7;color:#4a4038;min-height:90px;display:flex;align-items:center;justify-content:center;padding:0 8px;}
+#th-prev,#th-next{
+  font-family:var(--title-font);font-size:24px;width:42px;height:42px;
+  background:rgba(139,115,85,0.18);border:1px solid rgba(139,115,85,0.4);
+  border-radius:50%;cursor:pointer;color:#5c3a1f;
+  transition:all .2s ease;flex-shrink:0;
+}
+#th-prev:hover,#th-next:hover{background:rgba(139,115,85,0.32);transform:scale(1.05);}
+#th-prev:disabled,#th-next:disabled{opacity:0.3;cursor:default;}
+#th-page-indicator{margin-top:12px;font-size:13px;color:rgba(245,237,224,0.7);letter-spacing:2px;}
+
+/* ===== 系统弹窗 ===== */
+#sys-modal{
+  position:absolute;inset:0;z-index:200;background:rgba(0,0,0,0.55);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--body-font);
+}
+#sys-modal-box{
+  width:min(620px,88%);max-height:80%;overflow-y:auto;
+  background:rgba(245,237,224,0.97);border-radius:16px;padding:24px 28px;
+  box-shadow:0 12px 40px rgba(0,0,0,0.5);
+}
+#sys-modal-title{font-size:20px;color:#5c3a1f;font-weight:600;margin-bottom:14px;letter-spacing:1px;}
+#sys-modal-body{font-size:16px;color:#4a4038;line-height:1.7;margin-bottom:18px;white-space:pre-wrap;}
+#sys-modal-actions{display:flex;flex-direction:column;gap:10px;align-items:stretch;}
+.sys-act-btn{
+  font-family:var(--body-font);font-size:16px;color:#4a4038;
+  background:rgba(255,252,246,0.9);border:1.5px solid var(--rust);
+  border-radius:12px;padding:10px 18px;cursor:pointer;letter-spacing:1px;
+  text-align:left;transition:all .2s ease;
+}
+.sys-act-btn:hover{background:#ead9bf;transform:translateY(-1px);}
+.sys-act-btn.primary{background:var(--rust);color:#fff5ec;border-color:var(--rust);}
+.sys-act-btn.primary:hover{background:#a98056;color:#fff5ec;}
+.sys-act-btn.danger{background:rgba(196,80,60,0.85);color:#fff5ec;border-color:rgba(196,80,60,0.85);}
+.sys-check-item{display:flex;align-items:center;gap:10px;cursor:pointer;padding:6px 0;font-size:15px;}
+.sys-check-item input{width:18px;height:18px;cursor:pointer;}
+
 /* 物品描述独立文字框（不混用对话气泡） */
 #item-popup{
   position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
@@ -294,6 +408,193 @@ body{
 }
 #item-popup-close:hover{background:rgba(139,115,85,0.18);}
 
+/* ===== 记忆场景层 ===== */
+#memory-scene{position:absolute;inset:0;z-index:55;background:#000;transition:opacity .8s ease;}
+#memory-scene.fade-out{opacity:0;}
+#ms-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+#ms-text{
+  position:absolute;left:8%;right:8%;bottom:10%;
+  padding:20px 28px;
+  background:rgba(245,237,224,0.92);
+  border-radius:14px;backdrop-filter:blur(4px);
+  font-family:var(--body-font);
+  font-size:clamp(15px,1.6vw,19px);
+  line-height:1.75;color:#4a4038;
+  min-height:70px;cursor:pointer;
+  box-shadow:0 6px 24px rgba(0,0,0,0.4);
+  z-index:56;user-select:none;
+}
+.ms-caret{display:inline-block;color:#8B7355;animation:msblink 1s infinite;}
+@keyframes msblink{0%,49%{opacity:1}50%,100%{opacity:0}}
+#ms-back-btn{
+  position:absolute;right:4%;bottom:4%;z-index:57;
+  font-family:var(--body-font);font-size:16px;letter-spacing:2px;
+  color:#fff5ec;background:rgba(74,64,56,0.85);
+  border:1.5px solid rgba(196,168,122,0.7);border-radius:22px;
+  padding:12px 24px;cursor:pointer;backdrop-filter:blur(4px);
+  transition:all .2s ease;
+  display:none;
+}
+#ms-back-btn:hover{background:rgba(139,115,85,0.95);transform:translateY(-1px);}
+
+/* 进度小字（无按钮，1/N 显示） */
+#ms-progress{
+  position:absolute;right:5%;bottom:5%;z-index:57;
+  font-family:var(--body-font);font-size:14px;letter-spacing:1.5px;
+  color:rgba(245,237,224,0.78);
+  background:rgba(74,64,56,0.55);
+  border:1px solid rgba(196,168,122,0.5);border-radius:14px;
+  padding:6px 14px;
+  backdrop-filter:blur(3px);
+  user-select:none;pointer-events:none;
+  font-feature-settings:"tnum";
+}
+
+/* 回忆场景的爷爷立绘（左中下，更靠右） */
+#ms-portrait{
+  position:absolute;left:9%;bottom:230px;width:160px;height:240px;
+  z-index:57;pointer-events:none;opacity:0;
+  filter:drop-shadow(0 6px 14px rgba(0,0,0,0.5));
+}
+#ms-portrait.show{opacity:1;}
+#ms-portrait .float{animation:breath 5s ease-in-out infinite;transform-origin:bottom center;}
+#ms-portrait img{width:100%;height:100%;object-fit:contain;}
+
+/* ===== 回忆场景胶片质感层（氛围淡、镜头感强） ===== */
+#memory-scene{filter:sepia(0.10) saturate(1.04) hue-rotate(-5deg) contrast(1.06);}
+/* Ken Burns 缓慢缩放+平移（幅度加大，镜头感更强） */
+#ms-bg{animation:ms-kenburns 38s ease-in-out infinite alternate;transform-origin:center center;will-change:transform;}
+@keyframes ms-kenburns{
+  from{transform:scale(1.02) translate(0,0);}
+  to{transform:scale(1.12) translate(-3.2%,-1.8%);}
+}
+/* 胶片颗粒（SVG 噪点滤镜，更淡） */
+#ms-grain{
+  position:absolute;inset:0;z-index:53;pointer-events:none;mix-blend-mode:overlay;
+  opacity:0.22;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 0.95  0 0 0 0 0.85  0 0 0 0.8 0'/></filter><rect width='240' height='240' filter='url(%23n)'/></svg>");
+  background-size:240px 240px;
+  animation:ms-grain-shift 0.4s steps(6) infinite;
+}
+@keyframes ms-grain-shift{
+  from{background-position:0 0;}
+  to{background-position:240px 240px;}
+}
+/* 边缘晕影（更淡，镜头感来自晕影柔和过渡） */
+#ms-vignette{
+  position:absolute;inset:0;z-index:54;pointer-events:none;
+  background:radial-gradient(ellipse at center, transparent 42%, rgba(20,10,5,0.62) 100%);
+  animation:ms-vig 9s ease-in-out infinite;
+}
+@keyframes ms-vig{0%,100%{opacity:0.7}50%{opacity:0.85}}
+/* 胶片划痕（更淡） */
+#ms-scratch{
+  position:absolute;inset:0;z-index:55;pointer-events:none;overflow:hidden;
+}
+#ms-scratch::before,#ms-scratch::after{
+  content:'';position:absolute;left:0;right:0;
+  background:linear-gradient(90deg, transparent 0%, rgba(255,245,220,0.85) 30%, rgba(255,245,220,1) 50%, rgba(255,245,220,0.7) 70%, transparent 100%);
+  opacity:0.18;
+}
+#ms-scratch::before{top:25%;height:2px;animation:ms-scratch 18s linear infinite;}
+#ms-scratch::after{top:65%;height:1.5px;animation:ms-scratch 27s linear infinite reverse;opacity:0.14;}
+@keyframes ms-scratch{
+  from{transform:translateY(-110vh);}
+  to{transform:translateY(110vh);}
+}
+/* 尘埃粒子（Canvas） */
+#ms-dust{position:absolute;inset:0;z-index:56;pointer-events:none;width:100%;height:100%;}
+/* 整体亮度呼吸 */
+#memory-scene{animation:ms-breathe 7s ease-in-out infinite;}
+@keyframes ms-breathe{0%,100%{filter:sepia(0.18) saturate(1.08) hue-rotate(-4deg) contrast(1.04) brightness(1)}50%{filter:sepia(0.18) saturate(1.08) hue-rotate(-4deg) contrast(1.04) brightness(1.06)}}
+/* 文字浮现 */
+.ms-text-fade{animation:ms-fadein .35s ease-out;}
+@keyframes ms-fadein{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+/* 旁白文字加深褐+增加间距 */
+#ms-text{color:#6A5A4A !important;letter-spacing:0.05em;line-height:1.95 !important;font-size:clamp(16px,1.7vw,20px) !important;}
+/* 放映机光晕（转场用） */
+#ms-flash{
+  position:absolute;inset:0;z-index:60;pointer-events:none;
+  background:radial-gradient(circle at center, rgba(255,250,230,1) 0%, rgba(255,250,230,0.5) 30%, transparent 65%);
+  opacity:0;transform:scale(0.2);
+}
+#ms-flash.flash{animation:ms-flash 0.55s ease-out;}
+@keyframes ms-flash{
+  0%{opacity:0;transform:scale(0.2);}
+  40%{opacity:1;transform:scale(1.2);}
+  100%{opacity:0;transform:scale(1.6);}
+}
+
+/* ===== 推门开场 ===== */
+#door-intro-stage{position:absolute;inset:0;z-index:64;background:#000;}
+#door-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+#door-hint{position:absolute;left:50%;bottom:6%;transform:translateX(-50%);z-index:65;font-family:var(--body-font);font-size:14px;color:rgba(255,245,236,0.85);letter-spacing:3px;text-shadow:0 2px 8px rgba(0,0,0,0.6);animation:doorpulse 1.6s ease-in-out infinite;pointer-events:none;}
+@keyframes doorpulse{0%,100%{opacity:0.4}50%{opacity:1}}
+
+/* ===== 老刘家 stage（沿用 memory-scene 风格） ===== */
+#old-liu-stage{position:absolute;inset:0;z-index:58;background:#000;transition:opacity .5s ease;}
+#ol-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+#ol-card{
+  position:absolute;left:8%;right:8%;bottom:6%;
+  padding:20px 24px;background:rgba(245,237,224,0.95);
+  border-radius:14px;backdrop-filter:blur(4px);
+  font-family:var(--body-font);box-shadow:0 6px 24px rgba(0,0,0,0.4);
+  z-index:59;user-select:none;
+}
+.ol-tip{font-size:13px;color:var(--iron-grey);letter-spacing:2px;margin-bottom:10px;text-align:center;}
+#ol-text{
+  min-height:54px;font-size:clamp(15px,1.6vw,18px);line-height:1.75;color:#4a4038;
+  margin-bottom:14px;cursor:pointer;
+}
+.ol-caret{display:inline-block;color:#8B7355;animation:olblink 1s infinite;}
+@keyframes olblink{0%,49%{opacity:1}50%,100%{opacity:0}}
+.ol-actions{display:flex;justify-content:flex-end;gap:10px;align-items:center;}
+.ol-actions button{
+  font-family:var(--title-font);font-size:15px;color:#fff5ec;
+  background:rgba(74,64,56,0.85);border:1.5px solid rgba(196,168,122,0.6);
+  border-radius:18px;padding:8px 18px;cursor:pointer;letter-spacing:1px;
+  transition:all .2s ease;
+}
+.ol-actions button:hover{background:rgba(139,115,85,0.95);transform:translateY(-1px);}
+#ol-next{min-width:100px;}
+#ol-receipt{background:rgba(155,90,60,0.85) !important;}
+#ol-to-room{background:rgba(74,120,74,0.85) !important;border-color:rgba(150,200,150,0.7) !important;}
+#ol-scene-indicator{font-size:12px;color:var(--iron-grey);text-align:right;margin-top:6px;letter-spacing:1px;}
+
+/* ===== 收据浮窗 ===== */
+#receipt-popup{
+  position:absolute;inset:0;z-index:210;
+  background:url('wang_assets/old_liu_receipt.jpg') center/cover no-repeat;
+  display:flex;align-items:flex-end;justify-content:center;
+  font-family:var(--body-font);
+}
+#receipt-popup::before{
+  content:'';position:absolute;inset:0;background:rgba(0,0,0,0.4);z-index:0;
+}
+#receipt-box{
+  position:relative;z-index:1;
+  width:min(620px,90%);margin:0 0 6% 0;
+  background:rgba(245,237,224,0.96);
+  border:1.5px solid var(--rust);border-radius:18px;
+  padding:24px 28px;backdrop-filter:blur(6px);
+  box-shadow:0 14px 40px rgba(0,0,0,0.5);text-align:center;
+}
+.receipt-title{
+  font-family:var(--title-font);font-size:16px;color:var(--iron-grey);
+  letter-spacing:2px;margin-bottom:12px;
+}
+.receipt-text{
+  font-family:var(--title-font);font-size:20px;line-height:2;color:var(--ink);
+  background:rgba(255,252,246,0.85);border:1px solid rgba(139,115,85,0.4);
+  border-radius:10px;padding:18px 22px;margin-bottom:18px;letter-spacing:2px;
+  font-weight:500;
+}
+#receipt-close{
+  font-family:var(--title-font);font-size:15px;color:#fff5ec;
+  background:rgba(74,64,56,0.85);border:1px solid rgba(196,168,122,0.5);
+  border-radius:18px;padding:8px 22px;cursor:pointer;letter-spacing:2px;
+}
+#receipt-close:hover{background:rgba(139,115,85,0.95);}
+
 /* 选项 */
 #choices{position:absolute;left:50%;transform:translateX(-50%);bottom:170px;width:min(560px,80%);z-index:21;display:flex;flex-direction:column;gap:12px;}
 .choice{
@@ -302,6 +603,51 @@ body{
   padding:14px 28px;cursor:pointer;transition:background .15s ease,border-width .15s ease,transform .15s ease;
 }
 .choice:hover{background:#ead9bf;border-width:2.5px;transform:translateY(-1px);}
+
+/* ===== 主线对话层（独立于 #game，叠在 room-exploration 上） ===== */
+#rm-dialogue{position:absolute;inset:0;z-index:65;pointer-events:none;display:none;background:url('wang_assets/wang_room_bg.jpg') center/cover no-repeat;}
+#rm-dialogue::before{content:'';position:absolute;inset:0;background:rgba(0,0,0,0.25);}
+#rm-dialogue.active{display:block;}
+#rm-portrait{
+  position:absolute;left:6%;bottom:130px;width:200px;height:300px;
+  transition:opacity .3s ease;opacity:0;pointer-events:none;
+  filter:drop-shadow(0 8px 16px rgba(0,0,0,0.4));
+}
+#rm-portrait .float{animation:breath 5s ease-in-out infinite;transform-origin:bottom center;}
+#rm-portrait img{width:100%;height:100%;object-fit:contain;}
+#rm-portrait.show{opacity:1;}
+#rm-dialogue-box{
+  position:absolute;left:24px;right:24px;bottom:80px;
+  background:rgba(240,234,224,.95);
+  backdrop-filter:blur(10px);
+  border:1.5px solid var(--rust);border-radius:24px;
+  padding:24px 28px 22px;
+  box-shadow:0 14px 40px rgba(0,0,0,0.45);
+  min-height:120px;pointer-events:auto;cursor:pointer;
+}
+#rm-speaker{
+  position:absolute;top:-16px;left:26px;
+  font-family:var(--title-font);font-size:16px;color:#fff;
+  background:var(--rust);padding:4px 16px;border-radius:12px;letter-spacing:.08em;
+  display:none;
+}
+#rm-speaker.you{background:var(--faded-red);}
+#rm-speaker.system{background:var(--iron-grey);}
+#rm-dialogue-text{font-size:19px;line-height:1.8;color:var(--ink);min-height:62px;white-space:pre-wrap;}
+#rm-dialogue-text .caret{display:inline-block;animation:blink 1s infinite;color:var(--rust);}
+@keyframes blink{50%{opacity:0;}}
+#rm-choices{
+  position:absolute;left:50%;transform:translateX(-50%);bottom:230px;
+  width:min(560px,80%);z-index:21;display:none;
+  flex-direction:column;gap:12px;pointer-events:auto;
+}
+#rm-choices .choice{
+  font-family:var(--body-font);font-size:17px;color:var(--ink);text-align:center;
+  background:var(--paper);border:1.5px solid var(--rust);border-radius:14px;
+  padding:14px 28px;cursor:pointer;
+  transition:background .15s ease,border-width .15s ease,transform .15s ease;
+}
+#rm-choices .choice:hover{background:#ead9bf;border-width:2.5px;transform:translateY(-1px);}
 
 /* 底部操作栏 */
 #bottombar{
@@ -448,19 +794,19 @@ body{
   <!-- ===== 房间探索层（探访一之前的"自由探索"环节） ===== -->
   <section id="room-exploration" style="display:none;">
     <div id="re-bg-wrap">
-      <img id="re-bg" src="wang_assets/wang_room_bg.jpg?v=5" alt="王爷爷的房间" />
-      <!-- 11 个物品热区（按图实际位置 + 上移 3% 校准 · 1024×576 视觉） -->
-      <div class="hotspot" data-item="奖状与小梅的画" style="left:0%;top:12%;width:15%;height:13%;"></div>
-      <div class="hotspot" data-item="破旧公文包" style="left:2%;top:45%;width:14%;height:10%;"></div>
-      <div class="hotspot" data-item="钥匙" style="left:44%;top:55%;width:6%;height:6%;"></div>
-      <div class="hotspot" data-item="中山装" style="left:25%;top:16%;width:18%;height:38%;"></div>
-      <div class="hotspot" data-item="铁盒子" style="left:4%;top:40%;width:20%;height:18%;"></div>
-      <div class="hotspot" data-item="日历" style="left:42%;top:35%;width:7%;height:14%;"></div>
-      <div class="hotspot" data-item="抽屉（上）" style="left:43%;top:50%;width:11%;height:7%;"></div>
-      <div class="hotspot" data-item="抽屉（下）" style="left:43%;top:58%;width:12%;height:14%;"></div>
-      <div class="hotspot" data-item="糖醋排骨" style="left:65%;top:48%;width:15%;height:11%;"></div>
-      <div class="hotspot" data-item="勿忘我花" style="left:77%;top:35%;width:9%;height:24%;"></div>
-      <div class="hotspot" data-item="红拖鞋" style="left:80%;top:83%;width:11%;height:13%;"></div>
+      <img id="re-bg" src="wang_assets/wang_room_bg.jpg?v=14" alt="王爷爷的房间" />
+      <!-- 11 个物品热区 · 中山装/铁盒子/日历 按真实坐标(1920×1080) · 其他 8 个按图位置 + 6% 扩边距 -->
+      <div class="hotspot" data-item="奖状与小梅的画" style="left:0%;top:9%;width:21%;height:19%;"></div>
+      <div class="hotspot" data-item="破旧公文包" style="left:0%;top:42%;width:20%;height:16%;"></div>
+      <div class="hotspot" data-item="钥匙" style="left:11%;top:58%;width:8%;height:8%;"></div>
+      <div class="hotspot" data-item="中山装" style="left:21%;top:16%;width:14%;height:36%;"></div>
+      <div class="hotspot" data-item="铁盒子" style="left:38%;top:38%;width:7%;height:13%;"></div>
+      <div class="hotspot" data-item="日历" style="left:44%;top:39%;width:5%;height:11%;"></div>
+      <div class="hotspot" data-item="抽屉（上）" style="left:38%;top:50%;width:14%;height:8%;"></div>
+      <div class="hotspot" data-item="抽屉（下）" style="left:40%;top:58%;width:18%;height:20%;"></div>
+      <div class="hotspot" data-item="糖醋排骨" style="left:62%;top:45%;width:21%;height:17%;"></div>
+      <div class="hotspot" data-item="勿忘我花" style="left:74%;top:32%;width:15%;height:30%;"></div>
+      <div class="hotspot" data-item="红拖鞋" style="left:77%;top:80%;width:17%;height:19%;"></div>
       <!-- 坐下按钮 -->
       <button id="re-sit-btn">坐下跟王爷爷说说话</button>
     </div>
@@ -472,7 +818,116 @@ body{
     </div>
     <!-- 顶部提示 -->
     <div id="re-hint">点击房间里的物品查看 · 看完后坐下跟王爷爷说说话</div>
+    <!-- 出发按钮（hasAcceptedTask 后才显示） -->
+    <button id="re-go-btn" style="display:none;">出发去老刘家</button>
+    <!-- 继续探索按钮（hasReturnedFromLiu 后显示） -->
+    <button id="re-back-to-room-btn" style="display:none;">回到王爷爷房间</button>
   </section>
+
+  <!-- ===== 铁盒覆盖层 ===== -->
+  <section id="tiehe-stage" style="display:none;">
+    <img id="th-bg" src="wang_assets/tiehe_scene.jpg" alt="铁盒" />
+    <button id="th-close" title="返回">×</button>
+    <div id="th-debt">
+      <h2>欠条</h2>
+      <ul>
+        <li>老周：500元 <span class="ok">✓</span></li>
+        <li>李婶：300元 <span class="ok">✓</span></li>
+        <li>王木匠：200元 <span class="ok">✓</span></li>
+        <li>刘老师：400元 <span class="ok">✓</span></li>
+        <li>老杨：150元 <span class="ok">✓</span></li>
+        <li>小陈小六：600元 <span class="ok">✓</span></li>
+        <li>杂货店老王：20元 <span class="ok">✓</span></li>
+        <li id="th-row-liuliu" class="bad">老刘：300元 <span class="bad" id="th-liu-mark">—（未划勾）</span></li>
+      </ul>
+      <button id="th-debt-next">继续</button>
+    </div>
+    <div id="th-cards" style="display:none;">
+      <p class="th-tip">铁盒底部还有几张明信片……</p>
+      <div id="th-card-stage">
+        <button id="th-prev">‹</button>
+        <div id="th-card-text"></div>
+        <button id="th-next">›</button>
+      </div>
+      <div id="th-page-indicator">1/3</div>
+    </div>
+  </section>
+
+  <!-- ===== 推门开场（2 张图） ===== -->
+  <section id="door-intro-stage" style="display:none;">
+    <img id="door-img" src="" alt="推门" />
+    <div id="door-hint">点击屏幕继续</div>
+  </section>
+
+  <!-- ===== 老刘家阶段（5 场景） ===== -->
+  <section id="old-liu-stage" style="display:none;">
+    <img id="ol-bg" src="" alt="老刘家" />
+    <button id="ol-close" title="返回">×</button>
+    <div id="ol-card">
+      <p class="ol-tip" id="ol-tip"></p>
+      <div id="ol-text"></div>
+      <div class="ol-actions">
+        <button id="ol-next">下一句 ›</button>
+        <button id="ol-receipt" style="display:none;">查看收据</button>
+        <button id="ol-to-room" style="display:none;">回到王爷爷房间</button>
+      </div>
+      <div id="ol-scene-indicator"></div>
+    </div>
+  </section>
+
+  <!-- ===== 收据浮窗 ===== -->
+  <!-- ===== 收据文字层（场景三末句后显示） ===== -->
+  <div id="receipt-popup" style="display:none;">
+    <div id="receipt-box">
+      <div class="receipt-title">「这是当年的收据。」</div>
+      <div class="receipt-text">今收到王老头还款，<br>叁佰元整，账目已清，<br>两不相欠。<br>——老刘 1998年5月。</div>
+      <button id="receipt-close">她合上铁盒</button>
+    </div>
+  </div>
+  <div id="sys-modal" style="display:none;">
+    <div id="sys-modal-box">
+      <div id="sys-modal-title"></div>
+      <div id="sys-modal-body"></div>
+      <div id="sys-modal-actions"></div>
+    </div>
+  </div>
+
+  <!-- ===== 记忆场景层（点击物品后显示） ===== -->
+  <section id="memory-scene" style="display:none;">
+    <img id="ms-bg" src="" alt="回忆场景" />
+    <button id="ms-close" title="返回">×</button>
+    <!-- 回忆场景的爷爷立绘（左下） -->
+    <div id="ms-portrait"><div class="float"><img id="ms-face" src="wang_assets/wang_normal.png" alt="王爷爷" onerror="this.onerror=null;this.src='wang_assets/wang_normal.png';" /></div></div>
+    <!-- ===== 回忆特效层 ===== -->
+    <div id="ms-grain" aria-hidden="true"></div>
+    <div id="ms-vignette" aria-hidden="true"></div>
+    <div id="ms-scratch" aria-hidden="true"></div>
+    <canvas id="ms-dust" aria-hidden="true"></canvas>
+    <div id="ms-flash" aria-hidden="true"></div>
+    <!-- 旁白 -->
+    <div id="ms-text"></div>
+    <!-- 进度小字 1/4（无按钮） -->
+    <div id="ms-progress">1/1</div>
+    <button id="ms-back-btn">返回房间</button>
+  </section>
+
+  <!-- 预加载主线对话立绘（避免首次显示慢） -->
+  <div style="position:absolute;width:0;height:0;overflow:hidden;visibility:hidden;" aria-hidden="true">
+    <img src="wang_assets/wang_normal.png" alt="" />
+    <img src="wang_assets/wang_think.png" alt="" />
+    <img src="wang_assets/wang_smile.png" alt="" />
+    <img src="wang_assets/wang_bye.png" alt="" />
+  </div>
+
+  <!-- ===== 主线对话层（复用游戏对话样式，独立于 #game） ===== -->
+  <div id="rm-dialogue">
+    <div id="rm-portrait"><div class="float"><img id="rm-face" src="wang_assets/wang_normal.png" alt="王爷爷" onerror="this.onerror=null;this.src='wang_assets/wang_normal.png';" /></div></div>
+    <div id="rm-dialogue-box">
+      <div id="rm-speaker"></div>
+      <div id="rm-dialogue-text"></div>
+    </div>
+    <div id="rm-choices"></div>
+  </div>
 
   <!-- ===== 游戏界面 ===== -->
   <section id="game">
@@ -1177,15 +1632,106 @@ body{
     }
   }
   function startGame(){
-    // 改为：先显示房间探索层（不进 game），等用户点"坐下"再进探访一
+    // 改为：先 2 张推门图 → 爷爷迎接对话 → 弹窗 → 房间探索层
     document.getElementById('menu').classList.add('hidden');
+    playDoorIntro();
+  }
+
+  // 推门开场（2 张图）
+  let doorIdx = 0;
+  const DOOR_IMAGES = ['wang_assets/door_touch.jpg', 'wang_assets/door_push.jpg'];
+  function playDoorIntro(){
+    doorIdx = 0;
+    showDoorFrame();
+  }
+  function showDoorFrame(){
+    const stage = document.getElementById('door-intro-stage');
+    const img = document.getElementById('door-img');
+    img.src = DOOR_IMAGES[doorIdx];
+    stage.style.display = 'block';
+    stage.style.opacity = '0';
+    requestAnimationFrame(() => {
+      stage.style.transition = 'opacity .8s ease';
+      stage.style.opacity = '1';
+    });
+  }
+  function advanceDoor(){
+    if(doorIdx < DOOR_IMAGES.length - 1){
+      doorIdx++;
+      // 淡出 → 切图 → 淡入
+      const stage = document.getElementById('door-intro-stage');
+      stage.style.transition = 'opacity .4s ease';
+      stage.style.opacity = '0';
+      setTimeout(() => {
+        showDoorFrame();
+      }, 400);
+    } else {
+      // 推门完毕 → 进入爷爷迎接对话
+      const stage = document.getElementById('door-intro-stage');
+      stage.style.transition = 'opacity .6s ease';
+      stage.style.opacity = '0';
+      setTimeout(() => {
+        stage.style.display = 'none';
+        stage.style.opacity = '1';
+        stage.style.transition = '';
+        startGreetingDialog();
+      }, 600);
+    }
+  }
+  document.getElementById('door-intro-stage').addEventListener('click', advanceDoor);
+
+  // 爷爷迎接对话（封面"开始故事"后触发）
+  function startGreetingDialog(){
+    console.log('[主线] 爷爷迎接对话开始');
+    runDialogSequence([
+      // 0: 爷爷迎接
+      { speaker:'wang', face:'wang_smile', text:'你终于来了……你好久没来了！',
+        choices:[
+          { label:'A. 「爷爷好！」', onClick: () => {
+            rmCloseDialog();
+            setTimeout(startGreetingA, 200);
+          }},
+          { label:'B. 「我是第一次来。」', onClick: () => {
+            rmCloseDialog();
+            setTimeout(startGreetingB, 200);
+          }}
+        ]
+      }
+    ], () => {});
+  }
+  function startGreetingA(){
+    runDialogSequence([
+      { speaker:'wang', face:'wang_smile', text:'哎！快来坐！' },
+      { speaker:'wang', face:'wang_smile', text:'小梅最近在学校还开心吗？是不是太久没来这里有点拘谨了。\n\n（爷爷对着你慈爱地笑）你先随意看看，休息一下。' }
+    ], () => {
+      showSysModal('提示', '点击房间里的物品可查看背后的故事。', [
+        { label:'知道了', primary:true, onClick: () => {
+          hideSysModal();
+          setTimeout(showRoomExploration, 300);
+        }}
+      ]);
+    });
+  }
+  function startGreetingB(){
+    runDialogSequence([
+      { speaker:'wang', face:'wang_smile', text:'我的孙女这么久不见，还跟老头子开玩笑呢！快来坐！' },
+      { speaker:'wang', face:'wang_smile', text:'小梅最近在学校还开心吗？是不是太久没来这里有点拘谨了。\n\n（爷爷对着你慈爱地笑）你先随意看看，休息一下。' }
+    ], () => {
+      showSysModal('提示', '点击房间里的物品可查看背后的故事。', [
+        { label:'知道了', primary:true, onClick: () => {
+          hideSysModal();
+          setTimeout(showRoomExploration, 300);
+        }}
+      ]);
+    });
+  }
+
+  // 显示房间探索层
+  function showRoomExploration(){
     const re = document.getElementById('room-exploration');
     re.style.display = 'block';
-    // 调试模式：URL 加 ?debug=1 时显示热区边界
     if (/[?&]debug=1\b/.test(location.search)) re.classList.add('debug');
-    // 用 rAF 加 active class，触发 CSS 渐入
     requestAnimationFrame(() => re.classList.add('active'));
-    // 不调 renderStep(0)，等"坐下"按钮触发
   }
 
   /* ===== 房间探索层逻辑 ===== */
@@ -1204,18 +1750,962 @@ body{
     '抽屉（下）': '床头柜的下层抽屉，把手有些松动。'
   };
 
-  // 点击热区 → 弹文字框
+  /* ===== 记忆场景数据（7 件可点物品 + 旁白） ===== */
+  // 第 1 步只做这 7 件；铁盒/日历/抽屉 等第 2 步做
+  const MEMORY_SCENES = {
+    '红拖鞋': {
+      bg: 'wang_assets/red_slippers_scene.jpg',
+      lines: [
+        '还记得这双红拖鞋吗？你小时候啊，总是光脚跑来跑去。脚冷，我让你穿鞋，你还说不冷。',
+        '后来我给你买了这双拖鞋，你穿上就不肯脱了，比棉鞋舒服吧？',
+        '你呀，穿着这双鞋跑了几年呢。',
+        '后来穿旧了、穿小了，也舍不得扔，一直放在这儿。',
+        '后来你忙着上学去了，鞋子就由我这个小老头留下来啦，总想着等你回来了再穿，这不就把你等回来啦？'
+      ]
+    },
+    '破旧公文包': {
+      bg: 'wang_assets/old_briefcase_scene.jpg',
+      lines: [
+        '爷爷我那会儿总想着工作，觉得把日子过好了比什么都强。',
+        '后来才知道，有些东西错过了，再多的钱也补不回来。',
+        '你奶奶走了以后，我一个人带着你爸。我在外头跑，他一个人在家。我总觉得他能照顾好自己，他也挥挥手让我不要担心，是个多好的孩子啊。',
+        '事实上，他也做到了。'
+      ]
+    },
+    '钥匙': {
+      bg: 'wang_assets/key_scene.jpg',
+      lines: [
+        '这是老房子的钥匙。你爸走之前留下的，说"爸你拿着"。',
+        '我说我拿它干什么。他说"万一哪天我回来了呢"。',
+        '这把钥匙我一直留着。',
+        '你说，我一个老头子留着一把钥匙干什么呢？',
+        '可惜这么多年了，他还是放不下，一次都没回来看过我。'
+      ],
+      // 第 3 句（atLine=2）切换到钥匙浮窗特写，看清钥匙大小
+      bgSwitch: { atLine: 2, to: 'wang_assets/key_popup.jpg' }
+    },
+    '中山装': {
+      bg: 'wang_assets/zhongshan_suit_scene.jpg',
+      lines: [
+        '那时候……还是周正的。后来就旧了。',
+        '这件衣服穿了很多年。你奶奶买的，花了半个月工资。',
+        '她说男人出门要体面。后来你爸走的时候，我把这件衣服塞进他包里。',
+        '他搁在桌上没带走。大概是不想要我的东西。',
+        '我一直挂着，不是舍不得扔，是想着穿它的自己，当年也是堂堂正正的。'
+      ]
+    },
+    '勿忘我花': {
+      bg: 'wang_assets/forget_me_not_scene.jpg',
+      lines: [
+        '隔壁赵奶奶送的。她说这花好养，不用太操心。',
+        '那位赵奶奶……她也是个心里有事的人。',
+        '她说这花叫勿忘我，不用总记着浇水，它自己会活。我看她也是说给自己听的。',
+        '小梅，你以后要是忙，不用天天来看我。但你来了，我就高兴。'
+      ]
+    },
+    '糖醋排骨': {
+      bg: 'wang_assets/sweet_sour_pork_scene.jpg',
+      lines: [
+        '你最爱吃这个。我学会了，但你都没吃上几回。',
+        '你小时候老缠着我做这个。我说我不会，你说"那我教你"。你那时候才这么高，话都说不利索，倒要教我做菜。',
+        '后来我真学会了。但你已经不常回来吃饭了。',
+        '那天做了一盘，放在桌上，等你回来。凉了，我倒了。',
+        '后来再也没做过。',
+        '今天这盘，是给你做的。刚好你回来了，还是热的呢。'
+      ]
+    },
+    '奖状与小梅的画': {
+      bg: 'wang_assets/certificate_painting_scene.jpg',
+      lines: [
+        '你啊学习成绩一直很好，爷爷把奖状贴满了整个屋子。',
+        '但你最骄傲的，从来都不是成绩。是画画。',
+        '你小时候画的画，我都留着。后来你爸说画画没用，你就不画了。',
+        '但你画的那张我和你在院子里的，我一直挂着。',
+        '那天下午，太阳很好，你说"爷爷你别动，我给你画一张"。我就坐了一整个下午。别说，画得真好啊我孙女。'
+      ]
+    }
+  };
+
+  // 占位消息（铁盒/日历/抽屉上下 - 等第 2 步做）
+  const PLACEHOLDER_MSG = '你感觉这个东西很重要，但现在还不是打开它的时候，请再探索一下吧。';
+  const PLACEHOLDER_ITEMS = new Set(['铁盒子', '日历', '抽屉（上）', '抽屉（下）']);
+
+  /* ===== 主线状态机（第 6-12 步） ===== */
+  const STATE = {
+    clickedSurfaceItems: [],  // 已点击的 7 件表面物品
+    ironBoxUnlocked: false,
+    hasReadAllLetters: false,
+    hasAcceptedTask: false,
+    hasReturnedFromLiu: false,
+    hasToldTruth: null,       // null / true / false
+    hasDoneMultiChoice: false,
+    hasChosenCorrectQuestion: false,
+    drawer1Unlocked: false,
+    drawer2Unlocked: false,
+    hasSeenCalendar: false,
+    hasFoundMedicine: false,
+    quizResults: {},
+    quizScore: 0
+  };
+  // 表面物品 = 7 件有记忆场景的（红拖鞋/公文包/钥匙/中山装/勿忘我/糖醋排骨/奖状）
+  const SURFACE_ITEMS = new Set(['红拖鞋','破旧公文包','钥匙','中山装','勿忘我花','糖醋排骨','奖状与小梅的画']);
+  const SURFACE_UNLOCK_THRESHOLD = 5;
+
+  // 系统弹窗（通用）
+  function showSysModal(title, body, actions){
+    const m = document.getElementById('sys-modal');
+    document.getElementById('sys-modal-title').textContent = title || '';
+    document.getElementById('sys-modal-body').innerHTML = body || '';
+    const ac = document.getElementById('sys-modal-actions');
+    ac.innerHTML = '';
+    (actions||[]).forEach(a => {
+      const btn = document.createElement('button');
+      btn.className = 'sys-act-btn' + (a.primary ? ' primary' : '') + (a.danger ? ' danger' : '');
+      btn.textContent = a.label;
+      btn.onclick = () => { a.onClick && a.onClick(); };
+      ac.appendChild(btn);
+    });
+    m.style.display = 'flex';
+  }
+  function hideSysModal(){
+    document.getElementById('sys-modal').style.display = 'none';
+  }
+
+  // 铁盒覆盖层逻辑
+  const TIEHE_CARDS = [
+    '我还活着。不用汇钱了。',
+    '换了地方，还没定下来。',
+    '不用找。我不会回去的。'
+  ];
+  let thCardIdx = 0;
+  function openTiehe(){
+    console.log('[tiehe] 打开铁盒');
+    const stage = document.getElementById('tiehe-stage');
+    stage.style.display = 'block';
+    stage.style.opacity = '0';
+    requestAnimationFrame(() => { stage.style.transition='opacity .5s ease'; stage.style.opacity='1'; });
+    document.getElementById('th-debt').style.display = 'block';
+    document.getElementById('th-cards').style.display = 'none';
+    thCardIdx = 0;
+    // 动态打勾：hasToldTruth=true 时老刘行变绿
+    const liuRow = document.getElementById('th-row-liuliu');
+    const liuMark = document.getElementById('th-liu-mark');
+    if(STATE.hasToldTruth === true){
+      liuRow.classList.remove('bad');
+      liuRow.classList.add('ok');
+      liuMark.classList.remove('bad');
+      liuMark.classList.add('ok');
+      liuMark.textContent = '✓';
+    } else {
+      liuRow.classList.add('bad');
+      liuRow.classList.remove('ok');
+      liuMark.classList.add('bad');
+      liuMark.classList.remove('ok');
+      liuMark.textContent = '—（未划勾）';
+    }
+  }
+  function closeTiehe(){
+    const stage = document.getElementById('tiehe-stage');
+    stage.style.opacity = '0';
+    setTimeout(() => { stage.style.display = 'none'; stage.style.opacity='1'; stage.style.transition=''; }, 500);
+  }
+  function thNextCard(){
+    if(thCardIdx < TIEHE_CARDS.length - 1){
+      thCardIdx++;
+      document.getElementById('th-card-text').textContent = TIEHE_CARDS[thCardIdx];
+      document.getElementById('th-page-indicator').textContent = (thCardIdx+1)+'/'+TIEHE_CARDS.length;
+      document.getElementById('th-prev').disabled = false;
+      // 不在这里 disabled th-next，让用户点 th-next 触发委托对话
+    }
+  }
+  function thPrevCard(){
+    if(thCardIdx > 0){
+      thCardIdx--;
+      document.getElementById('th-card-text').textContent = TIEHE_CARDS[thCardIdx];
+      document.getElementById('th-page-indicator').textContent = (thCardIdx+1)+'/'+TIEHE_CARDS.length;
+      document.getElementById('th-next').disabled = false;
+      if(thCardIdx === 0) document.getElementById('th-prev').disabled = true;
+    }
+  }
+
+  // 绑定铁盒 UI
+  document.getElementById('th-debt-next').addEventListener('click', () => {
+    document.getElementById('th-debt').style.display = 'none';
+    document.getElementById('th-cards').style.display = 'block';
+    thCardIdx = 0;
+    document.getElementById('th-card-text').textContent = TIEHE_CARDS[0];
+    document.getElementById('th-page-indicator').textContent = '1/'+TIEHE_CARDS.length;
+    document.getElementById('th-prev').disabled = true;
+    document.getElementById('th-next').disabled = false;
+    document.getElementById('th-next').textContent = '›';  // 重置箭头
+  });
+  document.getElementById('th-prev').addEventListener('click', thPrevCard);
+  document.getElementById('th-next').addEventListener('click', () => {
+    if(thCardIdx < TIEHE_CARDS.length - 1){
+      thNextCard();
+      // 翻到第 3 张时把按钮文字改成"看完了"
+      if(thCardIdx === TIEHE_CARDS.length - 1){
+        document.getElementById('th-next').textContent = '看完了';
+      }
+    } else {
+      // 3 张都翻到 → 弹问题（只在没选对过的时候弹）
+      if(!STATE.hasChosenCorrectQuestion){
+        startCardQuestion();
+      } else {
+        // 已选对过 → 关闭铁盒 + 触发委托对话
+        STATE.hasReadAllLetters = true;
+        console.log('[state] hasReadAllLetters = true');
+        closeTiehe();
+        setTimeout(() => { startEntrustDialog(); }, 600);
+      }
+    }
+  });
+
+  // 明信片第 3 张看完了 → 弹问题
+  function startCardQuestion(){
+    runDialogSequence([
+      { speaker:'system', text:'你觉得这可能是谁留下的明信片呢？', choices:[
+        { label:'A. 爸爸', onClick: () => {
+            STATE.hasChosenCorrectQuestion = true;
+            console.log('[state] hasChosenCorrectQuestion = true (A - 爸爸)');
+            rmCloseDialog();
+            setTimeout(() => {
+              STATE.hasReadAllLetters = true;
+              closeTiehe();
+              setTimeout(() => { startEntrustDialog(); }, 600);
+            }, 200);
+          }
+        },
+        { label:'B. 小梅', onClick: () => {
+            STATE.hasChosenCorrectQuestion = false;
+            console.log('[state] hasChosenCorrectQuestion = false (B - 小梅, 错误)');
+            rmCloseDialog();
+            setTimeout(() => {
+              // 提示 + 回到第 3 张
+              showSysModal('再仔细想想', '这道题答错了……你可以再看看明信片上的字迹，下次再尝试。', [
+                { label:'好', primary:true, onClick: () => {
+                    hideSysModal();
+                    // 确保 th-cards 显示（th-debt 隐藏）
+                    document.getElementById('th-debt').style.display = 'none';
+                    document.getElementById('th-cards').style.display = 'block';
+                    thCardIdx = 2;
+                    document.getElementById('th-card-text').textContent = TIEHE_CARDS[2];
+                    document.getElementById('th-page-indicator').textContent = (thCardIdx+1)+'/'+TIEHE_CARDS.length;
+                    document.getElementById('th-prev').disabled = false;
+                    document.getElementById('th-next').textContent = '看完了';
+                    document.getElementById('th-next').disabled = false;
+                  }
+                }
+              ]);
+            }, 200);
+          }
+        },
+        { label:'C. 奶奶', onClick: () => {
+            STATE.hasChosenCorrectQuestion = false;
+            console.log('[state] hasChosenCorrectQuestion = false (C - 奶奶, 错误)');
+            rmCloseDialog();
+            setTimeout(() => {
+              showSysModal('再仔细想想', '这道题答错了……你可以再看看明信片上的字迹，下次再尝试。', [
+                { label:'好', primary:true, onClick: () => {
+                    hideSysModal();
+                    document.getElementById('th-debt').style.display = 'none';
+                    document.getElementById('th-cards').style.display = 'block';
+                    thCardIdx = 2;
+                    document.getElementById('th-card-text').textContent = TIEHE_CARDS[2];
+                    document.getElementById('th-page-indicator').textContent = (thCardIdx+1)+'/'+TIEHE_CARDS.length;
+                    document.getElementById('th-prev').disabled = false;
+                    document.getElementById('th-next').textContent = '看完了';
+                    document.getElementById('th-next').disabled = false;
+                  }
+                }
+              ]);
+            }, 200);
+          }
+        }
+      ]}
+    ], () => {});
+  }
+  document.getElementById('th-close').addEventListener('click', closeTiehe);
+  // 点铁盒背景空白也关闭
+  document.getElementById('tiehe-stage').addEventListener('click', (e) => {
+    if(e.target.id === 'tiehe-stage') closeTiehe();
+  });
+
+  /* ===== 老刘家 stage（5 场景） ===== */
+  // 老刘家 5 场景数据（4 场景，前 3 个独立图，4 是回到房间）
+  const OLD_LIU_SCENES = [
+    {
+      bg: 'wang_assets/take_address.jpg',
+      tip: '场景一 · 拿着地址出门',
+      lines: [
+        '你走出王爷爷的房间，手里攥着那张写着地址的纸条。',
+        '阳光从走廊尽头的窗户照进来。',
+        '你低头看了一眼纸条上的字——邻镇，老刘家。',
+        '那是个你从没去过的地方。'
+      ]
+    },
+    {
+      bg: 'wang_assets/old_liu_exterior.jpg',
+      tip: '场景二 · 老刘家外观',
+      lines: [
+        '你按着地址找到了那栋楼。',
+        '一楼，门口种着一棵枇杷树。',
+        '树影落在门前的台阶上。',
+        '你在门口站了一会儿，才敲了敲门。'
+      ]
+    },
+    {
+      bg: 'wang_assets/old_liu_wife.jpg',
+      tip: '场景三 · 老刘家客厅',
+      lines: [
+        '门开了。一个头发花白的老人站在门内。',
+        '她看了你一眼，说：「你是老王那边的人吧？」',
+        '你点了点头。她侧过身，让开了一条门缝：「进来坐吧。」',
+        '客厅不大，茶几上放着一盘没包完的饺子。',
+        '她没有让你坐下，也没有给你倒水。她只是站在那里，像是终于等到了一个愿意听的人。',
+        '「他走了快一年了。」她说。语气很平，没有哽咽。',
+        '她转身走进里屋，过了一会儿，拿着一个旧铁盒走出来。',
+        '「这是当年的收据。」她把一张泛黄的纸递给你。'
+      ],
+      // 第 8 句（idx 7）后显示"查看收据"
+      afterLine: { atLine: 7, action: 'showReceipt' }
+    },
+    {
+      bg: 'wang_assets/wang_room_bg_v2.jpg',
+      tip: '场景四 · 回到王爷爷房间',
+      lines: [
+        '你回到时光驿站，推开王爷爷房间的门。',
+        '他坐在窗边，手里没有拿铁盒，只是安静地坐着。',
+        '听到门响，他转过头来，目光里带着一点迟疑。',
+        '「……你回来了。」'
+      ]
+      // 末句后显示"回到王爷爷房间"按钮
+    }
+  ];
+
+  let olSceneIdx = 0, olLineIdx = 0, olTyping = false, olFullText = '', olTimer = null;
+
+  function olShowLine(){
+    if(olLineIdx >= OLD_LIU_SCENES[olSceneIdx].lines.length){
+      // 场景台词完
+      const sc = OLD_LIU_SCENES[olSceneIdx];
+      // 默认下一场景按钮
+      document.getElementById('ol-next').style.display = '';
+      if(sc.afterLine && sc.afterLine.action === 'showReceipt'){
+        // 显示"查看收据"按钮
+        document.getElementById('ol-next').style.display = 'none';
+        document.getElementById('ol-receipt').style.display = '';
+      } else {
+        // 不是收据场景：判断是不是最后一场景
+        if(olSceneIdx === OLD_LIU_SCENES.length - 1){
+          // 末场景 → 显示"回到王爷爷房间"
+          document.getElementById('ol-next').style.display = 'none';
+          document.getElementById('ol-to-room').style.display = '';
+        }
+      }
+      return;
+    }
+    olFullText = OLD_LIU_SCENES[olSceneIdx].lines[olLineIdx];
+    const el = document.getElementById('ol-text');
+    el.textContent = '';
+    olTyping = true;
+    let k = 0;
+    clearInterval(olTimer);
+    olTimer = setInterval(() => {
+      el.textContent = olFullText.slice(0, k);
+      k++;
+      if(k > olFullText.length){
+        clearInterval(olTimer); olTyping = false;
+        el.innerHTML = olFullText + '<span class="ol-caret">▍</span>';
+      }
+    }, 60);
+    // 切场景或台词时清空动作按钮
+    if(olLineIdx === 0){
+      document.getElementById('ol-receipt').style.display = 'none';
+      document.getElementById('ol-to-room').style.display = 'none';
+      document.getElementById('ol-next').style.display = '';
+    }
+  }
+
+  function olTextClick(){
+    // 优先：如果是 typing 状态 → 完成打字
+    if(olTyping){
+      clearInterval(olTimer); olTyping = false;
+      const el = document.getElementById('ol-text');
+      el.innerHTML = olFullText + '<span class="ol-caret">▍</span>';
+      return;
+    }
+    // 推进台词
+    olLineIdx++;
+    // 如果当前场景台词还没完 → 显示下一句
+    if(olLineIdx < OLD_LIU_SCENES[olSceneIdx].lines.length){
+      olShowLine();
+      return;
+    }
+    // 当前场景台词完
+    const sc = OLD_LIU_SCENES[olSceneIdx];
+    if(sc.afterLine && sc.afterLine.action === 'showReceipt'){
+      // 收据场景 → 弹收据浮窗（背景收据图+文字气泡）
+      document.getElementById('receipt-popup').style.display = 'flex';
+      return;
+    }
+    // 普通场景：如果是最后场景 → 显示"回到房间"按钮
+    if(olSceneIdx === OLD_LIU_SCENES.length - 1){
+      document.getElementById('ol-next').style.display = 'none';
+      document.getElementById('ol-to-room').style.display = '';
+    } else {
+      // 切下一场景
+      olSceneIdx++;
+      loadOldLiuScene(olSceneIdx);
+    }
+  }
+
+  function openOldLiuStage(){
+    const s = document.getElementById('old-liu-stage');
+    s.style.display = 'block';
+    s.style.opacity = '0';
+    requestAnimationFrame(() => { s.style.transition='opacity .5s ease'; s.style.opacity='1'; });
+    olSceneIdx = 0; olLineIdx = 0;
+    loadOldLiuScene(0);
+  }
+
+  function loadOldLiuScene(idx){
+    const sc = OLD_LIU_SCENES[idx];
+    document.getElementById('ol-bg').src = sc.bg;
+    document.getElementById('ol-tip').textContent = sc.tip;
+    document.getElementById('ol-scene-indicator').textContent = (idx+1) + '/' + OLD_LIU_SCENES.length;
+    // 重置按钮
+    document.getElementById('ol-receipt').style.display = 'none';
+    document.getElementById('ol-to-room').style.display = 'none';
+    document.getElementById('ol-next').style.display = '';
+    olLineIdx = 0;
+    olShowLine();
+  }
+
+  function closeOldLiu(){
+    const s = document.getElementById('old-liu-stage');
+    s.style.opacity = '0';
+    setTimeout(() => { s.style.display = 'none'; s.style.opacity='1'; s.style.transition=''; clearInterval(olTimer); }, 500);
+    // 恢复房间探索层背景
+    const re = document.getElementById('room-exploration');
+    if(re && re.style.display === 'none'){
+      re.style.display = 'block';
+      re.style.opacity = '0';
+      requestAnimationFrame(() => {
+        re.style.transition = 'opacity .5s ease';
+        re.style.opacity = '1';
+        setTimeout(() => { re.style.transition = ''; }, 550);
+      });
+    }
+  }
+
+  document.getElementById('ol-close').addEventListener('click', closeOldLiu);
+  document.getElementById('ol-text').addEventListener('click', olTextClick);
+  document.getElementById('ol-next').addEventListener('click', olTextClick);
+  document.getElementById('ol-receipt').addEventListener('click', () => {
+    document.getElementById('receipt-popup').style.display = 'flex';
+  });
+  document.getElementById('ol-to-room').addEventListener('click', () => {
+    // 从老刘家回来 → 弹"任务完成"提示 → 600ms 后弹告诉选择
+    closeOldLiu();
+    setTimeout(() => {
+      showSysModal('任务完成', '已完成【帮王爷爷还钱】任务 √', [
+        { label:'继续', primary:true, onClick: () => {
+          hideSysModal();
+          setTimeout(() => { startTellingChoice(); }, 300);
+        }}
+      ]);
+    }, 600);
+  });
+
+  // 收据浮窗关闭
+  document.getElementById('receipt-close').addEventListener('click', () => {
+    document.getElementById('receipt-popup').style.display = 'none';
+    // 收据看完 → 切场景 4（回到王爷爷房间）
+    if(olSceneIdx < OLD_LIU_SCENES.length - 1){
+      olSceneIdx++;
+      loadOldLiuScene(olSceneIdx);
+    }
+  });
+
+  /* ===== 委托对话（看完 3 张明信片后触发） ===== */
+  /* ===== 主线对话引擎（复用游戏对话样式，独立于 #game） ===== */
+  // 状态：自己维护 stepIdx，不污染全局 idx
+  let rmSeq = [], rmStepIdx = 0, rmTyping = false, rmFullText = '', rmTimer = null;
+  // 实际存在的立绘：wang_normal / wang_think / wang_smile / wang_bye
+  // sad/lost/clear 都 fallback 到 normal
+  const RM_FACE_MAP = {
+    wang_normal: 'wang_assets/wang_normal.png',
+    wang_think:  'wang_assets/wang_think.png',
+    wang_smile:  'wang_assets/wang_smile.png',
+    wang_bye:    'wang_assets/wang_bye.png',
+    wang_sad:    'wang_assets/wang_normal.png',
+    wang_lost:   'wang_assets/wang_normal.png',
+    wang_clear:  'wang_assets/wang_normal.png'
+  };
+  const RM_SPEAKER_LABEL = { wang:'王爷爷', you:'你', system:'旁白' };
+
+  function rmShowStep(){
+    if(rmStepIdx >= rmSeq.length){
+      // 序列结束
+      rmCloseDialog();
+      return;
+    }
+    const s = rmSeq[rmStepIdx];
+    // 立绘
+    const portrait = document.getElementById('rm-portrait');
+    const face = document.getElementById('rm-face');
+    if(s.speaker === 'wang' || (s.speaker === 'system' && s.showFace !== false)){
+      // 显示立绘
+      const faceKey = s.face || 'wang_normal';
+      face.src = RM_FACE_MAP[faceKey] || RM_FACE_MAP.wang_normal;
+      portrait.classList.add('show');
+    } else {
+      portrait.classList.remove('show');
+    }    // 说话人标签
+    const sp = document.getElementById('rm-speaker');
+    if(s.speaker === 'wang'){ sp.className='wang'; sp.textContent=RM_SPEAKER_LABEL.wang; sp.style.display='block'; }
+    else if(s.speaker === 'you'){ sp.className='you'; sp.textContent=RM_SPEAKER_LABEL.you; sp.style.display='block'; }
+    else if(s.speaker === 'system'){ sp.className='system'; sp.textContent=RM_SPEAKER_LABEL.system; sp.style.display='block'; }
+    else { sp.style.display='none'; }
+    // 对话文本
+    const dt = document.getElementById('rm-dialogue-text');
+    rmFullText = s.text || '';
+    dt.textContent = '';
+    rmTyping = true;
+    let k = 0;
+    clearInterval(rmTimer);
+    rmTimer = setInterval(() => {
+      dt.textContent = rmFullText.slice(0, k);
+      k++;
+      if(k > rmFullText.length){
+        clearInterval(rmTimer); rmTyping = false;
+        dt.innerHTML = rmFullText + '<span class="caret">▍</span>';
+      }
+    }, 50);
+    // 选项
+    const ce = document.getElementById('rm-choices');
+    ce.innerHTML = '';
+    if(s.choices && s.choices.length){
+      ce.style.display = 'flex';
+      s.choices.forEach(c => {
+        const b = document.createElement('div');
+        b.className = 'choice';
+        b.textContent = c.label;
+        b.onclick = () => {
+          ce.style.display = 'none';
+          ce.innerHTML = '';
+          if(c.goToStep !== undefined){
+            rmStepIdx = c.goToStep;
+            rmShowStep();
+          } else if(c.onClick){
+            c.onClick();
+          } else {
+            rmStepIdx++;
+            rmShowStep();
+          }
+        };
+        ce.appendChild(b);
+      });
+    } else {
+      ce.style.display = 'none';
+    }
+  }
+
+  function rmDialogClick(){
+    // 选项存在时，box 点击不推进——必须点选项
+    const ce = document.getElementById('rm-choices');
+    if(ce && ce.style.display === 'flex' && ce.children.length > 0) return;
+    if(rmTyping){
+      clearInterval(rmTimer); rmTyping = false;
+      const dt = document.getElementById('rm-dialogue-text');
+      dt.innerHTML = rmFullText + '<span class="caret">▍</span>';
+      return;
+    }
+    // 推进
+    rmStepIdx++;
+    rmShowStep();
+  }
+
+  let rmOnFinish = null;
+
+  function rmCloseDialog(){
+    document.getElementById('rm-dialogue').classList.remove('active');
+    clearInterval(rmTimer); rmTyping = false;
+    document.getElementById('rm-choices').style.display = 'none';
+    document.getElementById('rm-choices').innerHTML = '';
+    const cb = rmOnFinish;
+    rmOnFinish = null;
+    if(cb) cb();
+  }
+
+  function runDialogSequence(seq, onFinish){
+    rmSeq = seq;
+    rmStepIdx = 0;
+    rmOnFinish = onFinish || null;
+    const layer = document.getElementById('rm-dialogue');
+    layer.classList.add('active');
+    // 绑定一次性 click
+    const box = document.getElementById('rm-dialogue-box');
+    box.onclick = null;
+    box.onclick = (e) => { e.stopPropagation(); rmDialogClick(); };
+    // 跑
+    rmShowStep();
+  }
+
+  /* ===== 委托对话（主线对话 UI 版） ===== */
+  function startEntrustDialog(){
+    console.log('[主线] 委托对话开始');
+    STATE.hasReadAllLetters = true;
+    runDialogSequence([
+      { speaker:'wang', face:'wang_think', text:'你爸……离家出走了很多年了。他不回来，也不让人去找他。我替他还了债，把他欠的那些都补上了。但我不知道他心里那笔账，我有没有还清。\n\n小梅，你爸跟你说过什么吗？',
+        choices:[
+          { label:'「他什么都没跟我说过。」', onClick: () => { rmCloseDialog(); setTimeout(startEntrustAB, 200); } },
+          { label:'「他说过……他回不来了。」', onClick: () => { rmCloseDialog(); setTimeout(startEntrustAB, 200); } },
+          { label:'「……我不是小梅。」', onClick: () => { rmCloseDialog(); setTimeout(startEntrustC, 200); } }
+        ]
+      }
+    ], () => {});
+  }
+  // A 或 B 选完后
+  function startEntrustAB(){
+    runDialogSequence([
+      { speaker:'wang', face:'wang_think', text:'……也是。他跟你也不说。那跟我，就更不会说了。\n\n他走的时候，是什么样子，你见过吗？' },
+      { speaker:'wang', face:'wang_think', text:'小梅……我有件事一直没跟你说清楚。你爸走的时候，欠了一笔钱。我替他还了。但有一笔，我一直觉得没还清。那人叫老刘，就住在隔壁镇。\n\n你帮我去他家一趟……帮我把这笔钱的事问清楚。我老了，去不了。',
+        choices:[
+          { label:'A. 「好，我帮您去。」', onClick: () => { rmCloseDialog(); setTimeout(startEntrustPart2, 200); } },
+          { label:'B. 「您确定这笔钱还欠着吗？」', onClick: () => { rmCloseDialog(); setTimeout(startEntrustPart2, 200); } },
+          { label:'C. 「您先别急，我慢慢问。」', onClick: () => { rmCloseDialog(); setTimeout(startEntrustPart2, 200); } }
+        ]
+      }
+    ], () => {});
+  }
+  // C 选完后（"我不是小梅"）
+  function startEntrustC(){
+    runDialogSequence([
+      { speaker:'wang', face:'wang_normal', text:'（爷爷愣了一下，像是听到一句听不懂的话。拍拍你的肩膀）\n\n哎呀，我们小梅好久没回来，都开始说胡话了。\n\n……也是。他跟你也不说。那跟我，就更不会说了。' },
+      { speaker:'wang', face:'wang_think', text:'小梅……我有件事一直没跟你说清楚。你爸走的时候，欠了一笔钱。我替他还了。但有一笔，我一直觉得没还清。那人叫老刘，就住在隔壁镇。\n\n你帮我去他家一趟……帮我把这笔钱的事问清楚。我老了，去不了。',
+        choices:[
+          { label:'A. 「好，我帮您去。」', onClick: () => { rmCloseDialog(); setTimeout(startEntrustPart2, 200); } },
+          { label:'B. 「您确定这笔钱还欠着吗？」', onClick: () => { rmCloseDialog(); setTimeout(startEntrustPart2, 200); } },
+          { label:'C. 「您先别急，我慢慢问。」', onClick: () => { rmCloseDialog(); setTimeout(startEntrustPart2, 200); } }
+        ]
+      }
+    ], () => {});
+  }
+  // 第二段：递地址
+  function startEntrustPart2(){
+    runDialogSequence([
+      { speaker:'wang', face:'wang_normal', text:'他合上铁盒，像是下了什么决心。\n\n这是他家地址。他老伴还在，你去找她。替我跟她说一声——我一直记着这事。' },
+      { speaker:'system', text:'你收下地址，任务已接受。\n\n房间右下角出现「出发」按钮。' }
+    ], () => {
+      STATE.hasAcceptedTask = true;
+      console.log('[state] hasAcceptedTask = true');
+      document.getElementById('re-go-btn').style.display = '';
+    });
+  }
+
+  /* ===== 告诉/不告诉选择（主线对话 UI 版） ===== */
+  function startTellingChoice(){
+    console.log('[主线] 告诉选择开始');
+    STATE.hasReturnedFromLiu = true;
+    runDialogSequence([
+      // 0: 王爷爷问
+      { speaker:'wang', face:'wang_think', text:'你去了……老刘他……',
+        choices:[
+          { label:'A. 「老刘走了。他老伴说，那笔钱早就还清了。」', onClick: () => {
+            STATE.hasToldTruth = true;
+            console.log('[state] hasToldTruth = true');
+            rmCloseDialog();
+            setTimeout(startTellingChoiceTold, 300);
+          }},
+          { label:'B. 「老刘有事出去了，不在家。他老伴说，您已经还过了。」', onClick: () => {
+            STATE.hasToldTruth = false;
+            console.log('[state] hasToldTruth = false (B - 善意的谎言)');
+            rmCloseDialog();
+            setTimeout(startTellingChoiceLied, 300);
+          }}
+        ]
+      }
+    ], () => {});
+  }
+  function startTellingChoiceTold(){
+    runDialogSequence([
+      { speaker:'wang', face:'wang_smile', text:'原来之前我就已经还了，你看我这记性。谢谢我的乖孙女。' },
+      { speaker:'wang', face:'wang_think', text:'你去了一趟也累了……抽屉里还有些旧东西，你帮我收拾一下吧，我记不清里面有什么了。' },
+      { speaker:'system', text:'你选择告诉爷爷真相。\n\n（抽屉解锁 + 6 个核验问题 + 4 种结局将在下一批实现。）' }
+    ], () => {});
+  }
+  function startTellingChoiceLied(){
+    runDialogSequence([
+      { speaker:'wang', face:'wang_normal', text:'……走了啊。' },
+      { speaker:'wang', face:'wang_think', text:'那这笔钱，怕是永远还不上了。\n\n你去了一趟也累了……抽屉里还有些旧东西，你帮我收拾一下吧，我记不清里面有什么了。' },
+      { speaker:'system', text:'你选择告诉爷爷善意的谎言，隐瞒了老刘去世的真相。\n\n（抽屉解锁 + 6 个核验问题 + 4 种结局将在下一批实现。）' }
+    ], () => {});
+  }
+
+  /* ===== 出发 / 回到房间按钮 ===== */
+  document.getElementById('re-go-btn').addEventListener('click', () => {
+    console.log('[主线] 出发去老刘家');
+    // 隐藏出发按钮（任务已接，去过老刘家后不再显示）
+    document.getElementById('re-go-btn').style.display = 'none';
+    // 隐藏房间，显示老刘家 stage
+    const re = document.getElementById('room-exploration');
+    re.style.transition = 'opacity .5s ease';
+    re.style.opacity = '0';
+    setTimeout(() => {
+      re.style.display = 'none';
+      re.style.opacity = '1';
+      re.style.transition = '';
+      openOldLiuStage();
+    }, 500);
+  });
+
+  // 检查铁盒解锁
+  function checkIronBoxUnlock(){
+    if(STATE.ironBoxUnlocked) return;
+    if(STATE.clickedSurfaceItems.length >= SURFACE_UNLOCK_THRESHOLD){
+      STATE.ironBoxUnlocked = true;
+      // 加光晕 class
+      document.querySelectorAll('.hotspot[data-item="铁盒子"]').forEach(el => el.classList.add('unlocked'));
+      // 弹解锁提示
+      showSysModal('铁盒', '你注意到王爷爷桌上那个铁盒了。它一直放在那里，像是在等着被打开。', [
+        { label:'我知道了', primary:true, onClick: hideSysModal }
+      ]);
+    }
+  }
+
+  /* ===== 记忆场景播放引擎 ===== */
+  let msTyping = false, msFullText = '', msLineIdx = 0, msTimer = null, msLines = [], msBackHandler = null, msBgSwitch = null, msBgSwitched = false;
+
+  function msShowLine(i){
+    // 更新右下角小字 1/N
+    const prog = document.getElementById('ms-progress');
+    if(prog) prog.textContent = (i+1) + '/' + msLines.length;
+    if(i >= msLines.length){
+      // 全部显示完，显示返回按钮 + 隐藏进度小字
+      const back = document.getElementById('ms-back-btn');
+      if(back) back.style.display = '';
+      if(prog) prog.style.display = 'none';
+      return;
+    } else {
+      if(prog) prog.style.display = '';
+    }
+    // 背景图切换：到达指定句子时切到浮窗特写
+    if(msBgSwitch && !msBgSwitched && msBgSwitch.atLine === i){
+      document.getElementById('ms-bg').src = msBgSwitch.to;
+      msBgSwitched = true;
+      console.log('[memory] 切换背景图 →', msBgSwitch.to);
+    }
+    msFullText = msLines[i];
+    const el = document.getElementById('ms-text');
+    el.textContent = '';
+    // 文字浮现动画
+    el.classList.remove('ms-text-fade');
+    void el.offsetWidth;
+    el.classList.add('ms-text-fade');
+    msTyping = true;
+    let k = 0;
+    clearInterval(msTimer);
+    msTimer = setInterval(() => {
+      el.textContent = msFullText.slice(0, k);
+      k++;
+      if(k > msFullText.length){
+        clearInterval(msTimer); msTyping = false;
+        el.innerHTML = msFullText + '<span class="ms-caret">▍</span>';
+      }
+    }, 60);
+  }
+
+  function msTextClick(){
+    if(msTyping){
+      clearInterval(msTimer); msTyping = false;
+      const el = document.getElementById('ms-text');
+      el.innerHTML = msFullText + '<span class="ms-caret">▍</span>';
+      return;
+    }
+    msLineIdx++;
+    msShowLine(msLineIdx);
+  }
+
+  function backFromMemory(){
+    const ms = document.getElementById('memory-scene');
+    ms.classList.add('fade-out');
+    // 停止粒子
+    stopDustCanvas();
+    // 隐藏立绘
+    const msPortrait = document.getElementById('ms-portrait');
+    if(msPortrait) msPortrait.classList.remove('show');
+    setTimeout(() => {
+      ms.style.display = 'none';
+      ms.classList.remove('fade-out');
+      clearInterval(msTimer);
+      msTyping = false; msLineIdx = 0;
+      // 恢复房间探索层
+      const re = document.getElementById('room-exploration');
+      re.style.display = 'block';
+      re.style.opacity = '0';
+      requestAnimationFrame(() => {
+        re.style.transition = 'opacity .8s ease';
+        re.style.opacity = '1';
+        setTimeout(() => { re.style.transition = ''; }, 850);
+      });
+    }, 800);
+  }
+
+  function playMemory(itemName){
+    const scene = MEMORY_SCENES[itemName];
+    if(!scene) return false;
+    console.log('[memory] 播放:', itemName);
+
+    // 1. 淡出房间（0.8s）
+    const re = document.getElementById('room-exploration');
+    re.style.transition = 'opacity .8s ease';
+    re.style.opacity = '0';
+
+    setTimeout(() => {
+      re.style.display = 'none';
+      re.style.opacity = '1';
+      re.style.transition = '';
+
+      // 2. 黑屏阶段 + 加载背景图
+      const ms = document.getElementById('memory-scene');
+      const msBg = document.getElementById('ms-bg');
+      msBg.src = scene.bg;
+      document.getElementById('ms-back-btn').style.display = 'none';
+      ms.style.display = 'block';
+      ms.style.opacity = '0';
+
+      // 3. 启动粒子 Canvas（黑屏阶段就开始）
+      startDustCanvas();
+
+      // 4. 转场：300ms 后光晕闪白
+      setTimeout(() => {
+        const flash = document.getElementById('ms-flash');
+        flash.classList.remove('flash');
+        void flash.offsetWidth; // 强制重排
+        flash.classList.add('flash');
+      }, 300);
+
+      // 5. 500ms 后画面淡入
+      setTimeout(() => {
+        ms.style.transition = 'opacity .8s ease';
+        ms.style.opacity = '1';
+      }, 500);
+
+      // 6. 1100ms 后启动旁白 + 显示立绘
+      msLines = scene.lines;
+      msLineIdx = 0;
+      msBgSwitch = scene.bgSwitch || null;
+      msBgSwitched = false;
+      // 显示爷爷立绘
+      const msPortrait = document.getElementById('ms-portrait');
+      if(msPortrait) msPortrait.classList.add('show');
+      setTimeout(() => { msShowLine(0); }, 1100);
+    }, 800);
+    return true;
+  }
+
+  // ===== 尘埃粒子 Canvas 引擎 =====
+  let dustCanvas = null, dustCtx = null, dustParticles = [], dustRAF = null, dustRunning = false;
+  function startDustCanvas(){
+    if(dustRunning) return;
+    dustCanvas = document.getElementById('ms-dust');
+    if(!dustCanvas) return;
+    // 设置 canvas 尺寸 = 父元素尺寸
+    const parent = dustCanvas.parentElement;
+    dustCanvas.width = parent.clientWidth;
+    dustCanvas.height = parent.clientHeight;
+    dustCtx = dustCanvas.getContext('2d');
+    // 生成 15 个粒子
+    dustParticles = [];
+    for(let i = 0; i < 15; i++){
+      dustParticles.push({
+        x: Math.random() * dustCanvas.width,
+        y: Math.random() * dustCanvas.height,
+        vx: (Math.random() - 0.5) * 0.15,
+        vy: -0.05 - Math.random() * 0.2,
+        r: 1 + Math.random() * 3,
+        a: 0.1 + Math.random() * 0.2
+      });
+    }
+    dustRunning = true;
+    dustLoop();
+  }
+  function dustLoop(){
+    if(!dustRunning || !dustCtx) return;
+    dustCtx.clearRect(0, 0, dustCanvas.width, dustCanvas.height);
+    dustParticles.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if(p.y < -10){ p.y = dustCanvas.height + 10; p.x = Math.random() * dustCanvas.width; }
+      if(p.x < -10) p.x = dustCanvas.width + 10;
+      if(p.x > dustCanvas.width + 10) p.x = -10;
+      dustCtx.beginPath();
+      dustCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      dustCtx.fillStyle = `rgba(255, 245, 220, ${p.a})`;
+      dustCtx.fill();
+    });
+    dustRAF = requestAnimationFrame(dustLoop);
+  }
+  function stopDustCanvas(){
+    dustRunning = false;
+    if(dustRAF) cancelAnimationFrame(dustRAF);
+    dustRAF = null;
+    if(dustCtx && dustCanvas) dustCtx.clearRect(0, 0, dustCanvas.width, dustCanvas.height);
+  }
+
+  // 点击热区 → 记忆场景 / 铁盒 / 占位
   document.querySelectorAll('#room-exploration .hotspot').forEach(el => {
     el.addEventListener('click', (e) => {
       e.stopPropagation();
       const name = el.dataset.item;
+      console.log('[room] 点击物品:', name);
+
+      // 铁盒：未解锁 → 占位；已解锁 → 打开铁盒层
+      if(name === '铁盒子'){
+        if(STATE.ironBoxUnlocked){
+          openTiehe();
+        } else {
+          document.getElementById('item-popup-name').textContent = name;
+          document.getElementById('item-popup-desc').textContent = '再多看看其他物品，再决定要不要打开它。';
+          document.getElementById('item-popup').style.display = 'block';
+        }
+        return;
+      }
+
+      // 7 件有专属记忆场景
+      if(MEMORY_SCENES[name]){
+        // 计数（只记一次）
+        if(SURFACE_ITEMS.has(name) && !STATE.clickedSurfaceItems.includes(name)){
+          STATE.clickedSurfaceItems.push(name);
+          console.log('[state] 表面物品已点:', STATE.clickedSurfaceItems.length, '/', SURFACE_UNLOCK_THRESHOLD);
+          checkIronBoxUnlock();
+        }
+        playMemory(name);
+        return;
+      }
+
+      if(PLACEHOLDER_ITEMS.has(name)){
+        document.getElementById('item-popup-name').textContent = name;
+        document.getElementById('item-popup-desc').textContent = PLACEHOLDER_MSG;
+        document.getElementById('item-popup').style.display = 'block';
+        return;
+      }
+
+      // 兜底
       const desc = ITEM_DESCRIPTIONS[name] || '（暂无描述）';
       document.getElementById('item-popup-name').textContent = name;
       document.getElementById('item-popup-desc').textContent = desc;
       document.getElementById('item-popup').style.display = 'block';
-      console.log('[room] 点击物品:', name);
     });
   });
+
+  // 记忆场景文本框点击推进
+  document.getElementById('ms-text').addEventListener('click', msTextClick);
+  // 返回按钮
+  document.getElementById('ms-back-btn').addEventListener('click', backFromMemory);
+  // 顶部 × 关闭按钮（任何时候可退出）
+  document.getElementById('ms-close').addEventListener('click', backFromMemory);
 
   // 关闭文字框（点 × 按钮 或 文字框外部）
   document.getElementById('item-popup-close').addEventListener('click', () => {
