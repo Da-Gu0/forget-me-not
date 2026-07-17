@@ -408,8 +408,19 @@ body{
 }
 #item-popup-close:hover{background:rgba(139,115,85,0.18);}
 
+/* ===== 房间探索层（点击物品触发 0.4s 记忆震动） ===== */
+#room-exploration.ms-shake-on-room{
+  animation:room-shake 0.4s ease-out;
+}
+@keyframes room-shake{
+  0%{transform:translate(0,0) rotate(0); filter:brightness(1);}
+  20%{transform:translate(-6px, 4px) rotate(-0.8deg); filter:brightness(1.10);}
+  50%{transform:translate(3px, -2px) rotate(0.3deg); filter:brightness(1.05);}
+  100%{transform:translate(0,0) rotate(0); filter:brightness(1);}
+}
+
 /* ===== 记忆场景层 ===== */
-#memory-scene{position:absolute;inset:0;z-index:55;background:#000;transition:opacity .8s ease;}
+#memory-scene{position:absolute;inset:0;z-index:55;background:#000;transition:opacity 1s ease;}
 #memory-scene.fade-out{opacity:0;}
 #ms-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
 #ms-text{
@@ -450,23 +461,91 @@ body{
   font-feature-settings:"tnum";
 }
 
-/* 回忆场景的爷爷立绘（左中下，更靠右） */
+/* 回忆场景的爷爷立绘（JS 同步到 #ms-text 左上方） */
 #ms-portrait{
-  position:absolute;left:9%;bottom:230px;width:160px;height:240px;
+  position:absolute;left:9%;bottom:230px;width:170px;height:255px;
   z-index:57;pointer-events:none;opacity:0;
-  filter:drop-shadow(0 6px 14px rgba(0,0,0,0.5));
+  filter:drop-shadow(0 6px 14px rgba(0,0,0,0.5)) drop-shadow(0 0 6px rgba(255, 200, 110, 0.18));
+  transition:left .35s ease, bottom .35s ease, opacity .35s ease;
 }
 #ms-portrait.show{opacity:1;}
 #ms-portrait .float{animation:breath 5s ease-in-out infinite;transform-origin:bottom center;}
 #ms-portrait img{width:100%;height:100%;object-fit:contain;}
 
 /* ===== 回忆场景胶片质感层（氛围淡、镜头感强） ===== */
-#memory-scene{filter:sepia(0.10) saturate(1.04) hue-rotate(-5deg) contrast(1.06);}
-/* Ken Burns 缓慢缩放+平移（幅度加大，镜头感更强） */
+#memory-scene{
+  filter:sepia(0.10) saturate(1.04) hue-rotate(-5deg) contrast(1.06);
+  /* 整体胶片晃动：上下 ±0.3° / 左右 ±2px */
+  animation:ms-sway 8s ease-in-out infinite alternate, ms-breathe 7s ease-in-out infinite;
+}
+@keyframes ms-sway{
+  0%{transform:translate(0,0) rotate(0deg);}
+  25%{transform:translate(2px, -1px) rotate(0.15deg);}
+  50%{transform:translate(-1px, 1px) rotate(-0.15deg);}
+  75%{transform:translate(1.5px, 0.5px) rotate(0.1deg);}
+  100%{transform:translate(-2px, -0.5px) rotate(-0.3deg);}
+}
+@keyframes ms-breathe{0%,100%{filter:sepia(0.10) saturate(1.04) hue-rotate(-5deg) contrast(1.06) brightness(1)}50%{filter:sepia(0.10) saturate(1.04) hue-rotate(-5deg) contrast(1.06) brightness(1.06)}}
+
+/* Ken Burns 缓慢缩放+平移（镜头感） */
 #ms-bg{animation:ms-kenburns 38s ease-in-out infinite alternate;transform-origin:center center;will-change:transform;}
 @keyframes ms-kenburns{
   from{transform:scale(1.02) translate(0,0);}
   to{transform:scale(1.12) translate(-3.2%,-1.8%);}
+}
+
+/* 侧逆光：左上 45° 柔光，6s 亮度呼吸 */
+#ms-lightbeam{
+  position:absolute;inset:0;z-index:52;pointer-events:none;mix-blend-mode:screen;
+  background:linear-gradient(135deg, rgba(255, 235, 180, 0.32) 0%, rgba(255, 220, 150, 0.12) 25%, transparent 55%);
+  animation:ms-lightbeam 6s ease-in-out infinite alternate;
+}
+@keyframes ms-lightbeam{
+  0%{opacity:0.85;}
+  100%{opacity:1;}
+}
+
+/* 跳帧白闪（每 6-8s 一次，0.06s） */
+#ms-flicker{
+  position:absolute;inset:0;z-index:58;pointer-events:none;
+  background:rgba(255,255,255,0);
+  opacity:0;
+}
+#ms-flicker.fire{
+  animation:ms-flicker 0.06s ease-out;
+}
+@keyframes ms-flicker{
+  0%{background:rgba(255,255,255,0); opacity:0;}
+  50%{background:rgba(255,255,255,0.85); opacity:1;}
+  100%{background:rgba(255,255,255,0); opacity:0;}
+}
+
+/* 记忆震动（点击瞬间 0.4s 一次） */
+#memory-scene.shake{
+  animation:ms-shake 0.4s ease-out !important;
+}
+@keyframes ms-shake{
+  0%{transform:translate(0,0) rotate(0); filter:sepia(0.10) saturate(1.04) hue-rotate(-5deg) contrast(1.06) brightness(1);}
+  20%{transform:translate(-6px, 4px) rotate(-0.8deg); filter:sepia(0.10) saturate(1.04) hue-rotate(-5deg) contrast(1.06) brightness(1.10);}
+  50%{transform:translate(3px, -2px) rotate(0.3deg); filter:sepia(0.10) saturate(1.04) hue-rotate(-5deg) contrast(1.06) brightness(1.05);}
+  100%{transform:translate(0,0) rotate(0); filter:sepia(0.10) saturate(1.04) hue-rotate(-5deg) contrast(1.06) brightness(1);}
+}
+
+/* 切换时一次性横向胶片划痕（0.4s 内淡入淡出） */
+#ms-scratch-line{
+  position:absolute;left:-30%;top:45%;width:160%;height:3px;z-index:59;pointer-events:none;
+  background:linear-gradient(90deg, transparent 0%, rgba(255,245,220,0.95) 30%, rgba(255,255,255,1) 50%, rgba(255,245,220,0.95) 70%, transparent 100%);
+  opacity:0;
+  transform:translateX(-100%);
+}
+#ms-scratch-line.fire{
+  animation:ms-scratch-line 0.4s ease-out;
+}
+@keyframes ms-scratch-line{
+  0%{transform:translateX(-100%); opacity:0;}
+  30%{opacity:0.7;}
+  60%{opacity:0.5;}
+  100%{transform:translateX(120%); opacity:0;}
 }
 /* 胶片颗粒（SVG 噪点滤镜，更淡） */
 #ms-grain{
@@ -509,8 +588,23 @@ body{
 /* 文字浮现 */
 .ms-text-fade{animation:ms-fadein .35s ease-out;}
 @keyframes ms-fadein{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
-/* 旁白文字加深褐+增加间距 */
-#ms-text{color:#6A5A4A !important;letter-spacing:0.05em;line-height:1.95 !important;font-size:clamp(16px,1.7vw,20px) !important;}
+/* 旁白文字加深褐+增加间距 + 旧纸张质感 */
+#ms-text{
+  color:#6A5A4A !important;letter-spacing:0.05em;line-height:1.95 !important;font-size:clamp(16px,1.7vw,20px) !important;
+  background:rgba(245,237,224,0.92) !important;
+  background-image:
+    /* 边缘磨损效果（4 边暗角） */
+    radial-gradient(ellipse at top left, rgba(180,150,110,0.18) 0%, transparent 12%),
+    radial-gradient(ellipse at top right, rgba(180,150,110,0.18) 0%, transparent 12%),
+    radial-gradient(ellipse at bottom left, rgba(180,150,110,0.20) 0%, transparent 14%),
+    radial-gradient(ellipse at bottom right, rgba(180,150,110,0.20) 0%, transparent 14%),
+    /* 扫描线纹理 */
+    repeating-linear-gradient(0deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(120,90,60,0.04) 3px, rgba(0,0,0,0) 4px),
+    /* 纸张纤维底 */
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='1' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.6  0 0 0 0 0.5  0 0 0 0 0.4  0 0 0 0.08 0'/></filter><rect width='80' height='80' filter='url(%23p)'/></svg>");
+  border:1.5px solid rgba(139,115,85,0.4) !important;
+  box-shadow:0 6px 24px rgba(0,0,0,0.4), inset 0 0 30px rgba(180,150,110,0.15) !important;
+}
 /* 放映机光晕（转场用） */
 #ms-flash{
   position:absolute;inset:0;z-index:60;pointer-events:none;
@@ -609,9 +703,10 @@ body{
 #rm-dialogue::before{content:'';position:absolute;inset:0;background:rgba(0,0,0,0.25);}
 #rm-dialogue.active{display:block;}
 #rm-portrait{
-  position:absolute;left:6%;bottom:130px;width:200px;height:300px;
-  transition:opacity .3s ease;opacity:0;pointer-events:none;
-  filter:drop-shadow(0 8px 16px rgba(0,0,0,0.4));
+  position:absolute;left:6%;bottom:240px;width:200px;height:300px;
+  transition:left .35s ease, bottom .35s ease, opacity .3s ease;
+  opacity:0;pointer-events:none;z-index:66;
+  filter:drop-shadow(0 8px 16px rgba(0,0,0,0.4)) drop-shadow(0 0 8px rgba(255, 200, 110, 0.18));
 }
 #rm-portrait .float{animation:breath 5s ease-in-out infinite;transform-origin:bottom center;}
 #rm-portrait img{width:100%;height:100%;object-fit:contain;}
@@ -897,13 +992,16 @@ body{
     <img id="ms-bg" src="" alt="回忆场景" />
     <button id="ms-close" title="返回">×</button>
     <!-- 回忆场景的爷爷立绘（左下） -->
-    <div id="ms-portrait"><div class="float"><img id="ms-face" src="wang_assets/wang_normal.png" alt="王爷爷" onerror="this.onerror=null;this.src='wang_assets/wang_normal.png';" /></div></div>
+    <div id="ms-portrait"><div class="float"><img id="ms-face" src="wang_assets/wang_think.jpg" alt="王爷爷" onerror="this.onerror=null;this.src='wang_assets/wang_think.jpg';" /></div></div>
     <!-- ===== 回忆特效层 ===== -->
+    <div id="ms-lightbeam" aria-hidden="true"></div>
     <div id="ms-grain" aria-hidden="true"></div>
     <div id="ms-vignette" aria-hidden="true"></div>
     <div id="ms-scratch" aria-hidden="true"></div>
     <canvas id="ms-dust" aria-hidden="true"></canvas>
     <div id="ms-flash" aria-hidden="true"></div>
+    <div id="ms-flicker" aria-hidden="true"></div>
+    <div id="ms-scratch-line" aria-hidden="true"></div>
     <!-- 旁白 -->
     <div id="ms-text"></div>
     <!-- 进度小字 1/4（无按钮） -->
@@ -913,15 +1011,14 @@ body{
 
   <!-- 预加载主线对话立绘（避免首次显示慢） -->
   <div style="position:absolute;width:0;height:0;overflow:hidden;visibility:hidden;" aria-hidden="true">
-    <img src="wang_assets/wang_normal.png" alt="" />
-    <img src="wang_assets/wang_think.png" alt="" />
-    <img src="wang_assets/wang_smile.png" alt="" />
-    <img src="wang_assets/wang_bye.png" alt="" />
+    <img src="wang_assets/wang_think.jpg" alt="" />
+    <img src="wang_assets/wang_smile.jpg" alt="" />
+    <img src="wang_assets/wang_bye.jpg" alt="" />
   </div>
 
   <!-- ===== 主线对话层（复用游戏对话样式，独立于 #game） ===== -->
   <div id="rm-dialogue">
-    <div id="rm-portrait"><div class="float"><img id="rm-face" src="wang_assets/wang_normal.png" alt="王爷爷" onerror="this.onerror=null;this.src='wang_assets/wang_normal.png';" /></div></div>
+    <div id="rm-portrait"><div class="float"><img id="rm-face" src="wang_assets/wang_think.jpg" alt="王爷爷" onerror="this.onerror=null;this.src='wang_assets/wang_think.jpg';" /></div></div>
     <div id="rm-dialogue-box">
       <div id="rm-speaker"></div>
       <div id="rm-dialogue-text"></div>
@@ -985,7 +1082,7 @@ body{
     <!-- 立绘（NPC·右） -->
     <div id="portrait">
       <div class="float">
-        <img id="wangFace" src="wang_assets/wang_normal.png" alt="王爷爷" style="width:100%;height:100%;object-fit:contain;">
+        <img id="wangFace" src="wang_assets/wang_think.jpg" alt="王爷爷" style="width:100%;height:100%;object-fit:contain;">
       </div>
     </div>
 
@@ -1221,11 +1318,11 @@ body{
   function setExpr(e){
     const pf=document.getElementById('wangFace');
     const map={
-      calm:'wang_assets/wang_normal.png',
-      smile:'wang_assets/wang_smile.png',
-      think:'wang_assets/wang_think.png',
-      lost:'wang_assets/wang_think.png',
-      clear:'wang_assets/wang_normal.png'
+      calm:'wang_assets/wang_think.jpg',
+      smile:'wang_assets/wang_smile.jpg',
+      think:'wang_assets/wang_think.jpg',
+      lost:'wang_assets/wang_think.jpg',
+      clear:'wang_assets/wang_smile.jpg'
     };
     const f=map[e]||map.calm;
     if(pf) pf.src=f;
@@ -1775,11 +1872,11 @@ body{
     '钥匙': {
       bg: 'wang_assets/key_scene.jpg',
       lines: [
-        '这是老房子的钥匙。你爸走之前留下的，说"爸你拿着"。',
-        '我说我拿它干什么。他说"万一哪天我回来了呢"。',
+        '我出去打工赚钱了，想给你和小梅更好的生活。爸你把我们老房子的钥匙拿好。',
+        '万一哪天你要回老房子住呢？有个家总是安心的。',
         '这把钥匙我一直留着。',
-        '你说，我一个老头子留着一把钥匙干什么呢？',
-        '可惜这么多年了，他还是放不下，一次都没回来看过我。'
+        '我一个老头子在这里住得挺好的。留着老家房子唯一的钥匙干什么呢？',
+        '他还是太拼了，这懂事的孩子啊，竟然一次都没时间回来看我这老头子……'
       ],
       // 第 3 句（atLine=2）切换到钥匙浮窗特写，看清钥匙大小
       bgSwitch: { atLine: 2, to: 'wang_assets/key_popup.jpg' }
@@ -1982,7 +2079,7 @@ body{
             rmCloseDialog();
             setTimeout(() => {
               // 提示 + 回到第 3 张
-              showSysModal('再仔细想想', '这道题答错了……你可以再看看明信片上的字迹，下次再尝试。', [
+              showSysModal('再仔细想想', '你可以再看看其他物品线索来想想，下次再点击铁盒尝试', [
                 { label:'好', primary:true, onClick: () => {
                     hideSysModal();
                     // 确保 th-cards 显示（th-debt 隐藏）
@@ -2005,7 +2102,7 @@ body{
             console.log('[state] hasChosenCorrectQuestion = false (C - 奶奶, 错误)');
             rmCloseDialog();
             setTimeout(() => {
-              showSysModal('再仔细想想', '这道题答错了……你可以再看看明信片上的字迹，下次再尝试。', [
+              showSysModal('再仔细想想', '你可以再看看其他物品线索来想想，下次再点击铁盒尝试', [
                 { label:'好', primary:true, onClick: () => {
                     hideSysModal();
                     document.getElementById('th-debt').style.display = 'none';
@@ -2221,11 +2318,18 @@ body{
   // 收据浮窗关闭
   document.getElementById('receipt-close').addEventListener('click', () => {
     document.getElementById('receipt-popup').style.display = 'none';
-    // 收据看完 → 切场景 4（回到王爷爷房间）
-    if(olSceneIdx < OLD_LIU_SCENES.length - 1){
-      olSceneIdx++;
-      loadOldLiuScene(olSceneIdx);
-    }
+    // 收据看完 → 弹字幕（4 段旁白）→ 完后再切场景 4
+    runDialogSequence([
+      { speaker:'system', text:'从老刘老伴那里得知，王爷爷的儿子连哄带骗地欠了大家一大笔钱。' },
+      { speaker:'system', text:'但王爷爷是个好人，努力把他儿子欠的窟窿都填上了。' },
+      { speaker:'system', text:'希望老王健健康康。' },
+      { speaker:'system', text:'我们在夕阳下挥手作了别。' }
+    ], () => {
+      if(olSceneIdx < OLD_LIU_SCENES.length - 1){
+        olSceneIdx++;
+        loadOldLiuScene(olSceneIdx);
+      }
+    });
   });
 
   /* ===== 委托对话（看完 3 张明信片后触发） ===== */
@@ -2235,13 +2339,13 @@ body{
   // 实际存在的立绘：wang_normal / wang_think / wang_smile / wang_bye
   // sad/lost/clear 都 fallback 到 normal
   const RM_FACE_MAP = {
-    wang_normal: 'wang_assets/wang_normal.png',
-    wang_think:  'wang_assets/wang_think.png',
-    wang_smile:  'wang_assets/wang_smile.png',
-    wang_bye:    'wang_assets/wang_bye.png',
-    wang_sad:    'wang_assets/wang_normal.png',
-    wang_lost:   'wang_assets/wang_normal.png',
-    wang_clear:  'wang_assets/wang_normal.png'
+    wang_normal: 'wang_assets/wang_think.jpg',   // 沉思（默认/普通）
+    wang_think:  'wang_assets/wang_think.jpg',
+    wang_smile:  'wang_assets/wang_smile.jpg',
+    wang_bye:    'wang_assets/wang_bye.jpg',
+    wang_sad:    'wang_assets/wang_think.jpg',
+    wang_lost:   'wang_assets/wang_think.jpg',
+    wang_clear:  'wang_assets/wang_smile.jpg'
   };
   const RM_SPEAKER_LABEL = { wang:'王爷爷', you:'你', system:'旁白' };
 
@@ -2533,6 +2637,8 @@ body{
     ms.classList.add('fade-out');
     // 停止粒子
     stopDustCanvas();
+    // 停止跳帧
+    stopFlickerInterval();
     // 隐藏立绘
     const msPortrait = document.getElementById('ms-portrait');
     if(msPortrait) msPortrait.classList.remove('show');
@@ -2546,11 +2652,11 @@ body{
       re.style.display = 'block';
       re.style.opacity = '0';
       requestAnimationFrame(() => {
-        re.style.transition = 'opacity .8s ease';
+        re.style.transition = 'opacity 1s ease';
         re.style.opacity = '1';
-        setTimeout(() => { re.style.transition = ''; }, 850);
+        setTimeout(() => { re.style.transition = ''; }, 1050);
       });
-    }, 800);
+    }, 1000);
   }
 
   function playMemory(itemName){
@@ -2558,52 +2664,92 @@ body{
     if(!scene) return false;
     console.log('[memory] 播放:', itemName);
 
-    // 1. 淡出房间（0.8s）
+    // 1. 点击瞬间 0.4s 记忆震动（在当前房间画面上）
     const re = document.getElementById('room-exploration');
-    re.style.transition = 'opacity .8s ease';
-    re.style.opacity = '0';
+    re.classList.add('ms-shake-on-room'); // 房间画面震动
+    setTimeout(() => re.classList.remove('ms-shake-on-room'), 420);
 
+    // 0.4s 后：切到回忆场景
     setTimeout(() => {
-      re.style.display = 'none';
-      re.style.opacity = '1';
-      re.style.transition = '';
+      // 2. 淡出房间（0.4s）
+      re.style.transition = 'opacity .4s ease';
+      re.style.opacity = '0';
 
-      // 2. 黑屏阶段 + 加载背景图
-      const ms = document.getElementById('memory-scene');
-      const msBg = document.getElementById('ms-bg');
-      msBg.src = scene.bg;
-      document.getElementById('ms-back-btn').style.display = 'none';
-      ms.style.display = 'block';
-      ms.style.opacity = '0';
-
-      // 3. 启动粒子 Canvas（黑屏阶段就开始）
-      startDustCanvas();
-
-      // 4. 转场：300ms 后光晕闪白
       setTimeout(() => {
-        const flash = document.getElementById('ms-flash');
-        flash.classList.remove('flash');
-        void flash.offsetWidth; // 强制重排
-        flash.classList.add('flash');
-      }, 300);
+        re.style.display = 'none';
+        re.style.opacity = '1';
+        re.style.transition = '';
 
-      // 5. 500ms 后画面淡入
-      setTimeout(() => {
-        ms.style.transition = 'opacity .8s ease';
-        ms.style.opacity = '1';
-      }, 500);
+        // 3. 黑屏阶段 + 加载背景图
+        const ms = document.getElementById('memory-scene');
+        const msBg = document.getElementById('ms-bg');
+        msBg.src = scene.bg;
+        document.getElementById('ms-back-btn').style.display = 'none';
+        ms.style.display = 'block';
+        ms.style.opacity = '0';
 
-      // 6. 1100ms 后启动旁白 + 显示立绘
-      msLines = scene.lines;
-      msLineIdx = 0;
-      msBgSwitch = scene.bgSwitch || null;
-      msBgSwitched = false;
-      // 显示爷爷立绘
-      const msPortrait = document.getElementById('ms-portrait');
-      if(msPortrait) msPortrait.classList.add('show');
-      setTimeout(() => { msShowLine(0); }, 1100);
-    }, 800);
+        // 4. 启动粒子 Canvas（黑屏阶段就开始）
+        startDustCanvas();
+
+        // 5. 一次性横向胶片划痕（0.4s 内淡入淡出）
+        const sLine = document.getElementById('ms-scratch-line');
+        if(sLine){
+          sLine.classList.remove('fire');
+          void sLine.offsetWidth;
+          sLine.classList.add('fire');
+        }
+
+        // 6. 转场：200ms 后光晕闪白
+        setTimeout(() => {
+          const flash = document.getElementById('ms-flash');
+          flash.classList.remove('flash');
+          void flash.offsetWidth;
+          flash.classList.add('flash');
+        }, 200);
+
+        // 7. 400ms 后画面淡入
+        setTimeout(() => {
+          ms.style.transition = 'opacity 1.2s ease';
+          ms.style.opacity = '1';
+        }, 400);
+
+        // 8. 1200ms 后启动旁白 + 显示立绘
+        msLines = scene.lines;
+        msLineIdx = 0;
+        msBgSwitch = scene.bgSwitch || null;
+        msBgSwitched = false;
+        // 显示爷爷立绘
+        const msPortrait = document.getElementById('ms-portrait');
+        if(msPortrait) msPortrait.classList.add('show');
+        setTimeout(() => { msShowLine(0); }, 1200);
+
+        // 9. 启动偶尔跳帧 setInterval（每 6-8s 一次 0.06s 白闪）
+        startFlickerInterval();
+      }, 400);
+    }, 400);
     return true;
+  }
+
+  // ===== 偶尔跳帧（每 6-8s 一次 0.06s 白闪） =====
+  let flickerTimer = null;
+  function startFlickerInterval(){
+    stopFlickerInterval();
+    const schedule = () => {
+      const delay = 6000 + Math.random() * 2000; // 6-8s 随机
+      flickerTimer = setTimeout(() => {
+        const f = document.getElementById('ms-flicker');
+        if(f){
+          f.classList.remove('fire');
+          void f.offsetWidth;
+          f.classList.add('fire');
+        }
+        schedule();
+      }, delay);
+    };
+    schedule();
+  }
+  function stopFlickerInterval(){
+    if(flickerTimer){ clearTimeout(flickerTimer); flickerTimer = null; }
   }
 
   // ===== 尘埃粒子 Canvas 引擎 =====
@@ -2706,6 +2852,61 @@ body{
   document.getElementById('ms-back-btn').addEventListener('click', backFromMemory);
   // 顶部 × 关闭按钮（任何时候可退出）
   document.getElementById('ms-close').addEventListener('click', backFromMemory);
+
+  /* ===== 立绘联动：立绘始终紧贴对话框左上方，对话框升高时立绘跟着移动 ===== */
+  function syncPortrait(portraitId, boxId, stageId, opts){
+    const portrait = document.getElementById(portraitId);
+    const box = document.getElementById(boxId);
+    const stage = document.getElementById(stageId);
+    if(!portrait || !box || !stage) return;
+    const boxRect = box.getBoundingClientRect();
+    const stageRect = stage.getBoundingClientRect();
+    // 立绘底部 = box 顶部 + 20(向上遮蔽)
+    const boxTopInStage = boxRect.top - stageRect.top;
+    const newBottom = (stageRect.height - boxTopInStage) + (opts && opts.overlap ? opts.overlap : 20);
+    // 立绘左 = box 左 - 40(向左偏外)，但不能为负
+    const boxLeftInStage = boxRect.left - stageRect.left;
+    const newLeft = Math.max(0, boxLeftInStage - (opts && opts.leftOffset != null ? opts.leftOffset : 40));
+    portrait.style.bottom = newBottom + 'px';
+    portrait.style.left = newLeft + 'px';
+  }
+  function setupPortraitSync(){
+    if(!window.ResizeObserver) return;
+    // 主线对话
+    const rmBox = document.getElementById('rm-dialogue-box');
+    if(rmBox){
+      new ResizeObserver(() => syncPortrait('rm-portrait', 'rm-dialogue-box', 'rm-dialogue', {overlap: 25, leftOffset: 30})).observe(rmBox);
+    }
+    // 回忆场景
+    const msText = document.getElementById('ms-text');
+    if(msText){
+      new ResizeObserver(() => syncPortrait('ms-portrait', 'ms-text', 'memory-scene', {overlap: 20, leftOffset: 30})).observe(msText);
+    }
+  }
+  setupPortraitSync();
+  // 初始同步（等一帧）
+  requestAnimationFrame(() => {
+    syncPortrait('rm-portrait', 'rm-dialogue-box', 'rm-dialogue', {overlap: 25, leftOffset: 30});
+    syncPortrait('ms-portrait', 'ms-text', 'memory-scene', {overlap: 20, leftOffset: 30});
+  });
+
+  // rmShowStep 内：每次切换台词后重新同步立绘位置
+  const _origRmShowStep = window._origRmShowStep;
+  // 监听 rm-dialogue-text 变化（mutation observer）来同步
+  if(window.MutationObserver){
+    const rmText = document.getElementById('rm-dialogue-text');
+    if(rmText){
+      new MutationObserver(() => {
+        syncPortrait('rm-portrait', 'rm-dialogue-box', 'rm-dialogue', {overlap: 25, leftOffset: 30});
+      }).observe(rmText, {childList:true, characterData:true, subtree:true});
+    }
+    const msText2 = document.getElementById('ms-text');
+    if(msText2){
+      new MutationObserver(() => {
+        syncPortrait('ms-portrait', 'ms-text', 'memory-scene', {overlap: 20, leftOffset: 30});
+      }).observe(msText2, {childList:true, characterData:true, subtree:true});
+    }
+  }
 
   // 关闭文字框（点 × 按钮 或 文字框外部）
   document.getElementById('item-popup-close').addEventListener('click', () => {
