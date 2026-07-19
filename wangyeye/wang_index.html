@@ -287,6 +287,41 @@ body{
 #re-back-to-room-btn{left:50%;bottom:6%;transform:translateX(-50%);}
 #re-go-btn:hover,#re-back-to-room-btn:hover{background:rgba(196,168,122,0.85);transform:translateX(-50%) translateY(-1px);border-color:rgba(255,235,180,0.95);}
 
+/* 抽屉 1 弹层（药膏+退学单）/ 抽屉 2 弹层（成绩单+发绳+密封药瓶） */
+.drawer-stage{position:absolute;inset:0;z-index:60;background:rgba(0,0,0,0.55);display:none;align-items:center;justify-content:center;}
+.drawer-stage.show{display:flex;}
+.drawer-stage .drawer-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#1a1410;}
+.drawer-stage .drawer-items{position:relative;width:min(900px,92vw);height:min(600px,80vh);z-index:61;}
+.drawer-stage .drawer-item{position:absolute;cursor:pointer;border-radius:14px;transition:all 0.2s ease;}
+.drawer-stage .drawer-item:hover{transform:scale(1.05);box-shadow:0 0 0 3px rgba(255,235,180,0.6),0 8px 20px rgba(0,0,0,0.5);}
+.drawer-stage .drawer-item img{width:100%;height:100%;object-fit:cover;border-radius:14px;display:block;box-shadow:0 6px 18px rgba(0,0,0,0.5);}
+.drawer-stage .drawer-item-label{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);background:rgba(74,64,56,0.78);color:#fff5ec;padding:3px 12px;border-radius:10px;font-size:12px;letter-spacing:1px;white-space:nowrap;}
+
+/* 抽屉 1 物品位置（基于 drawer1_contents.jpg 俯视图：药膏左、退学单右） */
+.drawer-stage[data-drawer="1"] .dr-ointment{left:18%;top:30%;width:30%;height:45%;}
+.drawer-stage[data-drawer="1"] .dr-expulsion{left:54%;top:22%;width:32%;height:55%;}
+/* 抽屉 2 物品位置（基于 drawer2_contents.jpg 俯视图：3 件物品） */
+.drawer-stage[data-drawer="2"] .dr-record{left:8%;top:30%;width:28%;height:45%;}
+.drawer-stage[data-drawer="2"] .dr-ribbon{left:38%;top:25%;width:24%;height:55%;}
+.drawer-stage[data-drawer="2"] .dr-bottle{left:64%;top:35%;width:28%;height:42%;}
+
+.drawer-stage .drawer-close{
+  position:absolute;top:20px;right:24px;z-index:63;
+  width:48px;height:48px;border-radius:50%;
+  background:rgba(74,64,56,0.85);border:1.5px solid rgba(196,168,122,0.7);
+  color:#fff5ec;font-size:28px;line-height:1;cursor:pointer;
+  font-family:system-ui;backdrop-filter:blur(4px);
+  transition:all 0.2s ease;display:flex;align-items:center;justify-content:center;
+}
+.drawer-stage .drawer-close:hover{background:rgba(139,115,85,0.95);transform:scale(1.08);}
+.drawer-stage .drawer-title{
+  position:absolute;top:24px;left:50%;transform:translateX(-50%);z-index:63;
+  font-family:var(--title-font);font-size:18px;color:#fff5ec;
+  background:rgba(74,64,56,0.78);padding:6px 18px;border-radius:14px;
+  letter-spacing:2px;backdrop-filter:blur(4px);
+  border:1px solid rgba(196,168,122,0.5);
+}
+
 /* 铁盒热区光晕（解锁后） */
 .hotspot.unlocked[data-item="铁盒子"]{
   animation:glow 1.6s ease-in-out infinite alternate;
@@ -296,9 +331,97 @@ body{
   to{box-shadow:0 0 24px rgba(255,235,180,0.9);}
 }
 
+/* ===== 发现矛盾与推理弹窗 ===== */
+#deduction-puzzle{
+  position:fixed;inset:0;z-index:80;
+  display:none;align-items:center;justify-content:center;
+  background:rgba(20,15,10,0.55);
+  backdrop-filter:blur(3px);
+  animation:dp-fadein 0.3s ease;
+}
+#deduction-puzzle.show{display:flex;}
+@keyframes dp-fadein{from{opacity:0;}to{opacity:1;}}
+.dp-panel{
+  width:min(680px,93vw);max-height:88vh;
+  background:rgba(245,237,224,0.96);
+  border:1.5px solid var(--rust);border-radius:20px;
+  box-shadow:0 22px 56px rgba(0,0,0,0.5);
+  padding:30px 36px 26px;
+  font-family:var(--body-font);color:var(--ink);
+  overflow-y:auto;position:relative;
+  background-image:
+    radial-gradient(ellipse at top left, rgba(180,150,110,0.12) 0%, transparent 10%),
+    radial-gradient(ellipse at top right, rgba(180,150,110,0.12) 0%, transparent 10%),
+    radial-gradient(ellipse at bottom left, rgba(180,150,110,0.14) 0%, transparent 12%),
+    radial-gradient(ellipse at bottom right, rgba(180,150,110,0.14) 0%, transparent 12%),
+    repeating-linear-gradient(0deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(120,90,60,0.03) 3px, rgba(0,0,0,0) 4px),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='1' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.6  0 0 0 0 0.5  0 0 0 0 0.4  0 0 0 0.06 0'/></filter><rect width='80' height='80' filter='url(%23p)'/></svg>");
+}
+.dp-progress{
+  position:absolute;top:18px;right:24px;
+  font-size:12px;color:var(--iron-grey);letter-spacing:1.5px;
+  background:rgba(74,64,56,0.08);padding:3px 10px;border-radius:10px;
+}
+.dp-title{
+  font-family:var(--title-font);font-size:22px;font-weight:600;
+  color:var(--rust);margin-bottom:6px;letter-spacing:0.04em;
+}
+.dp-subtitle{font-size:13px;color:var(--iron-grey);margin-bottom:18px;letter-spacing:1px;}
+.dp-body{
+  font-size:16px;line-height:1.85;margin-bottom:18px;white-space:pre-wrap;
+  color:#3a322a;
+}
+.dp-options{
+  display:flex;flex-direction:column;gap:9px;margin-bottom:18px;
+}
+.dp-option{
+  display:flex;align-items:center;gap:11px;
+  padding:11px 16px;
+  background:rgba(255,248,232,0.7);
+  border:1.5px solid rgba(139,115,85,0.32);
+  border-radius:12px;
+  cursor:pointer;transition:all 0.15s ease;
+  font-size:15px;line-height:1.5;
+  user-select:none;
+}
+.dp-option:hover{
+  background:rgba(234,217,191,0.85);
+  border-color:var(--rust);
+  transform:translateY(-1px);
+}
+.dp-option.selected{
+  background:rgba(232,210,175,0.92);
+  border-color:var(--rust);
+  border-width:2px;
+  padding:10.5px 15.5px; /* 补偿 border 变化 */
+}
+.dp-option .dp-mark{
+  width:18px;height:18px;border-radius:4px;
+  border:1.5px solid rgba(139,115,85,0.6);
+  background:rgba(255,250,240,0.8);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;font-size:13px;color:var(--rust);font-weight:700;
+}
+.dp-option.radio .dp-mark{border-radius:50%;}
+.dp-option.selected .dp-mark{background:var(--rust);color:#fff;border-color:var(--rust);}
+.dp-option .dp-text{flex:1;}
+.dp-actions{display:flex;gap:11px;justify-content:flex-end;}
+.dp-btn{
+  padding:10px 22px;font-size:15px;font-family:var(--body-font);
+  border-radius:11px;cursor:pointer;transition:all 0.15s ease;
+  border:1.5px solid;
+}
+.dp-btn-primary{background:var(--rust);color:#fff;border-color:var(--rust);}
+.dp-btn-primary:hover{background:#7a5f3f;border-color:#7a5f3f;}
+.dp-btn-secondary{background:rgba(245,237,224,0.95);color:var(--rust);border-color:var(--rust);}
+.dp-btn-secondary:hover{background:#ead9bf;}
+.dp-btn-warn{background:rgba(245,237,224,0.95);color:var(--iron-grey);border-color:rgba(154,139,130,0.6);}
+.dp-btn-warn:hover{background:#e8e1d3;}
+}
+
 /* ===== 铁盒覆盖层 ===== */
 #tiehe-stage{position:absolute;inset:0;z-index:60;background:#000;transition:opacity .5s ease;}
-#th-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.55;display:block;}
+#th-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:1;display:block;}
 #th-close{
   position:absolute;top:18px;right:22px;z-index:62;
   width:44px;height:44px;border-radius:50%;
@@ -689,6 +812,45 @@ body{
 }
 #receipt-close:hover{background:rgba(139,115,85,0.95);}
 
+/* ===== 老刘家 4 段旁白层（收据关闭后）===== */
+#ol-subtitle-stage{position:absolute;inset:0;z-index:62;background:#000;display:none;align-items:center;justify-content:center;flex-direction:column;}
+#ol-subtitle-stage.show{display:flex;}
+#ols-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:1;display:block;}
+#ol-subtitle-stage::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.45) 100%);
+  pointer-events:none;
+}
+#ols-close{
+  position:absolute;top:18px;right:22px;z-index:64;
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(74,64,56,0.78);border:1.5px solid rgba(196,168,122,0.6);
+  color:#fff5ec;font-size:26px;line-height:1;cursor:pointer;
+  font-family:system-ui;backdrop-filter:blur(4px);
+  transition:all .2s ease;display:flex;align-items:center;justify-content:center;
+}
+#ols-close:hover{background:rgba(139,115,85,0.95);transform:scale(1.08);}
+#ols-card{
+  position:relative;z-index:63;
+  width:min(820px,90%);margin:0 0 7% 0;
+  background:rgba(245,237,224,0.94);
+  border:1.5px solid var(--rust);border-radius:18px;
+  padding:28px 36px;backdrop-filter:blur(6px);
+  box-shadow:0 14px 40px rgba(0,0,0,0.5);
+  font-family:var(--body-font);
+  min-height:140px;display:flex;flex-direction:column;justify-content:center;
+}
+#ols-text{
+  font-size:20px;line-height:1.95;color:var(--ink);
+  letter-spacing:1.5px;white-space:pre-wrap;text-align:left;
+}
+#ols-text .caret{display:inline-block;animation:blink 1s infinite;color:var(--rust);}
+.ols-progress{
+  position:absolute;right:18px;bottom:10px;
+  font-size:12px;color:var(--iron-grey);letter-spacing:1.5px;
+  background:rgba(74,64,56,0.08);padding:2px 10px;border-radius:10px;
+}
+
 /* 选项 */
 #choices{position:absolute;left:50%;transform:translateX(-50%);bottom:170px;width:min(560px,80%);z-index:21;display:flex;flex-direction:column;gap:12px;}
 .choice{
@@ -954,6 +1116,44 @@ body{
     <div id="door-hint">点击屏幕继续</div>
   </section>
 
+  <!-- ===== 抽屉 1 弹层（药膏 + 退学单） ===== -->
+  <section class="drawer-stage" data-drawer="1" id="drawer1-stage" style="display:none;">
+    <img class="drawer-bg" src="wang_assets/drawer1_contents.jpg" alt="抽屉 1" />
+    <div class="drawer-title">床头柜 · 上层抽屉</div>
+    <button class="drawer-close" title="关闭">×</button>
+    <div class="drawer-items">
+      <div class="drawer-item dr-ointment" data-item="抽屉药膏">
+        <img src="wang_assets/ointment_scene.jpg" alt="药膏" />
+        <div class="drawer-item-label">药膏</div>
+      </div>
+      <div class="drawer-item dr-expulsion" data-item="抽屉退学单">
+        <img src="wang_assets/expulsion_notice_scene.jpg" alt="退学单" />
+        <div class="drawer-item-label">退学单</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 抽屉 2 弹层（成绩单 + 发绳 + 密封药瓶） ===== -->
+  <section class="drawer-stage" data-drawer="2" id="drawer2-stage" style="display:none;">
+    <img class="drawer-bg" src="wang_assets/drawer2_contents.jpg" alt="抽屉 2" />
+    <div class="drawer-title">床头柜 · 下层抽屉</div>
+    <button class="drawer-close" title="关闭">×</button>
+    <div class="drawer-items">
+      <div class="drawer-item dr-record" data-item="抽屉成绩单">
+        <img src="wang_assets/drawer2_contents.jpg" alt="成绩单" />
+        <div class="drawer-item-label">成绩单</div>
+      </div>
+      <div class="drawer-item dr-ribbon" data-item="抽屉发绳">
+        <img src="wang_assets/hair_ribbon_scene.jpg" alt="发绳" />
+        <div class="drawer-item-label">发绳</div>
+      </div>
+      <div class="drawer-item dr-bottle" data-item="抽屉密封药瓶">
+        <img src="wang_assets/drawer2_contents.jpg" alt="密封药瓶" />
+        <div class="drawer-item-label">密封药瓶</div>
+      </div>
+    </div>
+  </section>
+
   <!-- ===== 老刘家阶段（5 场景） ===== -->
   <section id="old-liu-stage" style="display:none;">
     <img id="ol-bg" src="" alt="老刘家" />
@@ -979,6 +1179,16 @@ body{
       <button id="receipt-close">她合上铁盒</button>
     </div>
   </div>
+
+  <!-- ===== 老刘家 4 段旁白（收据关闭后播放）· 背景=老刘妻子.jpg，无立绘 ===== -->
+  <section id="ol-subtitle-stage" style="display:none;">
+    <img id="ols-bg" src="wang_assets/old_liu_wife.jpg" alt="老刘家" />
+    <button id="ols-close" title="跳过">×</button>
+    <div id="ols-card">
+      <div id="ols-text"></div>
+      <div class="ols-progress" id="ols-progress"></div>
+    </div>
+  </section>
   <div id="sys-modal" style="display:none;">
     <div id="sys-modal-box">
       <div id="sys-modal-title"></div>
@@ -987,12 +1197,24 @@ body{
     </div>
   </div>
 
+  <!-- ===== 发现矛盾与推理弹窗 ===== -->
+  <div id="deduction-puzzle" aria-hidden="true">
+    <div class="dp-panel">
+      <div class="dp-progress" id="dp-progress"></div>
+      <div class="dp-title" id="dp-title"></div>
+      <div class="dp-subtitle" id="dp-subtitle"></div>
+      <div class="dp-body" id="dp-body"></div>
+      <div class="dp-options" id="dp-options"></div>
+      <div class="dp-actions" id="dp-actions"></div>
+    </div>
+  </div>
+
   <!-- ===== 记忆场景层（点击物品后显示） ===== -->
   <section id="memory-scene" style="display:none;">
     <img id="ms-bg" src="" alt="回忆场景" />
     <button id="ms-close" title="返回">×</button>
     <!-- 回忆场景的爷爷立绘（左下） -->
-    <div id="ms-portrait"><div class="float"><img id="ms-face" src="wang_assets/wang_think.jpg" alt="王爷爷" onerror="this.onerror=null;this.src='wang_assets/wang_think.jpg';" /></div></div>
+    <div id="ms-portrait"><div class="float"><img id="ms-face" src="wang_assets/wang_think.png" alt="王爷爷" onerror="this.onerror=null;this.src='wang_assets/wang_think.png';" /></div></div>
     <!-- ===== 回忆特效层 ===== -->
     <div id="ms-lightbeam" aria-hidden="true"></div>
     <div id="ms-grain" aria-hidden="true"></div>
@@ -1011,14 +1233,14 @@ body{
 
   <!-- 预加载主线对话立绘（避免首次显示慢） -->
   <div style="position:absolute;width:0;height:0;overflow:hidden;visibility:hidden;" aria-hidden="true">
-    <img src="wang_assets/wang_think.jpg" alt="" />
-    <img src="wang_assets/wang_smile.jpg" alt="" />
-    <img src="wang_assets/wang_bye.jpg" alt="" />
+    <img src="wang_assets/wang_think.png" alt="" />
+    <img src="wang_assets/wang_smile.png" alt="" />
+    <img src="wang_assets/wang_bye.png" alt="" />
   </div>
 
   <!-- ===== 主线对话层（复用游戏对话样式，独立于 #game） ===== -->
   <div id="rm-dialogue">
-    <div id="rm-portrait"><div class="float"><img id="rm-face" src="wang_assets/wang_think.jpg" alt="王爷爷" onerror="this.onerror=null;this.src='wang_assets/wang_think.jpg';" /></div></div>
+    <div id="rm-portrait"><div class="float"><img id="rm-face" src="wang_assets/wang_think.png" alt="王爷爷" onerror="this.onerror=null;this.src='wang_assets/wang_think.png';" /></div></div>
     <div id="rm-dialogue-box">
       <div id="rm-speaker"></div>
       <div id="rm-dialogue-text"></div>
@@ -1082,7 +1304,7 @@ body{
     <!-- 立绘（NPC·右） -->
     <div id="portrait">
       <div class="float">
-        <img id="wangFace" src="wang_assets/wang_think.jpg" alt="王爷爷" style="width:100%;height:100%;object-fit:contain;">
+        <img id="wangFace" src="wang_assets/wang_think.png" alt="王爷爷" style="width:100%;height:100%;object-fit:contain;">
       </div>
     </div>
 
@@ -1318,11 +1540,11 @@ body{
   function setExpr(e){
     const pf=document.getElementById('wangFace');
     const map={
-      calm:'wang_assets/wang_think.jpg',
-      smile:'wang_assets/wang_smile.jpg',
-      think:'wang_assets/wang_think.jpg',
-      lost:'wang_assets/wang_think.jpg',
-      clear:'wang_assets/wang_smile.jpg'
+      calm:'wang_assets/wang_think.png',
+      smile:'wang_assets/wang_smile.png',
+      think:'wang_assets/wang_think.png',
+      lost:'wang_assets/wang_think.png',
+      clear:'wang_assets/wang_smile.png'
     };
     const f=map[e]||map.calm;
     if(pf) pf.src=f;
@@ -1872,7 +2094,7 @@ body{
     '钥匙': {
       bg: 'wang_assets/key_scene.jpg',
       lines: [
-        '我出去打工赚钱了，想给你和小梅更好的生活。爸你把我们老房子的钥匙拿好。',
+        '你爸爸当年告诉我：我出去打工赚钱了，想给你和小梅更好的生活。爸你把我们老房子的钥匙拿好。',
         '万一哪天你要回老房子住呢？有个家总是安心的。',
         '这把钥匙我一直留着。',
         '我一个老头子在这里住得挺好的。留着老家房子唯一的钥匙干什么呢？',
@@ -1888,7 +2110,7 @@ body{
         '这件衣服穿了很多年。你奶奶买的，花了半个月工资。',
         '她说男人出门要体面。后来你爸走的时候，我把这件衣服塞进他包里。',
         '他搁在桌上没带走。大概是不想要我的东西。',
-        '我一直挂着，不是舍不得扔，是想着穿它的自己，当年也是堂堂正正的。'
+        '我一直挂着，不是舍不得扔，是想着穿它的自己，当年也是端端正正的。'
       ]
     },
     '勿忘我花': {
@@ -1920,12 +2142,66 @@ body{
         '但你画的那张我和你在院子里的，我一直挂着。',
         '那天下午，太阳很好，你说"爷爷你别动，我给你画一张"。我就坐了一整个下午。别说，画得真好啊我孙女。'
       ]
+    },
+    // ===== 抽屉 1 =====
+    '抽屉药膏': {
+      bg: 'wang_assets/ointment_scene.jpg',
+      lines: [
+        '你打开一个小铁盒，里面是一管快要用完的药膏。',
+        '盒底贴着一张泛黄的标签，上面用很细的笔迹写着"老刘"。',
+        '老刘……治什么病的？',
+        '你想起老刘老伴的话——"他走之前一直咳，瘦得皮包骨"。',
+        '可这管药膏，是谁买的？给谁用的？这里头还有一封没拆的信。'
+      ],
+      // 第 3 句（atLine=2）切换到药膏浮窗特写
+      bgSwitch: { atLine: 2, to: 'wang_assets/ointment_popup.jpg' }
+    },
+    '抽屉退学单': {
+      bg: 'wang_assets/expulsion_notice_scene.jpg',
+      lines: [
+        '一张折得整整齐齐的纸，上面盖着学校的红章。',
+        '"退学通知书"。',
+        '日期是明信片之前——他不是因为想出去打工才走的。',
+        '是被退学后没脸回来。',
+        '可爷爷嘴里，他一直是那个"会回来的好孩子"。'
+      ]
+    },
+    // ===== 抽屉 2 =====
+    '抽屉成绩单': {
+      bg: 'wang_assets/drawer2_contents.jpg',
+      lines: [
+        '一张夹在书里的成绩单，边角已经发黄。',
+        '全科优秀，尤其是语文和美术。',
+        '背面写着一行稚嫩的字——"爷爷生日快乐，小梅画"。',
+        '这是你小时候画的字吗？你不记得了。',
+        '但你突然想起——爷爷房间里，从头到尾没有叫过你的真名。'
+      ]
+    },
+    '抽屉发绳': {
+      bg: 'wang_assets/hair_ribbon_scene.jpg',
+      lines: [
+        '一根褪色的发绳，蓝色的，是小女孩戴的那种。',
+        '上面还有一根细细的头发，被时间粘在了丝带上。',
+        '你突然意识到——从进这个房间开始，爷爷一直叫你"小梅"。',
+        '但你从来没问过为什么。',
+        '小梅……是谁？她现在在哪里？'
+      ]
+    },
+    '抽屉密封药瓶': {
+      bg: 'wang_assets/drawer2_contents.jpg',
+      lines: [
+        '一个小玻璃瓶，瓶盖用蜡封死，瓶里是白色的药片。',
+        '标签上写着一种你不认识的名字，剂量、副作用都被人用黑色马克笔涂掉了。',
+        '瓶底压着一张纸——"王老头（存）"。',
+        '这是爷爷的药？还是……别人留给爷爷的？',
+        '你拿起来的时候，瓶子很轻，好像里面早就空了。'
+      ]
     }
   };
 
-  // 占位消息（铁盒/日历/抽屉上下 - 等第 2 步做）
+  // 占位消息（铁盒/日历 - 抽屉 1/2 已解锁可见）
   const PLACEHOLDER_MSG = '你感觉这个东西很重要，但现在还不是打开它的时候，请再探索一下吧。';
-  const PLACEHOLDER_ITEMS = new Set(['铁盒子', '日历', '抽屉（上）', '抽屉（下）']);
+  const PLACEHOLDER_ITEMS = new Set(['铁盒子', '日历']);
 
   /* ===== 主线状态机（第 6-12 步） ===== */
   const STATE = {
@@ -1942,7 +2218,14 @@ body{
     hasSeenCalendar: false,
     hasFoundMedicine: false,
     quizResults: {},
-    quizScore: 0
+    quizScore: 0,
+    // ====== 第三批：抽屉与推理 ======
+    hasSeenDrawer1Ointment: false,   // 看过抽屉1·药膏
+    hasSeenDrawer1Expulsion: false,  // 看过抽屉1·退学单
+    hasSeenDrawer2Record: false,     // 看过抽屉2·成绩单
+    hasSeenDrawer2Ribbon: false,      // 看过抽屉2·发绳
+    hasSeenDrawer2Bottle: false,      // 看过抽屉2·密封药瓶
+    deductionPuzzleStep: 0            // 0=未开始, 1-5=步骤, -1=已完成
   };
   // 表面物品 = 7 件有记忆场景的（红拖鞋/公文包/钥匙/中山装/勿忘我/糖醋排骨/奖状）
   const SURFACE_ITEMS = new Set(['红拖鞋','破旧公文包','钥匙','中山装','勿忘我花','糖醋排骨','奖状与小梅的画']);
@@ -1984,6 +2267,15 @@ body{
     document.getElementById('th-debt').style.display = 'block';
     document.getElementById('th-cards').style.display = 'none';
     thCardIdx = 0;
+    // 隐藏 room-exploration 的 UI（提示文字/坐按钮/物品热区）—— 只有弹窗按钮有效
+    const reHint = document.getElementById('re-hint');
+    if(reHint) reHint.style.visibility = 'hidden';
+    const reGo = document.getElementById('re-go-btn');
+    if(reGo) reGo.style.display = 'none';
+    const reBack = document.getElementById('re-back-to-room-btn');
+    if(reBack) reBack.style.display = 'none';
+    // 禁用所有房间物品热区
+    document.querySelectorAll('#room-exploration .hotspot').forEach(el => { el.style.pointerEvents = 'none'; });
     // 动态打勾：hasToldTruth=true 时老刘行变绿
     const liuRow = document.getElementById('th-row-liuliu');
     const liuMark = document.getElementById('th-liu-mark');
@@ -2005,6 +2297,12 @@ body{
     const stage = document.getElementById('tiehe-stage');
     stage.style.opacity = '0';
     setTimeout(() => { stage.style.display = 'none'; stage.style.opacity='1'; stage.style.transition=''; }, 500);
+    // 恢复 room-exploration 的 UI
+    const reHint = document.getElementById('re-hint');
+    if(reHint) reHint.style.visibility = '';
+    // 恢复物品热区
+    document.querySelectorAll('#room-exploration .hotspot').forEach(el => { el.style.pointerEvents = ''; });
+    // re-go-btn 的恢复由 startGreetingDialog 决定（首次开启/已聊过）
   }
   function thNextCard(){
     if(thCardIdx < TIEHE_CARDS.length - 1){
@@ -2318,18 +2616,90 @@ body{
   // 收据浮窗关闭
   document.getElementById('receipt-close').addEventListener('click', () => {
     document.getElementById('receipt-popup').style.display = 'none';
-    // 收据看完 → 弹字幕（4 段旁白）→ 完后再切场景 4
-    runDialogSequence([
-      { speaker:'system', text:'从老刘老伴那里得知，王爷爷的儿子连哄带骗地欠了大家一大笔钱。' },
-      { speaker:'system', text:'但王爷爷是个好人，努力把他儿子欠的窟窿都填上了。' },
-      { speaker:'system', text:'希望老王健健康康。' },
-      { speaker:'system', text:'我们在夕阳下挥手作了别。' }
+    // 收据看完 → 在老刘家场景上播 4 段旁白（背景=old_liu_wife.jpg，无立绘）→ 完后再切场景 4
+    playOldLiuSubtitles([
+      '从老刘老伴那里得知，王爷爷的儿子连哄带骗地欠了大家一大笔钱。',
+      '但王爷爷是个好人，努力把他儿子欠的窟窿都填上了。',
+      '希望老王健健康康。',
+      '我们在夕阳下挥手作了别。'
     ], () => {
       if(olSceneIdx < OLD_LIU_SCENES.length - 1){
         olSceneIdx++;
         loadOldLiuScene(olSceneIdx);
       }
     });
+  });
+
+  /* ===== 老刘家 4 段旁白播放器（独立层，背景=old_liu_wife.jpg，无立绘）===== */
+  let olsIdx = 0, olsTyping = false, olsFull = '', olsTimer = null, olsOnFinish = null;
+  const OLS_LINES = []; // 临时存放
+  function playOldLiuSubtitles(lines, onFinish){
+    const stage = document.getElementById('ol-subtitle-stage');
+    if(!stage) return;
+    OLS_LINES.length = 0;
+    lines.forEach(l => OLS_LINES.push(l));
+    olsIdx = 0; olsOnFinish = onFinish || null;
+    stage.style.display = 'flex';
+    requestAnimationFrame(() => { stage.classList.add('show'); });
+    olsShowLine();
+  }
+  function olsShowLine(){
+    if(olsIdx >= OLS_LINES.length){
+      // 全部播完 → 关闭 + 切场景 4
+      closeOldLiuSubtitles();
+      return;
+    }
+    olsFull = OLS_LINES[olsIdx];
+    const el = document.getElementById('ols-text');
+    const prog = document.getElementById('ols-progress');
+    if(prog) prog.textContent = (olsIdx + 1) + '/' + OLS_LINES.length;
+    el.textContent = '';
+    olsTyping = true;
+    let k = 0;
+    clearInterval(olsTimer);
+    olsTimer = setInterval(() => {
+      el.textContent = olsFull.slice(0, k);
+      k++;
+      if(k > olsFull.length){
+        clearInterval(olsTimer); olsTyping = false;
+        el.innerHTML = olsFull + '<span class="caret">▍</span>';
+      }
+    }, 60);
+  }
+  function olsTextClick(){
+    if(olsTyping){
+      clearInterval(olsTimer); olsTyping = false;
+      const el = document.getElementById('ols-text');
+      el.innerHTML = olsFull + '<span class="caret">▍</span>';
+      return;
+    }
+    olsIdx++;
+    olsShowLine();
+  }
+  function closeOldLiuSubtitles(){
+    const stage = document.getElementById('ol-subtitle-stage');
+    stage.classList.remove('show');
+    setTimeout(() => {
+      stage.style.display = 'none';
+      clearInterval(olsTimer);
+      olsTyping = false; olsIdx = 0;
+      const cb = olsOnFinish;
+      olsOnFinish = null;
+      if(cb) cb();
+    }, 250);
+  }
+  // 绑定点击推进 + × 关闭
+  document.getElementById('ols-text').addEventListener('click', olsTextClick);
+  document.getElementById('ols-card').addEventListener('click', olsTextClick);
+  document.getElementById('ols-close').addEventListener('click', () => {
+    // 跳到下一段（没有下一段就关闭）
+    if(olsIdx < OLS_LINES.length - 1){
+      clearInterval(olsTimer); olsTyping = false;
+      olsIdx++;
+      olsShowLine();
+    } else {
+      closeOldLiuSubtitles();
+    }
   });
 
   /* ===== 委托对话（看完 3 张明信片后触发） ===== */
@@ -2339,13 +2709,13 @@ body{
   // 实际存在的立绘：wang_normal / wang_think / wang_smile / wang_bye
   // sad/lost/clear 都 fallback 到 normal
   const RM_FACE_MAP = {
-    wang_normal: 'wang_assets/wang_think.jpg',   // 沉思（默认/普通）
-    wang_think:  'wang_assets/wang_think.jpg',
-    wang_smile:  'wang_assets/wang_smile.jpg',
-    wang_bye:    'wang_assets/wang_bye.jpg',
-    wang_sad:    'wang_assets/wang_think.jpg',
-    wang_lost:   'wang_assets/wang_think.jpg',
-    wang_clear:  'wang_assets/wang_smile.jpg'
+    wang_normal: 'wang_assets/wang_think.png',   // 沉思（默认/普通）
+    wang_think:  'wang_assets/wang_think.png',
+    wang_smile:  'wang_assets/wang_smile.png',
+    wang_bye:    'wang_assets/wang_bye.png',
+    wang_sad:    'wang_assets/wang_think.png',
+    wang_lost:   'wang_assets/wang_think.png',
+    wang_clear:  'wang_assets/wang_smile.png'
   };
   const RM_SPEAKER_LABEL = { wang:'王爷爷', you:'你', system:'旁白' };
 
@@ -2457,6 +2827,361 @@ body{
     rmShowStep();
   }
 
+  /* ===== 发现矛盾与推理环节（5 步流程 + 选错逻辑） ===== */
+  // 9 个物品选项（多选题通用）
+  const DP_ITEMS = [
+    { key:'老伴的话', label:'刘爷爷老伴的话' },
+    { key:'红拖鞋',   label:'红拖鞋' },
+    { key:'奖状',     label:'奖状和小梅的画' },
+    { key:'糖醋排骨', label:'糖醋排骨' },
+    { key:'中山装',   label:'旧中山装' },
+    { key:'钥匙',     label:'钥匙' },
+    { key:'公文包',   label:'旧公文包' },
+    { key:'欠条',     label:'铁盒里的欠条' },
+    { key:'明信片',   label:'铁盒里的明信片' }
+  ];
+  // 第二步正确答案（5 选 ≥2 算通过）
+  const DP_STEP2_CORRECT = new Set(['老伴的话','钥匙','公文包','欠条','明信片']);
+  // 第四步正确答案（3 选 ≥1 算通过）
+  const DP_STEP4_CORRECT = new Set(['钥匙','公文包','欠条']);
+
+  let dpStep = 0; // 0=未开始, 1-5=当前步骤, -1=已完成
+  let dpSelected = new Set();
+
+  function dpShow(){
+    document.getElementById('deduction-puzzle').classList.add('show');
+  }
+  function dpHide(){
+    document.getElementById('deduction-puzzle').classList.remove('show');
+  }
+  function dpRender({progress, title, subtitle, body, options, actions}){
+    if(progress !== undefined) document.getElementById('dp-progress').textContent = progress || '';
+    document.getElementById('dp-title').textContent = title || '';
+    document.getElementById('dp-subtitle').textContent = subtitle || '';
+    document.getElementById('dp-body').textContent = body || '';
+    const opEl = document.getElementById('dp-options');
+    opEl.innerHTML = '';
+    (options || []).forEach((opt, idx) => {
+      const div = document.createElement('div');
+      div.className = 'dp-option' + (opt.radio ? ' radio' : '');
+      div.innerHTML = '<div class="dp-mark"></div><div class="dp-text"></div>';
+      div.querySelector('.dp-text').textContent = opt.label;
+      div.onclick = () => opt.onClick && opt.onClick(div);
+      opEl.appendChild(div);
+    });
+    const actEl = document.getElementById('dp-actions');
+    actEl.innerHTML = '';
+    (actions || []).forEach(a => {
+      const btn = document.createElement('button');
+      btn.className = 'dp-btn ' + (a.primary ? 'dp-btn-primary' : (a.warn ? 'dp-btn-warn' : 'dp-btn-secondary'));
+      btn.textContent = a.label;
+      btn.onclick = () => a.onClick && a.onClick();
+      actEl.appendChild(btn);
+    });
+    dpShow();
+  }
+
+  // 选错通用：弹提示 + 2 选项
+  function dpWrongChoice(message, onRetry, onBack){
+    // 用 sys-modal 弹"再想一想"二级弹窗
+    showSysModal('再想一想', message, [
+      { label:'再想一想，重新选择', primary:true, onClick: () => { hideSysModal(); onRetry && onRetry(); } },
+      { label:'回去再看看', onClick: () => { hideSysModal(); onBack && onBack(); } }
+    ]);
+  }
+
+  /* ===== 第一步：系统弹窗询问 ===== */
+  function dpStartStep1(){
+    dpStep = 1;
+    dpRender({
+      progress:'第一步 / 共 5 步',
+      title:'发现矛盾',
+      subtitle:'观察与回想',
+      body:'你在王爷爷房间看到了很多物品，也听他讲了许多故事。\n你注意到——有没有什么地方让你觉得奇怪？',
+      options:[
+        { label:'A. 有，我发现了。', onClick: () => dpStartStep2() },
+        { label:'B. 没有，我没发现。', onClick: () => dpOnBackToExplore('有些故事可能不止一面。再仔细看看你接触过的那些物品和听到的话，或许会有新的发现。') },
+        { label:'C. 让我再看一看。', onClick: () => dpHide() }
+      ],
+      actions:[]
+    });
+  }
+
+  function dpOnBackToExplore(tip){
+    // 弹"再看看"提示 + 关闭 deduction
+    showSysModal('再仔细看看', tip, [
+      { label:'好', primary:true, onClick: () => { hideSysModal(); dpHide(); STATE.hasDoneMultiChoice = false; } }
+    ]);
+  }
+
+  /* ===== 第二步：多选题①（找出存在冲突的 5 个线索） ===== */
+  function dpStartStep2(){
+    dpStep = 2;
+    dpSelected = new Set();
+    dpRender({
+      progress:'第二步 / 共 5 步',
+      title:'多选：存在冲突的线索',
+      subtitle:'选择你认为可能存在冲突的物品故事',
+      body:'请选择你认为可能存在冲突的物品故事。你觉得哪些物品背后，藏着和爷爷讲的不太一样的故事？\n（至少选 2 个正确答案）',
+      options:DP_ITEMS.map(it => ({
+        label: it.label,
+        onClick: (div) => {
+          if(dpSelected.has(it.key)){
+            dpSelected.delete(it.key);
+            div.classList.remove('selected');
+          } else {
+            dpSelected.add(it.key);
+            div.classList.add('selected');
+          }
+        }
+      })),
+      actions:[
+        { label:'确认选择', primary:true, onClick: dpCheckStep2 },
+        { label:'回去再看看', warn:true, onClick: () => dpOnBackToExplore('再仔细看看那些物品和爷爷的话，记住他们的版本差异。') }
+      ]
+    });
+  }
+  function dpCheckStep2(){
+    if(dpSelected.size === 0){
+      // 提示至少选一个
+      showSysModal('提示', '请至少选择一个选项。', [
+        { label:'好', primary:true, onClick: hideSysModal }
+      ]);
+      return;
+    }
+    // 统计选中的正确答案数
+    const correctCount = [...dpSelected].filter(k => DP_STEP2_CORRECT.has(k)).length;
+    if(correctCount >= 2){
+      // 通过 → 进入第三步
+      showSysModal('✓ 正确', '你注意到了一些不对劲的地方。这些物品的故事，和爷爷讲的版本之间，有裂缝。', [
+        { label:'继续', primary:true, onClick: () => { hideSysModal(); dpHide(); dpStartStep3(); } }
+      ]);
+    } else {
+      // 失败 → 选错逻辑
+      dpWrongChoice(
+        '再想一想。哪些物品的故事和爷爷的版本不太一样？如果不太确定，可以再回去看看那些物品。',
+        () => dpStartStep2(),
+        () => dpOnBackToExplore('再去看看那些物品和听到的话吧。')
+      );
+    }
+  }
+
+  /* ===== 第三步：人物推理 ===== */
+  function dpStartStep3(){
+    dpStep = 3;
+    dpRender({
+      progress:'第三步 / 共 5 步',
+      title:'单选：最矛盾的人物故事',
+      subtitle:'在所有矛盾中，谁是核心？',
+      body:'在这些线索中，你觉得最矛盾的人物故事是谁的？\n（在爷爷嘴里是一个版本，在别人嘴里是另一个版本）',
+      options:[
+        { label:'A. 小梅', radio:true, onClick: () => dpSelectRadio(0, 'A') },
+        { label:'B. 老刘', radio:true, onClick: () => dpSelectRadio(1, 'B') },
+        { label:'C. 老刘老伴', radio:true, onClick: () => dpSelectRadio(2, 'C') },
+        { label:'D. 爸爸', radio:true, onClick: () => dpSelectRadio(3, 'D') }
+      ],
+      actions:[
+        { label:'确认选择', primary:true, onClick: dpCheckStep3 },
+        { label:'回去再看看', warn:true, onClick: () => dpOnBackToExplore('在脑子里梳理一下，每个人对爸爸的描述有什么不同。') }
+      ]
+    });
+    dpSelected = new Set();
+  }
+  let dpRadioChoice = null;
+  function dpSelectRadio(idx, key){
+    dpRadioChoice = key;
+    const opEl = document.getElementById('dp-options');
+    [...opEl.children].forEach((c, i) => {
+      if(i === idx) c.classList.add('selected');
+      else c.classList.remove('selected');
+    });
+  }
+  function dpCheckStep3(){
+    if(!dpRadioChoice){
+      showSysModal('提示', '请先选择一个选项。', [
+        { label:'好', primary:true, onClick: hideSysModal }
+      ]);
+      return;
+    }
+    if(dpRadioChoice === 'D'){
+      showSysModal('✓ 正确', '你提到了一个关键的名字。你对爸爸的了解，也许还不够完整。', [
+        { label:'继续', primary:true, onClick: () => { hideSysModal(); dpHide(); dpStartStep4(); } }
+      ]);
+    } else {
+      dpWrongChoice(
+        '再想一想。这个矛盾的核心人物是谁？谁在爷爷嘴里是一个版本，在别人嘴里是另一个版本？',
+        () => dpStartStep3(),
+        () => dpOnBackToExplore('回到物品场景，回忆每个人对爸爸的描述。')
+      );
+    }
+  }
+
+  /* ===== 第四步：多选题②（找出关键矛盾线索） ===== */
+  function dpStartStep4(){
+    dpStep = 4;
+    dpSelected = new Set();
+    dpRender({
+      progress:'第四步 / 共 5 步',
+      title:'多选：最关键的矛盾线索',
+      subtitle:'哪些直接指向爸爸？',
+      body:'现在，请选出你认为最有问题的几件物品——哪些线索直接指向了爸爸的故事和爷爷的版本之间的冲突？\n（至少选 1 个正确答案）',
+      options:DP_ITEMS.map(it => ({
+        label: it.label,
+        onClick: (div) => {
+          if(dpSelected.has(it.key)){
+            dpSelected.delete(it.key);
+            div.classList.remove('selected');
+          } else {
+            dpSelected.add(it.key);
+            div.classList.add('selected');
+          }
+        }
+      })),
+      actions:[
+        { label:'确认选择', primary:true, onClick: dpCheckStep4 },
+        { label:'回去再看看', warn:true, onClick: () => dpOnBackToExplore('想想哪些物品的故事直接和爸爸有关。') }
+      ]
+    });
+  }
+  function dpCheckStep4(){
+    if(dpSelected.size === 0){
+      showSysModal('提示', '请至少选择一个选项。', [
+        { label:'好', primary:true, onClick: hideSysModal }
+      ]);
+      return;
+    }
+    const correctCount = [...dpSelected].filter(k => DP_STEP4_CORRECT.has(k)).length;
+    if(correctCount >= 1){
+      showSysModal('✓ 正确', '钥匙、旧公文包、欠条——它们都和爸爸有关。也许你该问爷爷一个关于爸爸的问题。', [
+        { label:'继续提问', primary:true, onClick: () => { hideSysModal(); dpHide(); dpStartStep5(); } }
+      ]);
+    } else {
+      dpWrongChoice(
+        '再想想。哪些物品直接指向了爸爸——他离家前留下的东西，他留下的债务，他带走的和没带走的？',
+        () => dpStartStep4(),
+        () => dpOnBackToExplore('回到抽屉里看看，哪些物品和爸爸直接相关。')
+      );
+    }
+  }
+
+  /* ===== 第五步：提问爷爷 ===== */
+  function dpStartStep5(){
+    dpStep = 5;
+    dpRadioChoice = null;
+    dpRender({
+      progress:'第五步 / 共 5 步',
+      title:'单选：向爷爷提问',
+      subtitle:'选择一个关于爸爸的问题',
+      body:'你可以选择一个关于爸爸的问题问王爷爷，来弄清爸爸的事情：',
+      options:[
+        { label:'A. 爸爸为什么会欠债？', radio:true, onClick: () => dpSelectRadio(0, 'A') },
+        { label:'B. 爸爸真的像爷爷说得那么好吗？', radio:true, onClick: () => dpSelectRadio(1, 'B') },
+        { label:'C. 爸爸为什么不回来看爷爷呢？', radio:true, onClick: () => dpSelectRadio(2, 'C') },
+        { label:'D. 爸爸和爷爷的关系真的这么好吗？', radio:true, onClick: () => dpSelectRadio(3, 'D') }
+      ],
+      actions:[
+        { label:'确认提问', primary:true, onClick: dpCheckStep5 }
+      ]
+    });
+  }
+  function dpCheckStep5(){
+    if(!dpRadioChoice){
+      showSysModal('提示', '请先选择一个问题。', [
+        { label:'好', primary:true, onClick: hideSysModal }
+      ]);
+      return;
+    }
+    // 4 个都算正确 → 触发爷爷头痛剧情
+    dpHide();
+    STATE.hasChosenCorrectQuestion = true;
+    STATE.hasDoneMultiChoice = true;
+    dpStep = -1;
+    console.log('[state] hasChosenCorrectQuestion = true（已提问爷爷）');
+    // 触发爷爷头痛 → 找药剧情
+    runDialogSequence([
+      { speaker:'wang', face:'wang_think', text:'王爷爷沉默了片刻。他张了张嘴，像是想说什么，但又停住了。\n\n他低头看了看自己的手，又抬起头，像是想抓住一个已经滑走的念头。' },
+      { speaker:'wang', face:'wang_think', text:'……我不记得了，小梅。\n\n我想不起来。头痛……' },
+      { speaker:'wang', face:'wang_think', text:'你去再帮我找找我的药吧。你看看床头柜，或者两个抽屉里……有没有。' },
+      { speaker:'system', text:'王爷爷头痛了。他让你帮忙找药。\n\n（请在房间里寻找药膏/药瓶——可能藏在床头柜或抽屉里）' }
+    ], () => {
+      // 解锁抽屉 2
+      STATE.drawer2Unlocked = true;
+      console.log('[state] drawer2Unlocked = true（已解锁抽屉2找药）');
+      document.querySelectorAll('.hotspot[data-item="抽屉（下）"]').forEach(el => el.classList.add('unlocked'));
+    });
+  }
+
+  /* ===== 触发检查：满足前置条件时自动弹 deduction ===== */
+  function checkDeductionTrigger(){
+    if(STATE.hasChosenCorrectQuestion) return; // 已完成
+    if(dpStep !== 0) return; // 进行中
+    if(!STATE.hasReturnedFromLiu) return;
+    if(STATE.hasToldTruth === null || STATE.hasToldTruth === undefined) return;
+    if(!STATE.drawer1Unlocked) return;
+    if(!STATE.hasSeenDrawer1Ointment) return;
+    if(!STATE.hasSeenDrawer1Expulsion) return;
+    // 满足所有条件 → 触发第一步
+    console.log('[deduction] 触发第一步');
+    setTimeout(() => dpStartStep1(), 600);
+  }
+
+  /* ===== 抽屉 1/2 弹层 ===== */
+  function openDrawer(n){
+    const stage = document.getElementById('drawer' + n + '-stage');
+    if(stage){
+      stage.classList.add('show');
+      stage.style.display = 'flex';
+    }
+  }
+  function closeDrawer(n){
+    const stage = document.getElementById('drawer' + n + '-stage');
+    if(stage){
+      stage.classList.remove('show');
+      stage.style.display = 'none';
+    }
+    // 抽屉关闭后检查 deduction 触发
+    if(n === 1) checkDeductionTrigger();
+  }
+  // 抽屉 1/2 关闭按钮
+  document.querySelectorAll('.drawer-stage .drawer-close').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const stage = e.currentTarget.closest('.drawer-stage');
+      if(stage) closeDrawer(stage.dataset.drawer);
+    });
+  });
+  // 抽屉 1/2 物品点击 → 播放回忆
+  document.querySelectorAll('.drawer-stage .drawer-item').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const name = el.dataset.item;
+      console.log('[drawer] 点击物品:', name);
+      // 关闭抽屉弹层
+      const stage = el.closest('.drawer-stage');
+      if(stage) stage.classList.remove('show');
+      // 播放回忆
+      playMemory(name);
+      // 标记已看
+      if(name === '抽屉药膏'){
+        STATE.hasSeenDrawer1Ointment = true;
+        console.log('[state] hasSeenDrawer1Ointment = true');
+      } else if(name === '抽屉退学单'){
+        STATE.hasSeenDrawer1Expulsion = true;
+        console.log('[state] hasSeenDrawer1Expulsion = true');
+      } else if(name === '抽屉成绩单'){
+        STATE.hasSeenDrawer2Record = true;
+        STATE.hasFoundMedicine = true;
+        console.log('[state] hasSeenDrawer2Record = true');
+      } else if(name === '抽屉发绳'){
+        STATE.hasSeenDrawer2Ribbon = true;
+      } else if(name === '抽屉密封药瓶'){
+        STATE.hasSeenDrawer2Bottle = true;
+        STATE.hasFoundMedicine = true;
+        console.log('[state] hasFoundMedicine = true (密封药瓶)');
+      }
+    });
+  });
+
   /* ===== 委托对话（主线对话 UI 版） ===== */
   function startEntrustDialog(){
     console.log('[主线] 委托对话开始');
@@ -2537,15 +3262,25 @@ body{
     runDialogSequence([
       { speaker:'wang', face:'wang_smile', text:'原来之前我就已经还了，你看我这记性。谢谢我的乖孙女。' },
       { speaker:'wang', face:'wang_think', text:'你去了一趟也累了……抽屉里还有些旧东西，你帮我收拾一下吧，我记不清里面有什么了。' },
-      { speaker:'system', text:'你选择告诉爷爷真相。\n\n（抽屉解锁 + 6 个核验问题 + 4 种结局将在下一批实现。）' }
-    ], () => {});
+      { speaker:'system', text:'你选择告诉爷爷真相。\n\n抽屉 1（药膏 / 退学单）已解锁。' }
+    ], () => {
+      // 抽屉 1 解锁
+      STATE.drawer1Unlocked = true;
+      console.log('[state] drawer1Unlocked = true');
+      document.querySelectorAll('.hotspot[data-item="抽屉（上）"]').forEach(el => el.classList.add('unlocked'));
+    });
   }
   function startTellingChoiceLied(){
     runDialogSequence([
       { speaker:'wang', face:'wang_normal', text:'……走了啊。' },
       { speaker:'wang', face:'wang_think', text:'那这笔钱，怕是永远还不上了。\n\n你去了一趟也累了……抽屉里还有些旧东西，你帮我收拾一下吧，我记不清里面有什么了。' },
-      { speaker:'system', text:'你选择告诉爷爷善意的谎言，隐瞒了老刘去世的真相。\n\n（抽屉解锁 + 6 个核验问题 + 4 种结局将在下一批实现。）' }
-    ], () => {});
+      { speaker:'system', text:'你选择告诉爷爷善意的谎言，隐瞒了老刘去世的真相。\n\n抽屉 1（药膏 / 退学单）已解锁。' }
+    ], () => {
+      // 抽屉 1 解锁
+      STATE.drawer1Unlocked = true;
+      console.log('[state] drawer1Unlocked = true');
+      document.querySelectorAll('.hotspot[data-item="抽屉（上）"]').forEach(el => el.classList.add('unlocked'));
+    });
   }
 
   /* ===== 出发 / 回到房间按钮 ===== */
@@ -2819,6 +3554,30 @@ body{
         return;
       }
 
+      // 抽屉 1（上）：未解锁 → 占位；已解锁 → 打开抽屉 1 弹层
+      if(name === '抽屉（上）'){
+        if(STATE.drawer1Unlocked){
+          openDrawer(1);
+        } else {
+          document.getElementById('item-popup-name').textContent = name;
+          document.getElementById('item-popup-desc').textContent = '抽屉还锁着。先帮爷爷把事情办完。';
+          document.getElementById('item-popup').style.display = 'block';
+        }
+        return;
+      }
+
+      // 抽屉 2（下）：未解锁 → 占位；已解锁 → 打开抽屉 2 弹层
+      if(name === '抽屉（下）'){
+        if(STATE.drawer2Unlocked){
+          openDrawer(2);
+        } else {
+          document.getElementById('item-popup-name').textContent = name;
+          document.getElementById('item-popup-desc').textContent = '抽屉还锁着。先帮爷爷把事情办完。';
+          document.getElementById('item-popup').style.display = 'block';
+        }
+        return;
+      }
+
       // 7 件有专属记忆场景
       if(MEMORY_SCENES[name]){
         // 计数（只记一次）
@@ -2861,12 +3620,15 @@ body{
     if(!portrait || !box || !stage) return;
     const boxRect = box.getBoundingClientRect();
     const stageRect = stage.getBoundingClientRect();
-    // 立绘底部 = box 顶部 + 20(向上遮蔽)
+    // overlap：正值=立绘底部在 box 顶部**上方**（不遮字）；负值=伸进 box
+    // 抠图后立绘右上角（肩膀/脸部）可能伸进 box，所以 overlap 留 80px 余量
+    const overlap = (opts && opts.overlap != null) ? opts.overlap : 80;
     const boxTopInStage = boxRect.top - stageRect.top;
-    const newBottom = (stageRect.height - boxTopInStage) + (opts && opts.overlap ? opts.overlap : 20);
-    // 立绘左 = box 左 - 40(向左偏外)，但不能为负
+    const newBottom = (stageRect.height - boxTopInStage) + overlap;
+    // 立绘左 = box 左 + 18（微微在 box 内左对齐，不挡文字第一字）
     const boxLeftInStage = boxRect.left - stageRect.left;
-    const newLeft = Math.max(0, boxLeftInStage - (opts && opts.leftOffset != null ? opts.leftOffset : 40));
+    const leftOffset = (opts && opts.leftOffset != null) ? opts.leftOffset : 18;
+    const newLeft = Math.max(0, boxLeftInStage + leftOffset);
     portrait.style.bottom = newBottom + 'px';
     portrait.style.left = newLeft + 'px';
   }
@@ -2875,19 +3637,19 @@ body{
     // 主线对话
     const rmBox = document.getElementById('rm-dialogue-box');
     if(rmBox){
-      new ResizeObserver(() => syncPortrait('rm-portrait', 'rm-dialogue-box', 'rm-dialogue', {overlap: 25, leftOffset: 30})).observe(rmBox);
+      new ResizeObserver(() => syncPortrait('rm-portrait', 'rm-dialogue-box', 'rm-dialogue', {overlap: 80, leftOffset: 18})).observe(rmBox);
     }
     // 回忆场景
     const msText = document.getElementById('ms-text');
     if(msText){
-      new ResizeObserver(() => syncPortrait('ms-portrait', 'ms-text', 'memory-scene', {overlap: 20, leftOffset: 30})).observe(msText);
+      new ResizeObserver(() => syncPortrait('ms-portrait', 'ms-text', 'memory-scene', {overlap: 80, leftOffset: 18})).observe(msText);
     }
   }
   setupPortraitSync();
   // 初始同步（等一帧）
   requestAnimationFrame(() => {
-    syncPortrait('rm-portrait', 'rm-dialogue-box', 'rm-dialogue', {overlap: 25, leftOffset: 30});
-    syncPortrait('ms-portrait', 'ms-text', 'memory-scene', {overlap: 20, leftOffset: 30});
+    syncPortrait('rm-portrait', 'rm-dialogue-box', 'rm-dialogue', {overlap: 80, leftOffset: 18});
+    syncPortrait('ms-portrait', 'ms-text', 'memory-scene', {overlap: 80, leftOffset: 18});
   });
 
   // rmShowStep 内：每次切换台词后重新同步立绘位置
@@ -2897,13 +3659,13 @@ body{
     const rmText = document.getElementById('rm-dialogue-text');
     if(rmText){
       new MutationObserver(() => {
-        syncPortrait('rm-portrait', 'rm-dialogue-box', 'rm-dialogue', {overlap: 25, leftOffset: 30});
+        syncPortrait('rm-portrait', 'rm-dialogue-box', 'rm-dialogue', {overlap: 80, leftOffset: 18});
       }).observe(rmText, {childList:true, characterData:true, subtree:true});
     }
     const msText2 = document.getElementById('ms-text');
     if(msText2){
       new MutationObserver(() => {
-        syncPortrait('ms-portrait', 'ms-text', 'memory-scene', {overlap: 20, leftOffset: 30});
+        syncPortrait('ms-portrait', 'ms-text', 'memory-scene', {overlap: 80, leftOffset: 18});
       }).observe(msText2, {childList:true, characterData:true, subtree:true});
     }
   }
