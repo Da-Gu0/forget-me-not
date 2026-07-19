@@ -2302,7 +2302,16 @@ body{
     if(reHint) reHint.style.visibility = '';
     // 恢复物品热区
     document.querySelectorAll('#room-exploration .hotspot').forEach(el => { el.style.pointerEvents = ''; });
-    // re-go-btn 的恢复由 startGreetingDialog 决定（首次开启/已聊过）
+    // 恢复 re-go-btn（只在已接受任务时显示）
+    const reGo = document.getElementById('re-go-btn');
+    if(reGo){
+      reGo.style.display = STATE.hasAcceptedTask ? '' : 'none';
+    }
+    // 恢复 re-back-to-room-btn（已回房间时显示）
+    const reBack = document.getElementById('re-back-to-room-btn');
+    if(reBack){
+      reBack.style.display = STATE.hasReturnedFromLiu ? '' : 'none';
+    }
   }
   function thNextCard(){
     if(thCardIdx < TIEHE_CARDS.length - 1){
