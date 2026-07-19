@@ -286,6 +286,15 @@ body{
 #re-go-btn{left:50%;bottom:6%;transform:translateX(-50%);}
 #re-back-to-room-btn{left:50%;bottom:6%;transform:translateX(-50%);}
 #re-go-btn:hover,#re-back-to-room-btn:hover{background:rgba(196,168,122,0.85);transform:translateX(-50%) translateY(-1px);border-color:rgba(255,235,180,0.95);}
+/* 继续推理按钮（左下角） */
+#re-deduction-btn{
+  position:absolute;left:4%;bottom:6%;z-index:51;
+  font-family:var(--body-font);font-size:15px;color:#fff5ec;
+  background:rgba(74,64,56,0.78);border:1px solid rgba(196,168,122,0.5);
+  border-radius:18px;padding:8px 20px;cursor:pointer;letter-spacing:2px;
+  transition:all 0.2s ease;backdrop-filter:blur(4px);
+}
+#re-deduction-btn:hover{background:rgba(139,115,85,0.95);transform:translateY(-1px);border-color:rgba(255,235,180,0.95);}
 
 /* 抽屉 1 弹层（药膏+退学单）/ 抽屉 2 弹层（成绩单+发绳+密封药瓶） */
 .drawer-stage{position:absolute;inset:0;z-index:60;background:rgba(0,0,0,0.55);display:none;align-items:center;justify-content:center;}
@@ -1079,6 +1088,8 @@ body{
     <button id="re-go-btn" style="display:none;">出发去老刘家</button>
     <!-- 继续探索按钮（hasReturnedFromLiu 后显示） -->
     <button id="re-back-to-room-btn" style="display:none;">回到王爷爷房间</button>
+    <!-- 继续推理按钮（deduction 流程进行中显示） -->
+    <button id="re-deduction-btn" style="display:none;">继续推理</button>
   </section>
 
   <!-- ===== 铁盒覆盖层 ===== -->
@@ -2903,17 +2914,24 @@ body{
   function dpStartStep1(){
     dpStep = 1;
     dpRender({
-      progress:'第一步 / 共 5 步',
       title:'发现矛盾',
       subtitle:'观察与回想',
       body:'你在王爷爷房间看到了很多物品，也听他讲了许多故事。\n你注意到——有没有什么地方让你觉得奇怪？',
       options:[
-        { label:'A. 有，我发现了。', onClick: () => dpStartStep2() },
-        { label:'B. 没有，我没发现。', onClick: () => dpOnBackToExplore('有些故事可能不止一面。再仔细看看你接触过的那些物品和听到的话，或许会有新的发现。') },
-        { label:'C. 让我再看一看。', onClick: () => dpHide() }
+        { label:'A. 有，我发现了。', onClick: () => { dpHide(); dpStartStep2(); } },
+        { label:'B. 没有，我没发现。', onClick: () => {
+            dpHide();
+            // 弹"再看看"提示弹窗 → 退回探索
+            showSysModal('再仔细看看', '有些故事可能不止一面。再仔细看看你接触过的那些物品和听到的话，或许会有新的发现。', [
+              { label:'好', primary:true, onClick: () => { hideSysModal(); updateDeductionBtn(); } }
+            ]);
+          }
+        },
+        { label:'C. 让我再看一看。', onClick: () => { dpHide(); updateDeductionBtn(); } }
       ],
       actions:[]
     });
+    updateDeductionBtn();
   }
 
   function dpOnBackToExplore(tip){
@@ -3126,13 +3144,38 @@ body{
     if(dpStep !== 0) return; // 进行中
     if(!STATE.hasReturnedFromLiu) return;
     if(STATE.hasToldTruth === null || STATE.hasToldTruth === undefined) return;
-    if(!STATE.drawer1Unlocked) return;
-    if(!STATE.hasSeenDrawer1Ointment) return;
-    if(!STATE.hasSeenDrawer1Expulsion) return;
+    // 关键：看完铁盒所有内容（欠条+明信片）后触发
+    if(!STATE.hasReadAllLetters) return;
     // 满足所有条件 → 触发第一步
-    console.log('[deduction] 触发第一步');
+    console.log('[deduction] 触发第一步（看完铁盒+告诉选择完成）');
     setTimeout(() => dpStartStep1(), 600);
   }
+
+  /* ===== "继续推理" 按钮（房间左下角，退回探索后重新进入） ===== */
+  function updateDeductionBtn(){
+    const btn = document.getElementById('re-deduction-btn');
+    if(!btn) return;
+    // 显示条件：deduction 流程进行中（dpStep 1-5）且未完成
+    const show = (dpStep >= 1 && dpStep <= 5) && !STATE.hasChosenCorrectQuestion;
+    btn.style.display = show ? '' : 'none';
+  }
+  // 点击"继续推理" → 重新触发当前 step
+  document.getElementById('re-deduction-btn').addEventListener('click', () => {
+    console.log('[deduction] 点击继续推理，当前 dpStep=' + dpStep);
+    if(dpStep >= 1 && dpStep <= 5 && !STATE.hasChosenCorrectQuestion){
+      // 重置选中状态
+      dpSelected = new Set();
+      dpRadioChoice = null;
+      // 重新打开当前步骤
+      switch(dpStep){
+        case 1: dpStartStep1(); break;
+        case 2: dpStartStep2(); break;
+        case 3: dpStartStep3(); break;
+        case 4: dpStartStep4(); break;
+        case 5: dpStartStep5(); break;
+      }
+    }
+  });
 
   /* ===== 抽屉 1/2 弹层 ===== */
   function openDrawer(n){
@@ -3270,25 +3313,23 @@ body{
   function startTellingChoiceTold(){
     runDialogSequence([
       { speaker:'wang', face:'wang_smile', text:'原来之前我就已经还了，你看我这记性。谢谢我的乖孙女。' },
-      { speaker:'wang', face:'wang_think', text:'你去了一趟也累了……抽屉里还有些旧东西，你帮我收拾一下吧，我记不清里面有什么了。' },
-      { speaker:'system', text:'你选择告诉爷爷真相。\n\n抽屉 1（药膏 / 退学单）已解锁。' }
+      { speaker:'wang', face:'wang_think', text:'你去了一趟也累了……' },
+      { speaker:'system', text:'你选择告诉爷爷真相。\n\n（继续探索房间物品，看完铁盒后会自动触发推理环节）' }
     ], () => {
-      // 抽屉 1 解锁
-      STATE.drawer1Unlocked = true;
-      console.log('[state] drawer1Unlocked = true');
-      document.querySelectorAll('.hotspot[data-item="抽屉（上）"]').forEach(el => el.classList.add('unlocked'));
+      console.log('[state] 告诉选择完成：hasToldTruth=true（不立即解锁抽屉——等第5步）');
+      // 检查触发 deduction（如果已看完铁盒）
+      checkDeductionTrigger();
     });
   }
   function startTellingChoiceLied(){
     runDialogSequence([
       { speaker:'wang', face:'wang_normal', text:'……走了啊。' },
-      { speaker:'wang', face:'wang_think', text:'那这笔钱，怕是永远还不上了。\n\n你去了一趟也累了……抽屉里还有些旧东西，你帮我收拾一下吧，我记不清里面有什么了。' },
-      { speaker:'system', text:'你选择告诉爷爷善意的谎言，隐瞒了老刘去世的真相。\n\n抽屉 1（药膏 / 退学单）已解锁。' }
+      { speaker:'wang', face:'wang_think', text:'那这笔钱，怕是永远还不上了。\n\n你去了一趟也累了……' },
+      { speaker:'system', text:'你选择告诉爷爷善意的谎言，隐瞒了老刘去世的真相。\n\n（继续探索房间物品，看完铁盒后会自动触发推理环节）' }
     ], () => {
-      // 抽屉 1 解锁
-      STATE.drawer1Unlocked = true;
-      console.log('[state] drawer1Unlocked = true');
-      document.querySelectorAll('.hotspot[data-item="抽屉（上）"]').forEach(el => el.classList.add('unlocked'));
+      console.log('[state] 告诉选择完成：hasToldTruth=false（不立即解锁抽屉——等第5步）');
+      // 检查触发 deduction（如果已看完铁盒）
+      checkDeductionTrigger();
     });
   }
 
