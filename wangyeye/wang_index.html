@@ -2223,7 +2223,8 @@ body{
     hasReturnedFromLiu: false,
     hasToldTruth: null,       // null / true / false
     hasDoneMultiChoice: false,
-    hasChosenCorrectQuestion: false,
+    hasCardAnsweredCorrect: false,  // 明信片"谁留的"问题答对
+    hasChosenCorrectQuestion: false,  // deduction 第 5 步完成（独立于明信片问题）
     drawer1Unlocked: false,
     drawer2Unlocked: false,
     hasSeenCalendar: false,
@@ -2364,7 +2365,7 @@ body{
       }
     } else {
       // 3 张都翻到 → 弹问题（只在没选对过的时候弹）
-      if(!STATE.hasChosenCorrectQuestion){
+      if(!STATE.hasCardAnsweredCorrect){
         startCardQuestion();
       } else {
         // 已选对过 → 关闭铁盒 + 触发委托对话
@@ -2381,8 +2382,8 @@ body{
     runDialogSequence([
       { speaker:'system', text:'你觉得这可能是谁留下的明信片呢？', choices:[
         { label:'A. 爸爸', onClick: () => {
-            STATE.hasChosenCorrectQuestion = true;
-            console.log('[state] hasChosenCorrectQuestion = true (A - 爸爸)');
+            STATE.hasCardAnsweredCorrect = true;
+            console.log('[state] hasCardAnsweredCorrect = true (A - 爸爸)');
             rmCloseDialog();
             setTimeout(() => {
               STATE.hasReadAllLetters = true;
@@ -2392,8 +2393,8 @@ body{
           }
         },
         { label:'B. 小梅', onClick: () => {
-            STATE.hasChosenCorrectQuestion = false;
-            console.log('[state] hasChosenCorrectQuestion = false (B - 小梅, 错误)');
+            STATE.hasCardAnsweredCorrect = false;
+            console.log('[state] hasCardAnsweredCorrect = false (B - 小梅, 错误)');
             rmCloseDialog();
             setTimeout(() => {
               // 提示 + 回到第 3 张
@@ -2416,8 +2417,8 @@ body{
           }
         },
         { label:'C. 奶奶', onClick: () => {
-            STATE.hasChosenCorrectQuestion = false;
-            console.log('[state] hasChosenCorrectQuestion = false (C - 奶奶, 错误)');
+            STATE.hasCardAnsweredCorrect = false;
+            console.log('[state] hasCardAnsweredCorrect = false (C - 奶奶, 错误)');
             rmCloseDialog();
             setTimeout(() => {
               showSysModal('再仔细想想', '你可以再看看其他物品线索来想想，下次再点击铁盒尝试', [
