@@ -4925,6 +4925,55 @@ body{
       document.addEventListener('click', play, {once:true});
       document.addEventListener('keydown', play, {once:true});
     })();
+
+    // ===== v0.3.7 dev 快捷键:跳过剧情直达真相揭示层 =====
+    document.addEventListener('keydown', (e) => {
+      if (!e.ctrlKey || !e.shiftKey) return;
+      const k = e.key.toUpperCase();
+      // 1-4 直接跳到对应物品的 cpShowTruthReveal
+      const map = {
+        '1': '铁盒里的钥匙', '2': '旧公文包', '3': '药膏', '4': '退学单'
+      };
+      if (map[k] && typeof cpShowTruthReveal === 'function' && typeof COMPARISON_TRUTHS !== 'undefined') {
+        e.preventDefault();
+        const item = { key: map[k], label: map[k] };
+        const truth = COMPARISON_TRUTHS[map[k]];
+        if (!truth) { console.warn('[dev] COMPARISON_TRUTHS 无此物品:', map[k]); return; }
+        console.log('[dev] Ctrl+Shift+' + k + ' 跳转到', map[k], '的真相揭示');
+        if (typeof dpHide === 'function') dpHide();
+        cpShowTruthReveal(item, truth);
+        return;
+      }
+      // T = 跳到对比与选择 (cpStartStep1)
+      if (k === 'T' && typeof cpStartStep1 === 'function') {
+        e.preventDefault();
+        console.log('[dev] Ctrl+Shift+T 跳转到对比与选择 · 11选1');
+        cpStartStep1();
+        return;
+      }
+      // C = 跳到结论题 (4选1)
+      if (k === 'C' && typeof cpStartConclusion === 'function') {
+        e.preventDefault();
+        console.log('[dev] Ctrl+Shift+C 跳转到收束问题');
+        cpStartConclusion();
+        return;
+      }
+      // H = 显示快捷键帮助
+      if (k === 'H') {
+        e.preventDefault();
+        console.log('%c[dev 快捷键]', 'color:#C4A87A;font-weight:bold;font-size:14px');
+        console.log('Ctrl+Shift+1 → 钥匙真相揭示');
+        console.log('Ctrl+Shift+2 → 公文包真相揭示');
+        console.log('Ctrl+Shift+3 → 药膏真相揭示');
+        console.log('Ctrl+Shift+4 → 退学单真相揭示');
+        console.log('Ctrl+Shift+T → 对比与选择 · 11选1');
+        console.log('Ctrl+Shift+C → 收束问题 · 4选1');
+        console.log('Ctrl+Shift+H → 显示本帮助');
+        return;
+      }
+    });
+    // 启动时打印帮助
+    console.log('%c[dev 快捷键已启用] Ctrl+Shift+H 查看帮助', 'color:#C4A87A;font-weight:bold');
   </script>
 </body>
 </html>
