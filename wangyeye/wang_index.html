@@ -576,6 +576,33 @@ body{
 }
 
 /* 闪烁效果：褪色中段两次 ±3% 亮度波动 */
+
+/* 描述文字层：phase1 + phase2 交替淡入淡出（无对话框/按钮，纯字幕） */
+.cp-caption{
+  position:absolute;
+  left:50%; bottom:14%;
+  transform:translateX(-50%);
+  z-index:7;
+  max-width:min(82vw, 760px);
+  padding:16px 26px;
+  background:rgba(26, 20, 16, 0.78);
+  border:1px solid rgba(196, 168, 122, 0.42);
+  border-radius:10px;
+  color:#f5ede0;
+  font-size:17px;
+  line-height:1.75;
+  text-align:center;
+  letter-spacing:0.02em;
+  white-space:pre-wrap;
+  box-shadow:0 6px 24px rgba(0,0,0,0.55);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  opacity:0;
+  transition:opacity 0.6s ease;
+  pointer-events:none;
+}
+.cp-caption.show{opacity:1;}
+.cp-caption.fade-out{opacity:0;}
 .cp-reveal-layer{animation-iteration-count:1, 1, 1;}
 /* 用 container 实现：cp-reveal 整体亮度在 1.5-2.5s 之间波动 */
 #cp-reveal.show{
@@ -1421,7 +1448,9 @@ body{
     <div class="cp-reveal-glow" id="cp-reveal-glow"></div>
     <!-- 胶片颗粒层（褪色后消失） -->
     <div class="cp-reveal-grain" id="cp-reveal-grain"></div>
-    <!-- 字幕和按钮已移除：纯渐变切换 -->
+    <!-- 描述文字层：phase1=A 满色阶段"记忆中的..."  phase2=渐变阶段"真相..." -->
+    <div class="cp-caption" id="cp-caption-1"></div>
+    <div class="cp-caption" id="cp-caption-2"></div>
   </div>
 
   <!-- ===== 记忆场景层（点击物品后显示） ===== -->
@@ -3529,6 +3558,8 @@ body{
 
   // 虚幻→现实渐变：极简可靠版
   // 时序：1s 前置（A 满色）→ 3s 渐变（A 褪色 + B 渐显）→ 0.5s 稳定 → 0.5s 黑色淡出 → cpAskMore
+  // 虚幻→现实渐变（版本2：加回描述 + 拉长时长）
+  // 时序：2s 前置（A 满色 + caption1 "记忆中的..."）→ 5s 渐变（caption1 淡出 + caption2 "真相..."）→ 0.5s 稳定 → 0.5s 黑色淡出 → cpAskMore
   function cpShowTruthReveal(item, truth){
     dpHide();
     cpSelectedIdx = null;
@@ -3538,7 +3569,9 @@ body{
     const reveal = document.getElementById('cp-reveal');
     const layerA = document.getElementById('cp-reveal-a');
     const layerB = document.getElementById('cp-reveal-b');
-    if(!reveal || !layerA || !layerB){
+    const caption1 = document.getElementById('cp-caption-1');
+    const caption2 = document.getElementById('cp-caption-2');
+    if(!reveal || !layerA || !layerB || !caption1 || !caption2){
       console.error('[comparison] 元素缺失');
       cpAskMore();
       return;
@@ -3556,48 +3589,61 @@ body{
       console.error('[comparison] 无 TRUTH_IMAGES 配置:', item.key);
     }
 
-    // 2. 完全重置状态：直接操作 class 切换，不依赖 CSS animation
-    reveal.classList.remove('show', 'cp-stage-1', 'cp-stage-2', 'cp-stage-3');
+    // 2. 完全重置状态
+    reveal.classList.remove('show', 'cp-stage-1', 'cp-stage-2', 'cp-stage-3', 'cp-fade-to-black');
     layerA.classList.remove('cp-fade-out');
     layerB.classList.remove('cp-fade-in');
+    caption1.classList.remove('show', 'fade-out');
+    caption2.classList.remove('show', 'fade-out');
     reveal.style.cssText = '';
     layerA.style.cssText = '';
     layerB.style.cssText = '';
+    caption1.style.cssText = '';
+    caption2.style.cssText = '';
     const glow = document.getElementById('cp-reveal-glow');
     const grain = document.getElementById('cp-reveal-grain');
-    if(glow) glow.style.cssText = '';
-    if(grain) grain.style.cssText = '';
+    if(glow){ glow.classList.remove('cp-glow-out'); glow.style.cssText = ''; }
+    if(grain){ grain.classList.remove('cp-grain-out'); grain.style.cssText = ''; }
 
-    // 3. 显示弹层（带过渡）
+    // 3. 设置 caption 内容
+    caption1.textContent = '\u8ae0\u5bf6\u4e2d\u7684' + (item.label || item.key) + '\u2026\u2026';
+    caption2.textContent = truth.reveal || '\u771f\u76f8\u6b63\u5728\u6d6e\u73b0\u3002';
+
+    // 4. 显示弹层，开始时序
     requestAnimationFrame(() => {
       reveal.classList.add('show');
-      // 阶段 1：A 满色显示（1s）
+      // 阶段 1：A 满色 + caption1 "记忆中的物品…" (2s)
+      caption1.classList.add('show');
       setTimeout(() => {
-        console.log('[comparison] 阶段 2：开始渐变');
-        // 阶段 2：A 褪色 + B 渐显（3s）
+        console.log('[comparison] 阶段 2：开始渐变 + caption2 显示真相');
+        // 阶段 2：caption1 淡出 + caption2 淡入 + A→B 渐变 (5s)
+        caption1.classList.add('fade-out');
+        caption1.classList.remove('show');
+        caption2.classList.add('show');
         layerA.classList.add('cp-fade-out');
         layerB.classList.add('cp-fade-in');
         if(glow) glow.classList.add('cp-glow-out');
         if(grain) grain.classList.add('cp-grain-out');
-        // 阶段 3：稳定（0.5s）
+        // 阶段 3：稳定 (0.5s)
         setTimeout(() => {
           console.log('[comparison] 阶段 3：黑色淡出');
-          // 阶段 4：黑色淡出（0.5s）
+          // 阶段 4：黑色淡出 (0.5s)
           reveal.classList.add('cp-fade-to-black');
           setTimeout(() => {
             console.log('[comparison] 渐变完成，调用 cpAskMore');
             reveal.classList.remove('show', 'cp-stage-1', 'cp-stage-2', 'cp-stage-3', 'cp-fade-to-black');
             layerA.classList.remove('cp-fade-out');
             layerB.classList.remove('cp-fade-in');
+            caption1.classList.remove('show', 'fade-out');
+            caption2.classList.remove('show', 'fade-out');
             if(glow) glow.classList.remove('cp-glow-out');
             if(grain) grain.classList.remove('cp-grain-out');
             cpAskMore();
           }, 500);
-        }, 3000);
-      }, 1000);
+        }, 5000);
+      }, 2000);
     });
   }
-
 
   // 字幕关闭后 → 问"还有吗"
   function cpAskMore(){
