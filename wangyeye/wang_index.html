@@ -483,50 +483,32 @@ body{
   width:100%;height:100%;
   object-fit:cover;display:block;
 }
-/* v0.3.11: 重写 A/B 渐变 - 纯 opacity 5s, 不改 mask, 让画面干净慢慢切换 */
-/* A 图（记忆·上层）：默认初始态（满色+sepia） */
+/* v0.3.12: A/B 渐变 - 纯 opacity + filter 5s class 切换, 不用 mask-image, 让 CSS 默认值生效 */
 .cp-reveal-a{
   z-index:3;
   opacity:1;
   filter:sepia(0.18) saturate(1.18) brightness(1.04) contrast(0.96);
-  transition: opacity 5s ease-in-out, filter 5s ease-in-out;
+  transition: opacity 3.5s ease-in-out, filter 3.5s ease-in-out;
 }
 .cp-reveal-a.cp-fade-out{
   opacity:0;
-  filter:sepia(0) saturate(1.0) brightness(1.0) contrast(1.0);
-  transition: opacity 5s ease-in-out, filter 5s ease-in-out;
+  filter:sepia(0) saturate(1.0) brightness(0.98) contrast(1.04);
+  transition: opacity 3.5s ease-in-out, filter 3.5s ease-in-out;
 }
-/* B 图（现实·底层）：默认透明 */
+/* B 图（现实·底层）：默认透明，初始仍带暖色滤镜（与 A 同），切到 cp-fade-in 时变冷色 */
 .cp-reveal-b{
   z-index:2;
   opacity:0;
   filter:sepia(0.18) saturate(1.18) brightness(1.04) contrast(0.96);
-  transition: opacity 5s ease-in-out, filter 5s ease-in-out;
+  transition: opacity 3.5s ease-in-out, filter 3.5s ease-in-out;
 }
 .cp-reveal-b.cp-fade-in{
   opacity:1;
   filter:sepia(0) saturate(1.0) brightness(0.98) contrast(1.04);
-  transition: opacity 5s ease-in-out, filter 5s ease-in-out;
+  transition: opacity 3.5s ease-in-out, filter 3.5s ease-in-out;
 }
 
-/* A 图褪色关键帧：1s 后开始，3.5s 内完成 */
-@keyframes cp-a-fade{
-  0%   {opacity:1; filter:sepia(0.18) saturate(1.18) brightness(1.04) contrast(0.96); -webkit-mask-image:radial-gradient(ellipse at center, #000 0%, #000 80%, transparent 100%);}
-  22%  {opacity:1; filter:sepia(0.18) saturate(1.18) brightness(1.04) contrast(0.96); -webkit-mask-image:radial-gradient(ellipse at center, #000 0%, #000 80%, transparent 100%);}  /* 1s 前置 */
-  55%  {opacity:0.5; filter:sepia(0.10) saturate(1.10) brightness(1.02) contrast(1.0); -webkit-mask-image:radial-gradient(ellipse at center, transparent 0%, #000 30%, #000 80%, transparent 100%);}  /* 2.5s 边缘开始剥落 */
-  78%  {opacity:0.15; filter:sepia(0.04) saturate(1.04) brightness(1.0) contrast(1.02); -webkit-mask-image:radial-gradient(ellipse at center, transparent 0%, transparent 40%, #000 60%, #000 100%);}
-  100% {opacity:0; filter:sepia(0) saturate(1.0) brightness(1.0) contrast(1.0); -webkit-mask-image:radial-gradient(ellipse at center, transparent 0%, transparent 100%, #000 100%, #000 100%);}
-}
-/* B 图显现关键帧 */
-@keyframes cp-b-fade{
-  0%   {opacity:0; filter:sepia(0.18) saturate(1.18) brightness(1.04) contrast(0.96);}
-  22%  {opacity:0; filter:sepia(0.18) saturate(1.18) brightness(1.04) contrast(0.96);}
-  55%  {opacity:0.4; filter:sepia(0.10) saturate(1.10) brightness(1.02) contrast(1.0);}
-  78%  {opacity:0.85; filter:sepia(0.04) saturate(1.04) brightness(1.0) contrast(1.02);}
-  100% {opacity:1; filter:sepia(0) saturate(1.0) brightness(0.98) contrast(1.04);}
-}
-
-/* 暖色光晕层：默认初始态 */
+/* 暖色光晕层：默认初始态（覆盖画面 70%，满色） */
 .cp-reveal-glow{
   position:absolute;inset:0;z-index:4;pointer-events:none;
   background:radial-gradient(
@@ -3561,21 +3543,25 @@ body{
     }
   }
 
-  // 虚幻→现实渐变：极简可靠版
-  // 时序：1s 前置（A 满色）→ 3s 渐变（A 褪色 + B 渐显）→ 0.5s 稳定 → 0.5s 黑色淡出 → cpAskMore
-  // 虚幻→现实渐变（版本2：加回描述 + 拉长时长）
-  // 时序：2s 前置（A 满色 + caption1 "记忆中的..."）→ 5s 渐变（caption1 淡出 + caption2 "真相..."）→ 0.5s 稳定 → 0.5s 黑色淡出 → cpAskMore
+  // 虚幻→现实渐变（v0.3.12 重写）
+  // 时序：0.5s 前置（A 满色 + caption1 "记忆中的..."）→ 3.5s 渐变（A 褪色 + B 渐显 + 暖光晕缩小 + 颗粒淡出 + 色调从暖到冷）→ 1s 稳定（B 满色）→ 1.5s 打字机（caption2 "真相..."）→ cpAskMore
+  // 总时长 = 0.5 + 3.5 + 1 + 1.5 = 6.5s
+  // 关键修复（v0.3.11 bug）：❌ 不再用 inline style.cssText 设置 opacity:1 !important（会锁死 CSS 5s 过渡）
+  // ✅ 让 CSS 默认值生效：.cp-reveal-a opacity:1（暖色），.cp-reveal-b opacity:0（隐藏），.cp-caption opacity:0（隐藏）
+  // ✅ 用 class (.show / .cp-fade-out / .cp-fade-in / .fade-out / .cp-glow-out / .cp-grain-out) 触发 CSS 过渡
   function cpShowTruthReveal(item, truth){
     dpHide();
     cpSelectedIdx = null;
     cpQuestionIdx = null;
-    console.log('[comparison] cpShowTruthReveal 触发，物品:', item.key);
+    console.log('[comparison] v0.3.12 cpShowTruthReveal 触发，物品:', item.key);
 
     const reveal = document.getElementById('cp-reveal');
     const layerA = document.getElementById('cp-reveal-a');
     const layerB = document.getElementById('cp-reveal-b');
     const caption1 = document.getElementById('cp-caption-1');
     const caption2 = document.getElementById('cp-caption-2');
+    const glow = document.getElementById('cp-reveal-glow');
+    const grain = document.getElementById('cp-reveal-grain');
     if(!reveal || !layerA || !layerB || !caption1 || !caption2){
       console.error('[comparison] 元素缺失');
       cpAskMore();
@@ -3596,75 +3582,94 @@ body{
     }
 
     // 2. 完全重置状态
-    reveal.classList.remove('show', 'cp-stage-1', 'cp-stage-2', 'cp-stage-3', 'cp-fade-to-black');
+    reveal.classList.remove('show', 'cp-fade-to-black');
     layerA.classList.remove('cp-fade-out');
     layerB.classList.remove('cp-fade-in');
     caption1.classList.remove('show', 'fade-out');
     caption2.classList.remove('show', 'fade-out');
+    if(glow){ glow.classList.remove('cp-glow-out'); }
+    if(grain){ grain.classList.remove('cp-grain-out'); }
+    // 关键修复：清空所有 inline style（让 CSS 默认值生效）
     reveal.style.cssText = '';
     layerA.style.cssText = '';
     layerB.style.cssText = '';
     caption1.style.cssText = '';
     caption2.style.cssText = '';
-    const glow = document.getElementById('cp-reveal-glow');
-    const grain = document.getElementById('cp-reveal-grain');
-    if(glow){ glow.classList.remove('cp-glow-out'); glow.style.cssText = ''; }
-    if(grain){ grain.classList.remove('cp-grain-out'); grain.style.cssText = ''; }
+    if(glow) glow.style.cssText = '';
+    if(grain) grain.style.cssText = '';
+    caption1.textContent = '';
+    caption2.textContent = '';
 
     // 3. 设置 caption 内容
-    caption1.textContent = '\u8ae0\u5bf6\u4e2d\u7684' + (item.label || item.key) + '\u2026\u2026';
-    caption2.textContent = truth.reveal || '\u771f\u76f8\u6b63\u5728\u6d6e\u73b0\u3002';
+    const itemName = item.label || item.key;
+    const caption1Text = '记忆中的' + itemName + '……';
+    const caption2Text = truth.reveal || '真相正在浮现。';
+    caption1.textContent = caption1Text;
+    caption2.textContent = '';  // 等打字机
 
-    // 4. 同步目显 + 开始时序
+    // 4. 同步目显：让 CSS 默认值生效（A=opacity:1, B=opacity:0, captions=opacity:0）
     reveal.classList.add('show');
-    // v0.3.7: 强制 inline style - 防止任何 CSS 规则覆盖导致看不到
-    reveal.style.cssText = 'display:block !important; opacity:1 !important; visibility:visible !important; z-index:9999 !important; position:fixed !important; top:0 !important; left:0 !important; right:0 !important; bottom:0 !important; width:100vw !important; height:100vh !important; background:#1a1410 !important;';
-    caption1.style.cssText = 'display:block !important; opacity:1 !important; visibility:visible !important; z-index:9998 !important; position:absolute !important; left:50% !important; bottom:14% !important; transform:translateX(-50%) !important;';
-    caption2.style.cssText = 'display:block !important; opacity:1 !important; visibility:visible !important; z-index:9998 !important; position:absolute !important; left:50% !important; bottom:14% !important; transform:translateX(-50%) !important;';
-    layerA.style.cssText = 'display:block !important; opacity:1 !important; visibility:visible !important; z-index:3 !important; position:absolute !important; inset:0 !important;';
-    layerB.style.cssText = 'display:block !important; opacity:1 !important; visibility:visible !important; z-index:2 !important; position:absolute !important; inset:0 !important;';
-    // 调试：cp-reveal 实际状态
+
+    // 调试日志
     const cpStyle = window.getComputedStyle(reveal);
-    console.log('[comparison] cp-reveal 添加 .show: display=' + cpStyle.display + ' opacity=' + cpStyle.opacity + ' z-index=' + cpStyle.zIndex + ' w=' + cpStyle.width + ' h=' + cpStyle.height);
+    console.log('[comparison] cp-reveal show: display=' + cpStyle.display + ' opacity=' + cpStyle.opacity + ' z-index=' + cpStyle.zIndex);
     console.log('[comparison] caption1 text=' + caption1.textContent);
     console.log('[comparison] caption2 text=' + caption2.textContent);
-    console.log('[comparison] caption1 rect=' + caption1.getBoundingClientRect().top + ',' + caption1.getBoundingClientRect().left + ' size=' + caption1.getBoundingClientRect().width + 'x' + caption1.getBoundingClientRect().height);
-    // 图片加载调试
-    if(imgA){ console.log('[comparison] A complete=' + imgA.complete + ' w=' + imgA.naturalWidth + ' src=' + imgA.src.substring(imgA.src.lastIndexOf('/')+1)); }
-    if(imgB){ console.log('[comparison] B complete=' + imgB.complete + ' w=' + imgB.naturalWidth + ' src=' + imgB.src.substring(imgA.src.lastIndexOf('/')+1)); }
-    // v0.3.11: 阶段 1 改同步 - 不再 setTimeout(0),立即执行
-    console.log('[comparison] 阶段 1 同步：caption1 立即显示 (A 满色)');
+    if(imgA){ console.log('[comparison] A complete=' + imgA.complete + ' src=' + imgA.src.substring(imgA.src.lastIndexOf('/')+1)); }
+    if(imgB){ console.log('[comparison] B complete=' + imgB.complete + ' src=' + imgB.src.substring(imgB.src.lastIndexOf('/')+1)); }
+
+    // 阶段 1（0s-0.5s）：立即显示 caption1（A 满色停留 0.5s）
+    console.log('[comparison] 阶段 1 立即：caption1 显示 (A 满色)');
     caption1.classList.add('show');
-    console.log('[comparison] caption1 状态: classList=' + caption1.className);
-    // 阶段 2: 2s 后开始 A→B 渐变 (5s 慢慢切换, 字幕同步切换)
+
+    // 阶段 2（0.5s-4s）：A→B 渐变 3.5s（caption1 淡出，A/B 切换，暖光晕缩小，颗粒淡出，色调从暖到冷）
     setTimeout(() => {
-      console.log('[comparison] 阶段 2 开始：5s 慢渐变 A→B + 字幕切换');
+      console.log('[comparison] 阶段 2 开始：3.5s 慢渐变 A→B + caption1 淡出 + 光晕/颗粒淡出');
       caption1.classList.add('fade-out');
       caption1.classList.remove('show');
-      caption2.classList.add('show');
       layerA.classList.add('cp-fade-out');
       layerB.classList.add('cp-fade-in');
       if(glow) glow.classList.add('cp-glow-out');
       if(grain) grain.classList.add('cp-grain-out');
-      // 阶段 3: 5s 后稳定 1s (让 B 完全显示)
+
+      // 阶段 3（4s-5s）：B 满色稳定 1s
       setTimeout(() => {
-        console.log('[comparison] 阶段 3 开始：稳定 1s');
-        // 阶段 4: 黑场过渡 0.5s
-        reveal.classList.add('cp-fade-to-black');
-        // 阶段 5: 0.5s 后清理 + 弹 cpAskMore
+        console.log('[comparison] 阶段 3 开始：稳定 1s (B 满色，色调已冷)');
+
+        // 阶段 4（5s-6.5s）：caption2 打字机 1.5s
         setTimeout(() => {
-          console.log('[comparison] 全部完成 (8.5s)，调用 cpAskMore');
-            reveal.classList.remove('show', 'cp-stage-1', 'cp-stage-2', 'cp-stage-3', 'cp-fade-to-black');
+          console.log('[comparison] 阶段 4 开始：caption2 打字机 1.5s（共 ' + caption2Text.length + ' 字）');
+          // 打字机：逐字 60ms/字
+          const charInterval = 60;
+          let charIdx = 0;
+          caption2.classList.add('show');
+          const typeTimer = setInterval(() => {
+            if(charIdx < caption2Text.length){
+              caption2.textContent = caption2Text.substring(0, charIdx + 1);
+              charIdx++;
+            } else {
+              clearInterval(typeTimer);
+            }
+          }, charInterval);
+
+          // 阶段 5（6.5s）：清理 + 调用 cpAskMore
+          setTimeout(() => {
+            console.log('[comparison] 全部完成 (6.5s)，清理状态 + 调用 cpAskMore');
+            clearInterval(typeTimer);
+            reveal.classList.remove('show', 'cp-fade-to-black');
             layerA.classList.remove('cp-fade-out');
             layerB.classList.remove('cp-fade-in');
             caption1.classList.remove('show', 'fade-out');
             caption2.classList.remove('show', 'fade-out');
             if(glow) glow.classList.remove('cp-glow-out');
             if(grain) grain.classList.remove('cp-grain-out');
+            caption1.textContent = '';
+            caption2.textContent = '';
             cpAskMore();
-          }, 500);
+          }, 1500);
         }, 1000);
-      }, 5000);
+      }, 3500);
+    }, 500);
   }
 
   // 字幕关闭后 → 问"还有吗"
