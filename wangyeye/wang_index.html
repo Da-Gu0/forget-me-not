@@ -306,6 +306,29 @@ body{
 .drawer-stage .drawer-item img{width:100%;height:100%;object-fit:cover;border-radius:14px;display:block;box-shadow:0 6px 18px rgba(0,0,0,0.5);}
 .drawer-stage .drawer-item-label{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);background:rgba(74,64,56,0.78);color:#fff5ec;padding:3px 12px;border-radius:10px;font-size:12px;letter-spacing:1px;white-space:nowrap;}
 
+/* 抽屉 2 物品淡金色光晕：呼吸式提示可点击 */
+.drawer-stage[data-drawer="2"] .drawer-item::before{
+  content:'';position:absolute;inset:-4px;border-radius:18px;
+  background:radial-gradient(ellipse at center, rgba(255,220,140,0.45) 0%, rgba(255,200,100,0.25) 40%, transparent 75%);
+  filter:blur(6px);pointer-events:none;
+  animation:drawer2-item-glow 2.4s ease-in-out infinite;
+  z-index:-1;
+}
+.drawer-stage[data-drawer="2"] .drawer-item::after{
+  content:'';position:absolute;inset:0;border-radius:14px;
+  box-shadow:0 0 24px rgba(255,220,140,0.35) inset, 0 0 18px rgba(255,220,140,0.2);
+  pointer-events:none;
+  animation:drawer2-item-pulse 2.4s ease-in-out infinite;
+}
+@keyframes drawer2-item-glow{
+  0%,100%{opacity:0.6;transform:scale(1);}
+  50%   {opacity:1;transform:scale(1.05);}
+}
+@keyframes drawer2-item-pulse{
+  0%,100%{box-shadow:0 0 24px rgba(255,220,140,0.35) inset, 0 0 18px rgba(255,220,140,0.2);}
+  50%   {box-shadow:0 0 32px rgba(255,220,140,0.55) inset, 0 0 28px rgba(255,220,140,0.4);}
+}
+
 /* 抽屉 1 物品位置（基于 drawer1_contents.jpg 俯视图：药膏左、退学单右）
    比例坐标：药膏 left:0.10 top:0.38 right:0.45 bottom:0.60
             退学单 left:0.375 top:0.11 right:0.858 bottom:0.825 */
@@ -440,91 +463,135 @@ body{
 .dp-btn-warn:hover{background:#e8e1d3;}
 }
 
-/* ===== 对比与选择 · 真相揭示（全屏大背景 A → B 渐变 + 字幕） ===== */
-#cp-flash{
-  position:fixed;inset:0;z-index:85;
-  background:#fff;opacity:0;pointer-events:none;
-}
-#cp-flash.fire{
-  animation:cp-flash-anim 0.6s ease-out;
-}
-@keyframes cp-flash-anim{
-  0%   {opacity:0;}
-  15%  {opacity:0.95;}
-  30%  {opacity:0.5;}
-  50%  {opacity:0.85;}
-  70%  {opacity:0.4;}
-  100% {opacity:0;}
-}
+/* ===== 对比与选择 · 虚幻→现实 真相揭示 ===== */
 #cp-reveal{
   position:fixed;inset:0;z-index:86;
   display:none;
   background:#1a1410;
   overflow:hidden;
+  opacity:1;
+  transition:opacity 0.5s ease;
 }
-#cp-reveal.show{display:block;animation:cp-reveal-fadein 0.4s ease;}
+#cp-reveal.show{display:block;}
+#cp-reveal.cp-fade-to-black{opacity:0;}
 @keyframes cp-reveal-fadein{from{opacity:0;}to{opacity:1;}}
 .cp-reveal-layer{
   position:absolute;inset:0;
-  transition:opacity 0.7s ease;
+  /* 默认状态：A 满色 B 透明 */
 }
 .cp-reveal-layer img{
   position:absolute;inset:0;
   width:100%;height:100%;
   object-fit:cover;display:block;
-  /* 大背景渐变：上下深色渐变让字幕区可读 */
-  background:#1a1410;
 }
-.cp-reveal-a{opacity:1;}
-.cp-reveal-b{opacity:0;}
-#cp-reveal.to-b .cp-reveal-a{opacity:0;}
-#cp-reveal.to-b .cp-reveal-b{opacity:1;}
-/* B 图加一个从左下到右上的渐变，让画面有"变化"感 */
-.cp-reveal-b img{
-  animation:cp-reveal-b-zoom 8s ease-in-out infinite alternate;
-}
-@keyframes cp-reveal-b-zoom{
-  0%   {transform:scale(1)    translate(0,0);}
-  100% {transform:scale(1.04) translate(-1%,-1%);}
-}
-.cp-tag{
-  position:absolute;top:24px;left:24px;
-  background:rgba(74,64,56,0.85);color:#fff5ec;
-  padding:8px 20px;border-radius:22px;
-  font-size:14px;letter-spacing:2px;font-weight:600;
-  border:1px solid rgba(196,168,122,0.5);
-  box-shadow:0 4px 14px rgba(0,0,0,0.5);
+/* A 图（记忆·上层）：默认初始态（满色+sepia） */
+.cp-reveal-a{
   z-index:3;
+  opacity:1;
+  filter:sepia(0.18) saturate(1.18) brightness(1.04) contrast(0.96);
+  -webkit-mask-image:radial-gradient(ellipse at center, #000 0%, #000 80%, transparent 100%);
+  mask-image:radial-gradient(ellipse at center, #000 0%, #000 80%, transparent 100%);
+  transition:opacity 3s ease-in-out, filter 3s ease-in-out, -webkit-mask-image 3s ease-in-out, mask-image 3s ease-in-out;
 }
-.cp-reveal-b .cp-tag{
-  background:rgba(184,136,122,0.92);
-  border-color:rgba(255,235,180,0.6);
+.cp-reveal-a.cp-fade-out{
+  opacity:0;
+  filter:sepia(0) saturate(1.0) brightness(1.0) contrast(1.0);
+  -webkit-mask-image:radial-gradient(ellipse at center, transparent 0%, transparent 60%, #000 80%, #000 100%);
+  mask-image:radial-gradient(ellipse at center, transparent 0%, transparent 60%, #000 80%, #000 100%);
 }
-.cp-reveal-text{
-  position:absolute;
-  left:50%;bottom:18%;transform:translateX(-50%);
-  width:min(720px,86vw);
-  z-index:3;
-  color:#f5ede0;
-  font-size:18px;line-height:1.95;
-  white-space:pre-wrap;
-  text-align:center;
-  font-family:var(--body-font);
-  letter-spacing:0.02em;
-  padding:30px 36px;
-  background:linear-gradient(180deg, transparent 0%, rgba(20,15,10,0.75) 25%, rgba(20,15,10,0.88) 100%);
-  border-radius:14px;
-  text-shadow:0 2px 12px rgba(0,0,0,0.7);
+/* B 图（现实·底层）：默认初始态（透明） */
+.cp-reveal-b{
+  z-index:2;
+  opacity:0;
+  filter:sepia(0.18) saturate(1.18) brightness(1.04) contrast(0.96);
+  transition:opacity 3s ease-in-out, filter 3s ease-in-out;
 }
-.cp-reveal-close{
-  position:absolute;
-  left:50%;bottom:5%;transform:translateX(-50%);
-  padding:12px 32px;font-size:15px;font-family:var(--body-font);
-  background:var(--rust);color:#fff;border:1.5px solid var(--rust);
-  border-radius:11px;cursor:pointer;transition:all 0.15s ease;
-  z-index:4;
+.cp-reveal-b.cp-fade-in{
+  opacity:1;
+  filter:sepia(0) saturate(1.0) brightness(0.98) contrast(1.04);
 }
-.cp-reveal-close:hover{background:#7a5f3f;border-color:#7a5f3f;transform:translateX(-50%) translateY(-1px);}
+
+/* A 图褪色关键帧：1s 后开始，3.5s 内完成 */
+@keyframes cp-a-fade{
+  0%   {opacity:1; filter:sepia(0.18) saturate(1.18) brightness(1.04) contrast(0.96); -webkit-mask-image:radial-gradient(ellipse at center, #000 0%, #000 80%, transparent 100%);}
+  22%  {opacity:1; filter:sepia(0.18) saturate(1.18) brightness(1.04) contrast(0.96); -webkit-mask-image:radial-gradient(ellipse at center, #000 0%, #000 80%, transparent 100%);}  /* 1s 前置 */
+  55%  {opacity:0.5; filter:sepia(0.10) saturate(1.10) brightness(1.02) contrast(1.0); -webkit-mask-image:radial-gradient(ellipse at center, transparent 0%, #000 30%, #000 80%, transparent 100%);}  /* 2.5s 边缘开始剥落 */
+  78%  {opacity:0.15; filter:sepia(0.04) saturate(1.04) brightness(1.0) contrast(1.02); -webkit-mask-image:radial-gradient(ellipse at center, transparent 0%, transparent 40%, #000 60%, #000 100%);}
+  100% {opacity:0; filter:sepia(0) saturate(1.0) brightness(1.0) contrast(1.0); -webkit-mask-image:radial-gradient(ellipse at center, transparent 0%, transparent 100%, #000 100%, #000 100%);}
+}
+/* B 图显现关键帧 */
+@keyframes cp-b-fade{
+  0%   {opacity:0; filter:sepia(0.18) saturate(1.18) brightness(1.04) contrast(0.96);}
+  22%  {opacity:0; filter:sepia(0.18) saturate(1.18) brightness(1.04) contrast(0.96);}
+  55%  {opacity:0.4; filter:sepia(0.10) saturate(1.10) brightness(1.02) contrast(1.0);}
+  78%  {opacity:0.85; filter:sepia(0.04) saturate(1.04) brightness(1.0) contrast(1.02);}
+  100% {opacity:1; filter:sepia(0) saturate(1.0) brightness(0.98) contrast(1.04);}
+}
+
+/* 暖色光晕层：默认初始态 */
+.cp-reveal-glow{
+  position:absolute;inset:0;z-index:4;pointer-events:none;
+  background:radial-gradient(
+    ellipse at center,
+    rgba(255, 220, 160, 0.32) 0%,
+    rgba(255, 200, 130, 0.18) 35%,
+    rgba(255, 180, 100, 0.08) 65%,
+    transparent 90%
+  );
+  transform:scale(1);opacity:1;
+  mix-blend-mode:screen;
+  transition:transform 3s ease-in-out, opacity 3s ease-in-out;
+}
+.cp-reveal-glow.cp-glow-out{
+  transform:scale(0.3);opacity:0;
+}
+@keyframes cp-glow-shrink{
+  0%   {transform:scale(1); opacity:1;}
+  22%  {transform:scale(1); opacity:1;}
+  60%  {transform:scale(0.7); opacity:0.7;}
+  100% {transform:scale(0.3); opacity:0;}
+}
+
+/* 胶片颗粒层：默认初始态 */
+.cp-reveal-grain{
+  position:absolute;inset:0;z-index:5;pointer-events:none;
+  opacity:0.10;
+  background-image:
+    radial-gradient(circle at 25% 35%, rgba(255,255,255,0.6) 0.5px, transparent 1px),
+    radial-gradient(circle at 65% 75%, rgba(0,0,0,0.5) 0.5px, transparent 1px),
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.4) 0.5px, transparent 1px),
+    radial-gradient(circle at 80% 25%, rgba(0,0,0,0.4) 0.5px, transparent 1px),
+    radial-gradient(circle at 15% 85%, rgba(255,255,255,0.3) 0.5px, transparent 1px);
+  background-size:3px 3px, 5px 5px, 7px 7px, 4px 4px, 6px 6px;
+  background-position:0 0, 1px 1px, 2px 2px, 3px 3px, 4px 4px;
+  mix-blend-mode:overlay;
+  transition:opacity 3s ease-in-out;
+}
+.cp-reveal-grain.cp-grain-out{opacity:0;}
+@keyframes cp-grain-fade{
+  0%   {opacity:0.10;}
+  22%  {opacity:0.10;}
+  60%  {opacity:0.08;}
+  100% {opacity:0;}
+}
+
+/* 闪烁效果：褪色中段两次 ±3% 亮度波动 */
+.cp-reveal-layer{animation-iteration-count:1, 1, 1;}
+/* 用 container 实现：cp-reveal 整体亮度在 1.5-2.5s 之间波动 */
+#cp-reveal.show{
+  animation:cp-reveal-flicker 4.5s linear forwards, cp-reveal-fadein 0.4s ease;
+}
+@keyframes cp-reveal-flicker{
+  0%   {filter:brightness(1.0);}
+  33%  {filter:brightness(1.0);}  /* 1.5s */
+  38%  {filter:brightness(1.03);}
+  44%  {filter:brightness(0.97);}  /* 2s */
+  50%  {filter:brightness(1.03);}
+  55%  {filter:brightness(1.0);}  /* 2.5s */
+  100% {filter:brightness(1.0);}
+}
+
+/* 标签/字幕/按钮已移除：纯渐变切换 */
 
 /* ===== 铁盒覆盖层 ===== */
 #tiehe-stage{position:absolute;inset:0;z-index:60;background:#000;transition:opacity .5s ease;}
@@ -667,6 +734,7 @@ body{
 }
 .ms-caret{display:inline-block;color:#8B7355;animation:msblink 1s infinite;}
 @keyframes msblink{0%,49%{opacity:1}50%,100%{opacity:0}}
+.re-explore-text{font-size:clamp(18px,1.9vw,22px);line-height:2;color:#4a4038;font-style:italic;letter-spacing:0.05em;padding:12px 0;text-align:center;}
 #ms-back-btn{
   position:absolute;right:4%;bottom:4%;z-index:57;
   font-family:var(--body-font);font-size:16px;letter-spacing:2px;
@@ -1250,16 +1318,21 @@ body{
     <button class="drawer-close" title="关闭">×</button>
   </section>
 
-  <!-- ===== 抽屉 2 弹层（成绩单 + 发绳 + 密封药瓶） ===== -->
+  <!-- ===== 抽屉 2 弹层（成绩单 + 发绳 + 密封药瓶）两段式 ===== -->
   <section class="drawer-stage" data-drawer="2" id="drawer2-stage" data-state="opening" style="display:none;">
-    <!-- 拉开状态：复用 drawer_open.jpg（抽屉 2 也用同一拉开背景） -->
-    <div class="drawer-opening">
-      <img class="drawer-bg" src="wang_assets/drawer_open.jpg" alt="拉开抽屉" />
-      <div class="drawer-opening-hint">点击屏幕继续</div>
+    <!-- 拉开一半：用手拉抽屉的图 -->
+    <div class="drawer-opening drawer-opening-half">
+      <img class="drawer-bg" src="wang_assets/%E6%8B%89%E5%BC%80%E6%8A%BD%E5%B1%89.jpg" alt="拉开抽屉" />
+      <div class="drawer-opening-hint">抽屉正在打开…</div>
     </div>
-    <!-- 内容状态：drawer2_contents.jpg + 3 件物品 -->
+    <!-- 完全打开：抽屉（下）.jpg -->
+    <div class="drawer-opening drawer-opening-full" style="display:none;">
+      <img class="drawer-bg" src="wang_assets/%E6%8A%BD%E5%B1%89_%E4%B8%8B.jpg" alt="抽屉完全打开" />
+      <div class="drawer-opening-hint">点击屏幕查看物品</div>
+    </div>
+    <!-- 内容状态：3 件物品 -->
     <div class="drawer-contents" style="display:none;">
-      <img class="drawer-bg" src="wang_assets/drawer2_contents.jpg" alt="抽屉 2" />
+      <img class="drawer-bg" src="wang_assets/drawer2_contents.jpg" alt="抽屉 2 内容" />
       <div class="drawer-title">床头柜 · 下层抽屉</div>
       <div class="drawer-items">
         <div class="drawer-item dr-record" data-item="抽屉成绩单">
@@ -1334,19 +1407,21 @@ body{
     </div>
   </div>
 
-  <!-- ===== 对比与选择 · 真相揭示层（全屏大背景 A → B 渐变 + 字幕） ===== -->
-  <div id="cp-flash" aria-hidden="true"></div>
+  <!-- ===== 对比与选择 · 真相揭示层（虚幻→现实 渐变过渡） ===== -->
   <div id="cp-reveal" aria-hidden="true">
-    <div class="cp-reveal-layer cp-reveal-a" id="cp-reveal-a">
-      <img src="" alt="A 面" />
-      <div class="cp-tag">A · 表面</div>
-    </div>
+    <!-- B 图（现实版·底层）-->
     <div class="cp-reveal-layer cp-reveal-b" id="cp-reveal-b">
       <img src="" alt="B 面" />
-      <div class="cp-tag">B · 真相</div>
     </div>
-    <div class="cp-reveal-text" id="cp-reveal-text"></div>
-    <button class="cp-reveal-close" id="cp-reveal-close">我知道了 ›</button>
+    <!-- A 图（记忆版·上层·带 sepia 滤镜）-->
+    <div class="cp-reveal-layer cp-reveal-a" id="cp-reveal-a">
+      <img src="" alt="A 面" />
+    </div>
+    <!-- 暖色光晕层（随褪色缩小消失） -->
+    <div class="cp-reveal-glow" id="cp-reveal-glow"></div>
+    <!-- 胶片颗粒层（褪色后消失） -->
+    <div class="cp-reveal-grain" id="cp-reveal-grain"></div>
+    <!-- 字幕和按钮已移除：纯渐变切换 -->
   </div>
 
   <!-- ===== 记忆场景层（点击物品后显示） ===== -->
@@ -2308,33 +2383,35 @@ body{
     },
     // ===== 抽屉 2 =====
     '抽屉成绩单': {
-      bg: 'wang_assets/drawer2_contents.jpg',
+      bg: 'wang_assets/%E6%88%90%E7%BB%A9%E5%8D%95_%E7%8E%8B%E7%88%B7%E7%88%B7%E6%8F%8F%E8%BF%B0%E5%9C%BA%E6%99%AF.jpg',
       lines: [
-        '一张夹在书里的成绩单，边角已经发黄。',
-        '全科优秀，尤其是语文和美术。',
-        '背面写着一行稚嫩的字——"爷爷生日快乐，小梅画"。',
-        '这是你小时候画的字吗？你不记得了。',
-        '但你突然想起——爷爷房间里，从头到尾没有叫过你的真名。'
+        '王爷爷：小梅，你还记得这个成绩单吗？',
+        '王爷爷：你一向成绩都很好的，只是那一次偶尔发挥失常了。你爸爸对你大发雷霆，觉得你只喜欢画画把学习都荒废了，把你的成绩单搓成纸团重重扔在地上。',
+        '王爷爷：那时候你一定很难过吧？你的小脑袋低低的，眼睛里淌着泪，甚至鼻子还挂着鼻涕泡。我立马冲过来捡起你的成绩单，把你护在身后。',
+        '王爷爷：你爸爸气不过，夺门而出。之后就剩咱爷俩相依为命啦……'
       ]
     },
     '抽屉发绳': {
-      bg: 'wang_assets/hair_ribbon_scene.jpg',
+      bg: 'wang_assets/%E5%A4%B4%E7%BB%B3_%E7%8E%8B%E7%88%B7%E7%88%B7%E6%8F%8F%E8%BF%B0%E5%9C%BA%E6%99%AF.jpg',
       lines: [
-        '一根褪色的发绳，蓝色的，是小女孩戴的那种。',
-        '上面还有一根细细的头发，被时间粘在了丝带上。',
-        '你突然意识到——从进这个房间开始，爷爷一直叫你"小梅"。',
-        '但你从来没问过为什么。',
-        '小梅……是谁？她现在在哪里？'
+        '王爷爷：你妈妈走得早，你爸爸也离家出走以后，老头我啊还得学着给你扎头发哟。',
+        '王爷爷：最开始连头绳都不会绑，要么和你其他头发缠在一起，要么就给你绑歪了。',
+        '王爷爷：你这个好孩子也从未嫌弃过爷爷啊……',
+        '王爷爷：从歪歪扭扭到扎得整整齐齐，也不知道练了多久。你每次都说「爷爷扎得真好」——我知道那是你在哄我开心。'
       ]
     },
     '抽屉密封药瓶': {
-      bg: 'wang_assets/drawer2_contents.jpg',
+      bg: 'wang_assets/%E8%8D%AF%E7%93%B6_%E7%8E%8B%E7%88%B7%E7%88%B7%E6%8F%8F%E8%BF%B0%E5%9C%BA%E6%99%AF.jpg',
       lines: [
-        '一个小玻璃瓶，瓶盖用蜡封死，瓶里是白色的药片。',
-        '标签上写着一种你不认识的名字，剂量、副作用都被人用黑色马克笔涂掉了。',
-        '瓶底压着一张纸——"王老头（存）"。',
-        '这是爷爷的药？还是……别人留给爷爷的？',
-        '你拿起来的时候，瓶子很轻，好像里面早就空了。'
+        '王爷爷：对……就是这个药……。',
+        '王爷爷：但是我怎么好像隐约记得还有什么事情被我忘记啦……'
+      ]
+    },
+    '日历放大层': {
+      bg: 'wang_assets/%E6%97%A5%E5%8E%86_%E7%8E%8B%E7%88%B7%E7%88%B7%E6%8F%8F%E8%BF%B0%E5%9C%BA%E6%99%AF.jpg',
+      lines: [
+        '王爷爷：这个日子好熟悉……是什么来着……',
+        '王爷爷：6月6日……星期六……好像有人说过要来看我……是谁呢……'
       ]
     }
   };
@@ -2374,7 +2451,12 @@ body{
     hasAnsweredConclusion: false,     // 收束问题（4选1）是否答对
     hasToldComparisonTruth: null,     // 告诉选择 true/false/null
     hasUnlockedDrawer2: false,        // 下抽屉是否已解锁
-    hasShownCalendar: false           // 日历是否已展示
+    hasShownCalendar: false,          // 日历是否已展示
+    hasSeenCalendarDetail: false,     // 日历放大层（2 句对话）是否已看完
+    reExploreShown: false,            // 物品重新探索提示是否已弹
+    reExploreItemsDone: [],           // 已闪烁的物品：['红拖鞋','糖醋排骨','奖状和画']
+    storyPuzzleShown: false,          // 完整故事拼图是否已弹
+    storyPuzzleOrder: []              // 玩家已选的词条顺序
   };
   // 表面物品 = 7 件有记忆场景的（红拖鞋/公文包/钥匙/中山装/勿忘我/糖醋排骨/奖状）
   const SURFACE_ITEMS = new Set(['红拖鞋','破旧公文包','钥匙','中山装','勿忘我花','糖醋排骨','奖状与小梅的画']);
@@ -3445,56 +3527,77 @@ body{
     }
   }
 
-  // 画面闪动 + A→B 背景变换 + 真相字幕
+  // 虚幻→现实渐变：极简可靠版
+  // 时序：1s 前置（A 满色）→ 3s 渐变（A 褪色 + B 渐显）→ 0.5s 稳定 → 0.5s 黑色淡出 → cpAskMore
   function cpShowTruthReveal(item, truth){
     dpHide();
     cpSelectedIdx = null;
     cpQuestionIdx = null;
-    setTimeout(() => {
-      const flash = document.getElementById('cp-flash');
-      const reveal = document.getElementById('cp-reveal');
-      const layerA = document.getElementById('cp-reveal-a');
-      const layerB = document.getElementById('cp-reveal-b');
-      const revealText = document.getElementById('cp-reveal-text');
-      const revealClose = document.getElementById('cp-reveal-close');
-      if(!flash || !reveal || !layerA || !layerB || !revealText || !revealClose){
-        setTimeout(() => cpAskMore(), 500);
-        return;
-      }
-      // 设置 A/B 背景图（每个物品自己的真相图）
-      const images = TRUTH_IMAGES[item.key];
-      if(images){
-        const imgA = layerA.querySelector('img');
-        const imgB = layerB.querySelector('img');
-        if(imgA) imgA.src = images.a;
-        if(imgB) imgB.src = images.b;
-      } else {
-        // 无配置：兜底用文字模式
-        layerA.style.display = 'none';
-        layerB.style.display = 'none';
-      }
-      revealText.textContent = truth.reveal;
-      // 重置状态：先显示 A
-      reveal.classList.remove('to-b');
+    console.log('[comparison] cpShowTruthReveal 触发，物品:', item.key);
+
+    const reveal = document.getElementById('cp-reveal');
+    const layerA = document.getElementById('cp-reveal-a');
+    const layerB = document.getElementById('cp-reveal-b');
+    if(!reveal || !layerA || !layerB){
+      console.error('[comparison] 元素缺失');
+      cpAskMore();
+      return;
+    }
+
+    // 1. 设置 A/B 背景图
+    const images = TRUTH_IMAGES[item.key];
+    if(images){
+      const imgA = layerA.querySelector('img');
+      const imgB = layerB.querySelector('img');
+      if(imgA) imgA.src = images.a;
+      if(imgB) imgB.src = images.b;
+      console.log('[comparison] A图:', images.a, ' B图:', images.b);
+    } else {
+      console.error('[comparison] 无 TRUTH_IMAGES 配置:', item.key);
+    }
+
+    // 2. 完全重置状态：直接操作 class 切换，不依赖 CSS animation
+    reveal.classList.remove('show', 'cp-stage-1', 'cp-stage-2', 'cp-stage-3');
+    layerA.classList.remove('cp-fade-out');
+    layerB.classList.remove('cp-fade-in');
+    reveal.style.cssText = '';
+    layerA.style.cssText = '';
+    layerB.style.cssText = '';
+    const glow = document.getElementById('cp-reveal-glow');
+    const grain = document.getElementById('cp-reveal-grain');
+    if(glow) glow.style.cssText = '';
+    if(grain) grain.style.cssText = '';
+
+    // 3. 显示弹层（带过渡）
+    requestAnimationFrame(() => {
       reveal.classList.add('show');
-      // 600ms 闪动（A 表面）
-      flash.classList.remove('fire');
-      void flash.offsetWidth;
-      flash.classList.add('fire');
-      // 闪动结束后切换 A → B
+      // 阶段 1：A 满色显示（1s）
       setTimeout(() => {
-        reveal.classList.add('to-b');
-      }, 600);
-      // 关闭按钮
-      revealClose.onclick = () => {
-        reveal.classList.remove('show', 'to-b');
-        flash.classList.remove('fire');
-        // 恢复 layer 显示
-        if(!images){ layerA.style.display = ''; layerB.style.display = ''; }
-        setTimeout(() => cpAskMore(), 400);
-      };
-    }, 200);
+        console.log('[comparison] 阶段 2：开始渐变');
+        // 阶段 2：A 褪色 + B 渐显（3s）
+        layerA.classList.add('cp-fade-out');
+        layerB.classList.add('cp-fade-in');
+        if(glow) glow.classList.add('cp-glow-out');
+        if(grain) grain.classList.add('cp-grain-out');
+        // 阶段 3：稳定（0.5s）
+        setTimeout(() => {
+          console.log('[comparison] 阶段 3：黑色淡出');
+          // 阶段 4：黑色淡出（0.5s）
+          reveal.classList.add('cp-fade-to-black');
+          setTimeout(() => {
+            console.log('[comparison] 渐变完成，调用 cpAskMore');
+            reveal.classList.remove('show', 'cp-stage-1', 'cp-stage-2', 'cp-stage-3', 'cp-fade-to-black');
+            layerA.classList.remove('cp-fade-out');
+            layerB.classList.remove('cp-fade-in');
+            if(glow) glow.classList.remove('cp-glow-out');
+            if(grain) grain.classList.remove('cp-grain-out');
+            cpAskMore();
+          }, 500);
+        }, 3000);
+      }, 1000);
+    });
   }
+
 
   // 字幕关闭后 → 问"还有吗"
   function cpAskMore(){
@@ -3661,6 +3764,25 @@ body{
     const show = (dpStep >= 1 && dpStep <= 5) && !STATE.hasChosenCorrectQuestion;
     btn.style.display = show ? '' : 'none';
   }
+  // 调试入口：在控制台输入 `testCP()` 强制触发对比与选择（不依赖抽屉 1 看完）
+  window.testCP = function(){
+    console.log('[debug] 强制触发对比与选择');
+    STATE.hasSeenDrawer1Ointment = true;
+    STATE.hasSeenDrawer1Expulsion = true;
+    STATE.drawer1Unlocked = true;
+    STATE.hasStartedComparison = false;
+    checkComparisonTrigger();
+  };
+  // 调试入口：直接触发单个物品的真相渐变 `testTruth('钥匙')`
+  window.testTruth = function(key){
+    console.log('[debug] 直接触发真相渐变:', key);
+    const item = { key: key, label: key };
+    const truth = COMPARISON_TRUTHS[key] || {
+      reveal: '这是测试真相：' + key + '。\\n\\n爷爷的记忆有出入。'
+    };
+    cpShowTruthReveal(item, truth);
+  };
+
   // 点击"继续推理" → 重新触发当前 step
   document.getElementById('re-deduction-btn').addEventListener('click', () => {
     console.log('[deduction] 点击继续推理，当前 dpStep=' + dpStep);
@@ -3703,18 +3825,61 @@ body{
     // 抽屉关闭后检查 deduction 触发
     if(n === 1) checkDeductionTrigger();
   }
-  // 抽屉 1/2 拉开状态：点击屏幕切换到内容状态
+  // 抽屉 1/2 拉开状态：点击屏幕切换
+  // 抽屉 1：一次点击直接进入 contents
+  // 抽屉 2：第一次点击 → 1.5s 后自动进入"完全打开" → 再点击进入 contents
   document.querySelectorAll('.drawer-stage .drawer-opening').forEach(opening => {
     opening.addEventListener('click', (e) => {
-      if(e.target.closest('.drawer-close')) return;  // 关闭按钮不触发
+      if(e.target.closest('.drawer-close')) return;
       e.stopPropagation();
       const stage = opening.closest('.drawer-stage');
       if(!stage) return;
+      const n = stage.dataset.drawer;
+      if(n === '2'){
+        // 抽屉 2 两段式：当前是"拉开一半"→ 自动进入"完全打开"
+        if(opening.classList.contains('drawer-opening-half')){
+          opening.style.display = 'none';
+          const full = stage.querySelector('.drawer-opening-full');
+          if(full) full.style.display = 'block';
+          // 1.5s 后自动进入 contents（也可以再点 full 立即进入）
+        } else if(opening.classList.contains('drawer-opening-full')){
+          // 玩家点"完全打开"→ 立即进入 contents
+          opening.style.display = 'none';
+          const contents = stage.querySelector('.drawer-contents');
+          if(contents) contents.style.display = 'block';
+          stage.dataset.state = 'contents';
+        }
+        return;
+      }
+      // 抽屉 1：直接进入 contents
       stage.dataset.state = 'contents';
       opening.style.display = 'none';
       const contents = stage.querySelector('.drawer-contents');
       if(contents) contents.style.display = 'block';
     });
+  });
+  // 抽屉 2 "完全打开"状态：1.5s 后自动进入 contents
+  document.querySelectorAll('.drawer-stage[data-drawer="2"] .drawer-opening-full').forEach(full => {
+    let autoTimer = null;
+    full.addEventListener('mouseenter', () => { /* 允许点 */ });
+    const observer = new MutationObserver(() => {
+      if(full.style.display !== 'none' && !autoTimer){
+        // 1.5s 后自动进入 contents
+        autoTimer = setTimeout(() => {
+          const stage = full.closest('.drawer-stage');
+          if(stage && full.style.display !== 'none'){
+            full.style.display = 'none';
+            const contents = stage.querySelector('.drawer-contents');
+            if(contents){
+              contents.style.display = 'block';
+              stage.dataset.state = 'contents';
+            }
+          }
+          autoTimer = null;
+        }, 1500);
+      }
+    });
+    observer.observe(full, { attributes: true, attributeFilter: ['style'] });
   });
   // 抽屉 1/2 关闭按钮
   document.querySelectorAll('.drawer-stage .drawer-close').forEach(btn => {
@@ -3899,10 +4064,31 @@ body{
     const prog = document.getElementById('ms-progress');
     if(prog) prog.textContent = (i+1) + '/' + msLines.length;
     if(i >= msLines.length){
-      // 全部显示完，显示返回按钮 + 隐藏进度小字
+      // 全部显示完
       const back = document.getElementById('ms-back-btn');
-      if(back) back.style.display = '';
       if(prog) prog.style.display = 'none';
+      // 抽屉 2 物品：特殊处理
+      if(msCurrentItem === '抽屉密封药瓶'){
+        // 药瓶闪烁效果：A 图 → B 图（药瓶_真实.jpg）
+        playBottleFlashTransition(() => {
+          if(back){ back.textContent = '返回抽屉'; back.style.display = ''; }
+        });
+        return;
+      }
+      if(msCurrentItem === '抽屉成绩单' || msCurrentItem === '抽屉发绳' || msCurrentItem === '抽屉密封药瓶'){
+        // 抽屉 2 物品：返回按钮文本改为"返回抽屉"
+        if(back){ back.textContent = '返回抽屉'; back.style.display = ''; }
+        return;
+      }
+      if(msCurrentItem === '日历放大层'){
+        // 日历残影效果：叠加 B 图（模糊的残影——女孩轮廓）
+        showCalendarGhost(() => {
+          if(back){ back.textContent = '关闭'; back.style.display = ''; }
+        });
+        return;
+      }
+      // 其他物品：返回房间
+      if(back){ back.textContent = '返回房间'; back.style.display = ''; }
       return;
     } else {
       if(prog) prog.style.display = '';
@@ -3933,6 +4119,271 @@ body{
     }, 60);
   }
 
+  // 药瓶闪烁效果：A 图 → B 图（药瓶_真实.jpg）
+  function playBottleFlashTransition(onDone){
+    const ms = document.getElementById('memory-scene');
+    const msBg = document.getElementById('ms-bg');
+    if(!ms || !msBg){ if(onDone) onDone(); return; }
+    const bSrc = 'wang_assets/%E8%8D%AF%E7%93%B6_%E7%9C%9F%E5%AE%9E.jpg';
+    console.log('[bottle] 开始闪烁过渡');
+    // 3 次明暗交替闪烁（0.5s暗→0.3s亮→0.5s暗→0.3s亮→0.5s暗→B图亮起）
+    const flash = (dark, duration, next) => {
+      const flashOverlay = document.createElement('div');
+      flashOverlay.style.cssText = `position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;z-index:60;transition:opacity ${duration}ms ease;`;
+      ms.appendChild(flashOverlay);
+      setTimeout(() => {
+        flashOverlay.style.opacity = dark ? '0.85' : '0';
+        setTimeout(() => {
+          flashOverlay.remove();
+          if(next) next();
+        }, duration);
+      }, 20);
+    };
+    flash(true, 500, () => {
+      flash(false, 300, () => {
+        flash(true, 500, () => {
+          flash(false, 300, () => {
+            flash(true, 500, () => {
+              msBg.src = bSrc;
+              flash(false, 400, () => {
+                if(onDone) onDone();
+              });
+            });
+          });
+        });
+      });
+    });
+  }
+
+  // 日历残影效果：在当前画面上叠加 B 图（模糊的残影）
+  function showCalendarGhost(onDone){
+    const ms = document.getElementById('memory-scene');
+    if(!ms){ if(onDone) onDone(); return; }
+    console.log('[calendar] 显示残影');
+    const ghost = document.createElement('div');
+    const bSrc = 'wang_assets/%E6%97%A5%E5%8E%86_%E7%9C%9F%E5%AE%9E.jpg';
+    ghost.style.cssText = `position:absolute;inset:0;background-image:url('${bSrc}');background-size:cover;background-position:center;filter:blur(8px) brightness(0.7);opacity:0;pointer-events:none;z-index:55;transition:opacity 1.5s ease;mix-blend-mode:screen;`;
+    ms.appendChild(ghost);
+    setTimeout(() => { ghost.style.opacity = '0.7'; }, 50);
+    setTimeout(() => {
+      if(onDone) onDone();
+    }, 1600);
+  }
+
+  // 物品重新探索：闪烁效果（A 图 → B 图）
+  const RE_EXPLORE_ITEMS = {
+    '红拖鞋': {
+      a: 'wang_assets/%E7%BA%A2%E6%8B%96%E9%9E%8B_%E7%8E%8B%E7%88%B7%E7%88%B7%E6%8F%8F%E8%BF%B0%E5%9C%BA%E6%99%AF.jpg',
+      b: 'wang_assets/%E7%BA%A2%E9%9E%8B%E5%AD%90_%E7%9C%9F%E5%AE%9E.jpg',
+      text: '她穿着这双拖鞋跑出去。'
+    },
+    '糖醋排骨': {
+      a: 'wang_assets/%E7%B3%96%E9%86%8B%E6%8E%92%E9%AA%A8_%E7%8E%8B%E7%88%B7%E7%88%B7%E6%8F%8F%E8%BF%B0%E5%9C%BA%E6%99%AF.jpg',
+      b: 'wang_assets/%E7%B3%96%E9%86%8B%E6%8E%92%E9%AA%A8_%E7%9C%9F%E5%AE%9E.jpg',
+      text: '她最爱吃这个。但她没吃上那天的。'
+    },
+    '奖状和画': {
+      a: 'wang_assets/%E5%A5%96%E7%8A%B6%E4%B8%8E%E7%94%BB%E7%94%BB_%E7%8E%8B%E7%88%B7%E7%88%B7%E6%8F%8F%E8%BF%B0%E5%9C%BA%E6%99%AF.jpg',
+      b: 'wang_assets/%E5%A5%96%E7%8A%B6%E5%92%8C%E7%94%BB_%E7%9C%9F%E5%AE%9E.jpg',
+      text: '她画了爷爷，爷爷也画了她。这张画一直没换过。'
+    }
+  };
+  function playReExploreFlash(itemKey, onDone){
+    const cfg = RE_EXPLORE_ITEMS[itemKey];
+    if(!cfg){ if(onDone) onDone(); return; }
+    const ms = document.getElementById('memory-scene');
+    const msBg = document.getElementById('ms-bg');
+    if(!ms || !msBg){ if(onDone) onDone(); return; }
+    console.log('[re-explore] 闪烁:', itemKey);
+    // 切到 A 图
+    msBg.src = cfg.a;
+    setTimeout(() => {
+      const flash = (dark, duration, next) => {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;z-index:60;transition:opacity ${duration}ms ease;`;
+        ms.appendChild(overlay);
+        setTimeout(() => {
+          overlay.style.opacity = dark ? '0.85' : '0';
+          setTimeout(() => {
+            overlay.remove();
+            if(next) next();
+          }, duration);
+        }, 20);
+      };
+      flash(true, 500, () => {
+        flash(false, 300, () => {
+          flash(true, 500, () => {
+            flash(false, 300, () => {
+              flash(true, 500, () => {
+                msBg.src = cfg.b;
+                flash(false, 400, () => {
+                  if(onDone) onDone();
+                });
+              });
+            });
+          });
+        });
+      });
+    }, 200);
+  }
+
+  // 物品重新探索：完整流程（显示 memory-scene → 闪烁 → 文字弹窗）
+  function playReExploreFlashWrapper(itemKey){
+    const cfg = RE_EXPLORE_ITEMS[itemKey];
+    if(!cfg) return;
+    if(STATE.reExploreItemsDone.includes(itemKey)) return;
+    STATE.reExploreItemsDone.push(itemKey);
+    console.log('[re-explore] 完整闪烁流程:', itemKey);
+    // 1. 打开 memory-scene 弹层
+    const ms = document.getElementById('memory-scene');
+    const msBg = document.getElementById('ms-bg');
+    const msText = document.getElementById('ms-text');
+    const msProgress = document.getElementById('ms-progress');
+    const msBack = document.getElementById('ms-back-btn');
+    const msPortrait = document.getElementById('ms-portrait');
+    if(!ms || !msBg) return;
+    // 隐藏立绘和文字，只保留背景
+    if(msPortrait) msPortrait.classList.remove('show');
+    if(msText) msText.innerHTML = '';
+    if(msProgress) msProgress.style.display = 'none';
+    if(msBack) msBack.style.display = 'none';
+    msBg.src = cfg.a;
+    ms.style.display = 'block';
+    ms.style.opacity = '0';
+    const re = document.getElementById('room-exploration');
+    if(re) re.style.display = 'none';
+    setTimeout(() => { ms.style.opacity = '1'; }, 50);
+    // 2. 启动闪烁
+    setTimeout(() => {
+      playReExploreFlash(itemKey, () => {
+        // 3. 闪烁完成后显示底部文字 + 关闭按钮
+        if(msText) msText.innerHTML = `<div class="re-explore-text">${cfg.text}</div>`;
+        if(msBack){
+          msBack.textContent = '关闭';
+          msBack.style.display = '';
+          // 重新绑定 click 事件
+          msBack.onclick = () => {
+            ms.classList.add('fade-out');
+            stopDustCanvas();
+            stopFlickerInterval();
+            if(msPortrait) msPortrait.classList.remove('show');
+            setTimeout(() => {
+              ms.style.display = 'none';
+              ms.classList.remove('fade-out');
+              if(msBack) msBack.textContent = '返回房间';
+              msBack.onclick = backFromMemory;
+              if(re){
+                re.style.display = 'block';
+                re.style.opacity = '0';
+                requestAnimationFrame(() => {
+                  re.style.transition = 'opacity 1s ease';
+                  re.style.opacity = '1';
+                  setTimeout(() => { re.style.transition = ''; }, 1050);
+                });
+              }
+              // 检查是否 3 个都完成
+              checkStoryPuzzleTrigger();
+            }, 1000);
+          };
+        }
+      });
+    }, 600);
+  }
+
+  // 完整故事拼图触发
+  function checkStoryPuzzleTrigger(){
+    if(STATE.storyPuzzleShown) return;
+    if(STATE.reExploreItemsDone.length < 3) return;
+    STATE.storyPuzzleShown = true;
+    setTimeout(() => {
+      startStoryPuzzle();
+    }, 800);
+  }
+
+  // 完整故事拼图：12 个词条，6 个正确顺序
+  const STORY_PUZZLE_ITEMS = [
+    { key: '1', text: '爸爸离家出走', correct: true, order: 1 },
+    { key: '2', text: '爷爷和小梅相依为命', correct: true, order: 2 },
+    { key: '3', text: '爷爷患阿尔兹海默症', correct: true, order: 3 },
+    { key: '4', text: '小梅放学回来看爷爷', correct: true, order: 4 },
+    { key: '5', text: '帮爷爷买药路上出事故去世了', correct: true, order: 5 },
+    { key: '6', text: '爷爷精神受创，忘记了之前的痛苦', correct: true, order: 6 },
+    { key: '7', text: '老刘来看望王爷爷', correct: false },
+    { key: '8', text: '王爷爷自己编造了爸爸会回来的谎言', correct: false },
+    { key: '9', text: '爸爸把老房子卖掉还债', correct: false },
+    { key: '10', text: '爷爷把铁盒钥匙记成了家门钥匙', correct: false },
+    { key: '11', text: '爸爸被霸凌后退学离家', correct: false },
+    { key: '12', text: '爷爷买了药膏但没有亲手交给爸爸', correct: false }
+  ];
+
+  function startStoryPuzzle(){
+    // 打乱词条
+    const shuffled = [...STORY_PUZZLE_ITEMS].sort(() => Math.random() - 0.5);
+    const opts = shuffled.map((it, idx) => ({
+      label: it.text,
+      radio: false,
+      onClick: () => selectPuzzleItem(it, idx)
+    }));
+    dpRender({
+      progress: '完整故事拼图',
+      title: '请你拼出完整的故事',
+      subtitle: '6 步正确顺序',
+      body: '按正确顺序依次选择词条。',
+      options: opts,
+      actions: []
+    });
+  }
+
+  function selectPuzzleItem(item, idx){
+    if(item.correct){
+      // 加入顺序
+      const nextOrder = STATE.storyPuzzleOrder.length + 1;
+      if(item.order === nextOrder){
+        // 正确顺序
+        STATE.storyPuzzleOrder.push(item.key);
+        console.log('[puzzle] 选对：', item.text, '（' + STATE.storyPuzzleOrder.length + '/6）');
+        if(STATE.storyPuzzleOrder.length >= 6){
+          // 完成
+          setTimeout(() => showPuzzleComplete(), 500);
+        } else {
+          // 高亮该选项
+          document.querySelectorAll('#deduction-puzzle .dp-option').forEach((el, i) => {
+            if(i === idx){
+              el.classList.add('dp-correct');
+              el.style.pointerEvents = 'none';
+              el.style.opacity = '0.4';
+            }
+          });
+        }
+      } else {
+        // 选对但顺序错
+        dpWrongChoice(
+          '这个碎片似乎放错了位置，再想想。',
+          () => startStoryPuzzle(),
+          () => startStoryPuzzle()
+        );
+      }
+    } else {
+      // 选错（干扰项）
+      dpWrongChoice(
+        '这个碎片似乎放错了位置，再想想。',
+        () => startStoryPuzzle(),
+        () => startStoryPuzzle()
+      );
+    }
+  }
+
+  function showPuzzleComplete(){
+    dpHide();
+    setTimeout(() => {
+      showSysModal(
+        '你拼出了完整的故事',
+        '爸爸离开了，爷爷和小梅相依为命。后来爷爷病了，小梅放学回来看他，却在买药的路上出了车祸。\n爷爷承受不了失去她的痛苦，慢慢忘记了她。\n\n但他没有忘记等她回来。那碗饭，那双拖鞋，那个日历上的圈……都是他记得的证据。\n\n他用自己的方式，守着一个已经离开的人。',
+        [{ label: '继续', primary: true, onClick: () => { hideSysModal(); console.log('[puzzle] 进入核验与结局环节'); } }]
+      );
+    }, 400);
+  }
+
   function msTextClick(){
     if(msTyping){
       clearInterval(msTimer); msTyping = false;
@@ -3946,6 +4397,7 @@ body{
 
   function backFromMemory(){
     const ms = document.getElementById('memory-scene');
+    const closingItem = msCurrentItem;  // 记录关闭时是哪个场景
     ms.classList.add('fade-out');
     // 停止粒子
     stopDustCanvas();
@@ -3969,9 +4421,52 @@ body{
         re.style.opacity = '1';
         setTimeout(() => { re.style.transition = ''; }, 1050);
       });
+      // 重置返回按钮文本
+      const back = document.getElementById('ms-back-btn');
+      if(back) back.textContent = '返回房间';
+      // 抽屉 2 物品：返回抽屉打开状态
+      if(closingItem === '抽屉成绩单' || closingItem === '抽屉发绳' || closingItem === '抽屉密封药瓶'){
+        setTimeout(() => {
+          // 重新打开抽屉 2 弹层，直接显示 contents（跳过两段式拉开）
+          const stage = document.getElementById('drawer2-stage');
+          if(stage){
+            stage.dataset.state = 'contents';
+            stage.querySelectorAll('.drawer-opening').forEach(o => o.style.display = 'none');
+            const contents = stage.querySelector('.drawer-contents');
+            if(contents) contents.style.display = 'block';
+            stage.classList.add('show');
+            stage.style.display = 'flex';
+          }
+          // 检查是否所有 4 项（成绩单/头绳/密封药瓶/日历）都完成
+          setTimeout(() => checkReExploreTrigger(), 1000);
+        }, 800);
+        return;
+      }
+      // 日历放大层：返回房间
+      if(closingItem === '日历放大层'){
+        setTimeout(() => checkReExploreTrigger(), 800);
+        return;
+      }
       // 对比与选择：抽屉 1 物品（药膏/退学单）看完 → 检查触发
       setTimeout(() => checkComparisonTrigger(), 600);
     }, 1000);
+  }
+
+  // 物品重新探索触发：完成 4 项后弹提示
+  function checkReExploreTrigger(){
+    if(STATE.reExploreShown) return;
+    if(!STATE.hasSeenDrawer2Record) return;
+    if(!STATE.hasSeenDrawer2Ribbon) return;
+    if(!STATE.hasSeenDrawer2Bottle) return;
+    if(!STATE.hasSeenCalendarDetail) return;
+    STATE.reExploreShown = true;
+    setTimeout(() => {
+      showSysModal(
+        '你似乎触及了一些碎片……',
+        '但还有一些线索藏在房间里。或许那些你最初看到的物品，此刻会有不同的面貌。\n\n重新点击以下物品，可能会有新发现：\n• 红拖鞋\n• 糖醋排骨\n• 奖状和画',
+        [{ label: '我去看看', primary: true, onClick: hideSysModal }]
+      );
+    }, 600);
   }
 
   function playMemory(itemName){
@@ -4162,14 +4657,21 @@ body{
       // 日历：已解锁 → 弹 6月6日画圈和"小梅来"内容
       if(name === '日历'){
         if(STATE.hasShownCalendar){
-          showSysModal('日历', '墙上挂着一本老日历。\n\n1998 年 6 月 6 日这一天，爷爷用红笔画了一个圈。\n\n圈的旁边，爷爷歪歪扭扭地写了两个字——\n\n「小梅来」。\n\n那天是你第一次来这个家。\n爷爷说他那天高兴了一整天。', [
-            { label: '我看到了', primary: true, onClick: hideSysModal }
-          ]);
+          // 弹日历放大层：2 句对话 + 残影效果
+          STATE.hasSeenCalendarDetail = true;
+          playMemory('日历放大层');
         } else {
           document.getElementById('item-popup-name').textContent = name;
           document.getElementById('item-popup-desc').textContent = '墙上的日历，看起来很旧了。';
           document.getElementById('item-popup').style.display = 'block';
         }
+        return;
+      }
+
+      // 物品重新探索（re-explore）：3 件可触发闪烁
+      if(STATE.reExploreShown && RE_EXPLORE_ITEMS[name]){
+        // 播放闪烁
+        playReExploreFlashWrapper(name);
         return;
       }
 
