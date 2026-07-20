@@ -3653,38 +3653,45 @@ body{
 
     // 4. 同步目显 + 开始时序
     reveal.classList.add('show');
+    // v0.3.7: 强制 inline style - 防止任何 CSS 规则覆盖导致看不到
+    reveal.style.cssText = 'display:block !important; opacity:1 !important; visibility:visible !important; z-index:9999 !important; position:fixed !important; top:0 !important; left:0 !important; right:0 !important; bottom:0 !important; width:100vw !important; height:100vh !important; background:#1a1410 !important;';
+    caption1.style.cssText = 'display:block !important; opacity:1 !important; visibility:visible !important; z-index:9998 !important; position:absolute !important; left:50% !important; bottom:14% !important; transform:translateX(-50%) !important;';
+    caption2.style.cssText = 'display:block !important; opacity:1 !important; visibility:visible !important; z-index:9998 !important; position:absolute !important; left:50% !important; bottom:14% !important; transform:translateX(-50%) !important;';
+    if(progress) progress.style.cssText = 'display:flex !important; opacity:1 !important; visibility:visible !important; z-index:9997 !important;';
+    layerA.style.cssText = 'display:block !important; opacity:1 !important; visibility:visible !important; z-index:3 !important; position:absolute !important; inset:0 !important;';
+    layerB.style.cssText = 'display:block !important; opacity:1 !important; visibility:visible !important; z-index:2 !important; position:absolute !important; inset:0 !important;';
     // 调试：cp-reveal 实际状态
     const cpStyle = window.getComputedStyle(reveal);
-    console.log('[comparison] cp-reveal 添加 .show: display=' + cpStyle.display + ' opacity=' + cpStyle.opacity + ' z-index=' + cpStyle.zIndex);
+    console.log('[comparison] cp-reveal 添加 .show: display=' + cpStyle.display + ' opacity=' + cpStyle.opacity + ' z-index=' + cpStyle.zIndex + ' w=' + cpStyle.width + ' h=' + cpStyle.height);
     console.log('[comparison] caption1 text=' + caption1.textContent);
     console.log('[comparison] caption2 text=' + caption2.textContent);
+    console.log('[comparison] caption1 rect=' + caption1.getBoundingClientRect().top + ',' + caption1.getBoundingClientRect().left + ' size=' + caption1.getBoundingClientRect().width + 'x' + caption1.getBoundingClientRect().height);
     // 图片加载调试
     if(imgA){ console.log('[comparison] A complete=' + imgA.complete + ' w=' + imgA.naturalWidth + ' src=' + imgA.src.substring(imgA.src.lastIndexOf('/')+1)); }
-    if(imgB){ console.log('[comparison] B complete=' + imgB.complete + ' w=' + imgB.naturalWidth + ' src=' + imgB.src.substring(imgB.src.lastIndexOf('/')+1)); }
-    // 阶段 1：A 满色 + caption1 (2s)
+    if(imgB){ console.log('[comparison] B complete=' + imgB.complete + ' w=' + imgB.naturalWidth + ' src=' + imgB.src.substring(imgA.src.lastIndexOf('/')+1)); }
+    // v0.3.7: 阶段 1 改同步 - 不再 setTimeout(0),立即执行
+    console.log('[comparison] 阶段 1 同步：caption1 + progress 立即显示');
+    caption1.classList.add('show');
+    if(progress) progress.classList.add('show');
+    console.log('[comparison] caption1 状态: classList=' + caption1.className);
+    // 阶段 2 (2s 后)
     setTimeout(() => {
-      console.log('[comparison] 阶段 1 开始：caption1 + progress 显示');
-      caption1.classList.add('show');
-      if(progress) progress.classList.add('show');
-      console.log('[comparison] caption1 状态: classList=' + caption1.className);
+      console.log('[comparison] 阶段 2 开始：caption1 淡出 + caption2 显示 + A→B 渐变 (5s)');
+      caption1.classList.add('fade-out');
+      caption1.classList.remove('show');
+      caption2.classList.add('show');
+      layerA.classList.add('cp-fade-out');
+      layerB.classList.add('cp-fade-in');
+      if(glow) glow.classList.add('cp-glow-out');
+      if(grain) grain.classList.add('cp-grain-out');
+      // 阶段 3 (5s 后稳定 0.5s)
       setTimeout(() => {
-        console.log('[comparison] 阶段 2 开始：caption1 淡出 + caption2 显示 + A→B 渐变 (5s)');
-        // 阶段 2：caption1 淡出 + caption2 淡入 + A→B 渐变 (5s)
-        caption1.classList.add('fade-out');
-        caption1.classList.remove('show');
-        caption2.classList.add('show');
-        layerA.classList.add('cp-fade-out');
-        layerB.classList.add('cp-fade-in');
-        if(glow) glow.classList.add('cp-glow-out');
-        if(grain) grain.classList.add('cp-grain-out');
-        // 阶段 3：稳定 (0.5s)
+        console.log('[comparison] 阶段 3 开始：黑色淡出 (0.5s)');
+        reveal.classList.add('cp-fade-to-black');
+        if(progress) progress.classList.add('fade-out');
+        // 阶段 4 (0.5s 后)
         setTimeout(() => {
-          console.log('[comparison] 阶段 3 开始：黑色淡出 (0.5s)');
-          // 阶段 4：黑色淡出 (0.5s)
-          reveal.classList.add('cp-fade-to-black');
-          if(progress) progress.classList.add('fade-out');
-          setTimeout(() => {
-            console.log('[comparison] 全部完成 (7.5s)，调用 cpAskMore');
+          console.log('[comparison] 全部完成 (7.5s)，调用 cpAskMore');
             reveal.classList.remove('show', 'cp-stage-1', 'cp-stage-2', 'cp-stage-3', 'cp-fade-to-black');
             layerA.classList.remove('cp-fade-out');
             layerB.classList.remove('cp-fade-in');
@@ -3696,7 +3703,6 @@ body{
             cpAskMore();
           }, 500);
         }, 5000);
-      }, 2000);
     });
   }
 
