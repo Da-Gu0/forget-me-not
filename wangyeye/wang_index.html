@@ -483,31 +483,30 @@ body{
   width:100%;height:100%;
   object-fit:cover;display:block;
 }
+/* v0.3.11: 重写 A/B 渐变 - 纯 opacity 5s, 不改 mask, 让画面干净慢慢切换 */
 /* A 图（记忆·上层）：默认初始态（满色+sepia） */
 .cp-reveal-a{
   z-index:3;
   opacity:1;
   filter:sepia(0.18) saturate(1.18) brightness(1.04) contrast(0.96);
-  -webkit-mask-image:radial-gradient(ellipse at center, #000 0%, #000 80%, transparent 100%);
-  mask-image:radial-gradient(ellipse at center, #000 0%, #000 80%, transparent 100%);
-  transition:opacity 3s ease-in-out, filter 3s ease-in-out, -webkit-mask-image 3s ease-in-out, mask-image 3s ease-in-out;
+  transition: opacity 5s ease-in-out, filter 5s ease-in-out;
 }
 .cp-reveal-a.cp-fade-out{
   opacity:0;
   filter:sepia(0) saturate(1.0) brightness(1.0) contrast(1.0);
-  -webkit-mask-image:radial-gradient(ellipse at center, transparent 0%, transparent 60%, #000 80%, #000 100%);
-  mask-image:radial-gradient(ellipse at center, transparent 0%, transparent 60%, #000 80%, #000 100%);
+  transition: opacity 5s ease-in-out, filter 5s ease-in-out;
 }
-/* B 图（现实·底层）：默认初始态（透明） */
+/* B 图（现实·底层）：默认透明 */
 .cp-reveal-b{
   z-index:2;
   opacity:0;
   filter:sepia(0.18) saturate(1.18) brightness(1.04) contrast(0.96);
-  transition:opacity 3s ease-in-out, filter 3s ease-in-out;
+  transition: opacity 5s ease-in-out, filter 5s ease-in-out;
 }
 .cp-reveal-b.cp-fade-in{
   opacity:1;
   filter:sepia(0) saturate(1.0) brightness(0.98) contrast(1.04);
+  transition: opacity 5s ease-in-out, filter 5s ease-in-out;
 }
 
 /* A 图褪色关键帧：1s 后开始，3.5s 内完成 */
@@ -3633,13 +3632,13 @@ body{
     // 图片加载调试
     if(imgA){ console.log('[comparison] A complete=' + imgA.complete + ' w=' + imgA.naturalWidth + ' src=' + imgA.src.substring(imgA.src.lastIndexOf('/')+1)); }
     if(imgB){ console.log('[comparison] B complete=' + imgB.complete + ' w=' + imgB.naturalWidth + ' src=' + imgB.src.substring(imgA.src.lastIndexOf('/')+1)); }
-    // v0.3.10: 阶段 1 改同步 - 不再 setTimeout(0),立即执行
-    console.log('[comparison] 阶段 1 同步：caption1 立即显示');
+    // v0.3.11: 阶段 1 改同步 - 不再 setTimeout(0),立即执行
+    console.log('[comparison] 阶段 1 同步：caption1 立即显示 (A 满色)');
     caption1.classList.add('show');
     console.log('[comparison] caption1 状态: classList=' + caption1.className);
-    // 阶段 2 (2s 后)
+    // 阶段 2: 2s 后开始 A→B 渐变 (5s 慢慢切换, 字幕同步切换)
     setTimeout(() => {
-      console.log('[comparison] 阶段 2 开始：caption1 淡出 + caption2 显示 + A→B 渐变 (5s)');
+      console.log('[comparison] 阶段 2 开始：5s 慢渐变 A→B + 字幕切换');
       caption1.classList.add('fade-out');
       caption1.classList.remove('show');
       caption2.classList.add('show');
@@ -3647,13 +3646,14 @@ body{
       layerB.classList.add('cp-fade-in');
       if(glow) glow.classList.add('cp-glow-out');
       if(grain) grain.classList.add('cp-grain-out');
-      // 阶段 3 (5s 后稳定 0.5s)
+      // 阶段 3: 5s 后稳定 1s (让 B 完全显示)
       setTimeout(() => {
-        console.log('[comparison] 阶段 3 开始：黑色淡出 (0.5s)');
+        console.log('[comparison] 阶段 3 开始：稳定 1s');
+        // 阶段 4: 黑场过渡 0.5s
         reveal.classList.add('cp-fade-to-black');
-        // 阶段 4 (0.5s 后)
+        // 阶段 5: 0.5s 后清理 + 弹 cpAskMore
         setTimeout(() => {
-          console.log('[comparison] 全部完成 (7.5s)，调用 cpAskMore');
+          console.log('[comparison] 全部完成 (8.5s)，调用 cpAskMore');
             reveal.classList.remove('show', 'cp-stage-1', 'cp-stage-2', 'cp-stage-3', 'cp-fade-to-black');
             layerA.classList.remove('cp-fade-out');
             layerB.classList.remove('cp-fade-in');
@@ -3663,8 +3663,8 @@ body{
             if(grain) grain.classList.remove('cp-grain-out');
             cpAskMore();
           }, 500);
-        }, 5000);
-    });
+        }, 1000);
+      }, 5000);
   }
 
   // 字幕关闭后 → 问"还有吗"
