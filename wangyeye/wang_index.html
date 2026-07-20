@@ -636,8 +636,9 @@ body{
   to{transform:rotate(360deg);}
 }.cp-reveal-layer{animation-iteration-count:1, 1, 1;}
 /* 用 container 实现：cp-reveal 整体亮度在 1.5-2.5s 之间波动 */
+/* v0.3.6: 移除 cp-reveal-fadein (从 0 开始的 0.4s 淡入) - 让画面立即可见 */
 #cp-reveal.show{
-  animation:cp-reveal-flicker 4.5s linear forwards, cp-reveal-fadein 0.4s ease;
+  animation:cp-reveal-flicker 4.5s linear forwards;
 }
 @keyframes cp-reveal-flicker{
   0%   {filter:brightness(1.0);}
@@ -3652,15 +3653,22 @@ body{
 
     // 4. 同步目显 + 开始时序
     reveal.classList.add('show');
+    // 调试：cp-reveal 实际状态
+    const cpStyle = window.getComputedStyle(reveal);
+    console.log('[comparison] cp-reveal 添加 .show: display=' + cpStyle.display + ' opacity=' + cpStyle.opacity + ' z-index=' + cpStyle.zIndex);
+    console.log('[comparison] caption1 text=' + caption1.textContent);
+    console.log('[comparison] caption2 text=' + caption2.textContent);
     // 图片加载调试
-    if(imgA){ console.log('[comparison] A complete=' + imgA.complete + ' w=' + imgA.naturalWidth); }
-    if(imgB){ console.log('[comparison] B complete=' + imgB.complete + ' w=' + imgB.naturalWidth); }
+    if(imgA){ console.log('[comparison] A complete=' + imgA.complete + ' w=' + imgA.naturalWidth + ' src=' + imgA.src.substring(imgA.src.lastIndexOf('/')+1)); }
+    if(imgB){ console.log('[comparison] B complete=' + imgB.complete + ' w=' + imgB.naturalWidth + ' src=' + imgB.src.substring(imgB.src.lastIndexOf('/')+1)); }
     // 阶段 1：A 满色 + caption1 (2s)
     setTimeout(() => {
+      console.log('[comparison] 阶段 1 开始：caption1 + progress 显示');
       caption1.classList.add('show');
       if(progress) progress.classList.add('show');
+      console.log('[comparison] caption1 状态: classList=' + caption1.className);
       setTimeout(() => {
-        console.log('[comparison] 阶段 2：开始渐变 + caption2 显示真相');
+        console.log('[comparison] 阶段 2 开始：caption1 淡出 + caption2 显示 + A→B 渐变 (5s)');
         // 阶段 2：caption1 淡出 + caption2 淡入 + A→B 渐变 (5s)
         caption1.classList.add('fade-out');
         caption1.classList.remove('show');
@@ -3671,12 +3679,12 @@ body{
         if(grain) grain.classList.add('cp-grain-out');
         // 阶段 3：稳定 (0.5s)
         setTimeout(() => {
-          console.log('[comparison] 阶段 3：黑色淡出');
+          console.log('[comparison] 阶段 3 开始：黑色淡出 (0.5s)');
           // 阶段 4：黑色淡出 (0.5s)
           reveal.classList.add('cp-fade-to-black');
           if(progress) progress.classList.add('fade-out');
           setTimeout(() => {
-            console.log('[comparison] 渐变完成，调用 cpAskMore');
+            console.log('[comparison] 全部完成 (7.5s)，调用 cpAskMore');
             reveal.classList.remove('show', 'cp-stage-1', 'cp-stage-2', 'cp-stage-3', 'cp-fade-to-black');
             layerA.classList.remove('cp-fade-out');
             layerB.classList.remove('cp-fade-in');
