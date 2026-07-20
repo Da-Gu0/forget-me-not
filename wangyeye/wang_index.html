@@ -4926,45 +4926,50 @@ body{
       document.addEventListener('keydown', play, {once:true});
     })();
 
-    // ===== v0.3.7 dev 快捷键:跳过剧情直达真相揭示层 =====
+    // ===== v0.3.9 dev 快捷键:跳过剧情直达真相揭示层 =====
+    // 用 e.code (物理键位 Digit1/2/3/4) 而非 e.key,避开 Shift 把 3→# 的问题
     document.addEventListener('keydown', (e) => {
       if (!e.ctrlKey || !e.shiftKey) return;
-      const k = e.key.toUpperCase();
+      const code = e.code;  // 物理键位: Digit1 Digit2 Digit3 Digit4 KeyT KeyC KeyH
       // 1-4 直接跳到对应物品的 cpShowTruthReveal
       const map = {
-        '1': '铁盒里的钥匙', '2': '旧公文包', '3': '药膏', '4': '退学单'
+        'Digit1': '铁盒里的钥匙', 'Digit2': '旧公文包', 'Digit3': '药膏', 'Digit4': '退学单'
       };
-      if (map[k] && typeof cpShowTruthReveal === 'function' && typeof COMPARISON_TRUTHS !== 'undefined') {
+      if (map[code] && typeof cpShowTruthReveal === 'function' && typeof COMPARISON_TRUTHS !== 'undefined') {
         e.preventDefault();
-        const item = { key: map[k], label: map[k] };
-        const truth = COMPARISON_TRUTHS[map[k]];
-        if (!truth) { console.warn('[dev] COMPARISON_TRUTHS 无此物品:', map[k]); return; }
-        console.log('[dev] Ctrl+Shift+' + k + ' 跳转到', map[k], '的真相揭示');
+        e.stopPropagation();
+        const item = { key: map[code], label: map[code] };
+        const truth = COMPARISON_TRUTHS[map[code]];
+        if (!truth) { console.warn('[dev] COMPARISON_TRUTHS 无此物品:', map[code]); return; }
+        console.log('%c[dev] Ctrl+Shift+' + code.replace('Digit','') + ' 跳转到 ' + map[code] + ' 的真相揭示', 'color:#7B9EAB;font-weight:bold');
         if (typeof dpHide === 'function') dpHide();
+        if (typeof STATE !== 'undefined') {
+          if (!STATE.comparisonItemsDone.includes(map[code])) STATE.comparisonItemsDone.push(map[code]);
+        }
         cpShowTruthReveal(item, truth);
         return;
       }
       // T = 跳到对比与选择 (cpStartStep1)
-      if (k === 'T' && typeof cpStartStep1 === 'function') {
+      if (code === 'KeyT' && typeof cpStartStep1 === 'function') {
         e.preventDefault();
-        console.log('[dev] Ctrl+Shift+T 跳转到对比与选择 · 11选1');
+        console.log('%c[dev] Ctrl+Shift+T 跳转到对比与选择 · 11选1', 'color:#7B9EAB;font-weight:bold');
         cpStartStep1();
         return;
       }
       // C = 跳到结论题 (4选1)
-      if (k === 'C' && typeof cpStartConclusion === 'function') {
+      if (code === 'KeyC' && typeof cpStartConclusion === 'function') {
         e.preventDefault();
-        console.log('[dev] Ctrl+Shift+C 跳转到收束问题');
+        console.log('%c[dev] Ctrl+Shift+C 跳转到收束问题', 'color:#7B9EAB;font-weight:bold');
         cpStartConclusion();
         return;
       }
       // H = 显示快捷键帮助
-      if (k === 'H') {
+      if (code === 'KeyH') {
         e.preventDefault();
-        console.log('%c[dev 快捷键]', 'color:#C4A87A;font-weight:bold;font-size:14px');
+        console.log('%c[dev 快捷键] (v0.3.9 用 e.code 物理键位)', 'color:#C4A87A;font-weight:bold;font-size:14px');
         console.log('Ctrl+Shift+1 → 钥匙真相揭示');
         console.log('Ctrl+Shift+2 → 公文包真相揭示');
-        console.log('Ctrl+Shift+3 → 药膏真相揭示');
+        console.log('Ctrl+Shift+3 → 药膏真相揭示 (你之前测的)');
         console.log('Ctrl+Shift+4 → 退学单真相揭示');
         console.log('Ctrl+Shift+T → 对比与选择 · 11选1');
         console.log('Ctrl+Shift+C → 收束问题 · 4选1');
@@ -4973,7 +4978,7 @@ body{
       }
     });
     // 启动时打印帮助
-    console.log('%c[dev 快捷键已启用] Ctrl+Shift+H 查看帮助', 'color:#C4A87A;font-weight:bold');
+    console.log('%c[dev 快捷键已启用 v0.3.9] Ctrl+Shift+H 查看帮助 (用物理键位 e.code 解决 Shift+3=# 问题)', 'color:#C4A87A;font-weight:bold');
   </script>
 </body>
 </html>
