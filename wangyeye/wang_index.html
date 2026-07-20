@@ -465,7 +465,7 @@ body{
 
 /* ===== 对比与选择 · 虚幻→现实 真相揭示 ===== */
 #cp-reveal{
-  position:fixed;inset:0;z-index:86;
+  position:fixed;inset:0;z-index:9999;
   display:none;
   background:#1a1410;
   overflow:hidden;
@@ -582,7 +582,7 @@ body{
   position:absolute;
   left:50%; bottom:14%;
   transform:translateX(-50%);
-  z-index:7;
+  z-index:9998;
   max-width:min(82vw, 760px);
   padding:16px 26px;
   background:rgba(26, 20, 16, 0.78);
@@ -609,7 +609,7 @@ body{
 .cp-progress{
   position:absolute; left:50%; top:50%;
   transform:translate(-50%, -50%);
-  z-index:6; pointer-events:none;
+  z-index:9997; pointer-events:none;
   opacity:0;
   transition:opacity 0.6s ease;
   display:flex; flex-direction:column; align-items:center; gap:14px;
@@ -3650,10 +3650,13 @@ body{
     caption1.textContent = '\u8ae0\u5bf6\u4e2d\u7684' + (item.label || item.key) + '\u2026\u2026';
     caption2.textContent = truth.reveal || '\u771f\u76f8\u6b63\u5728\u6d6e\u73b0\u3002';
 
-    // 4. 显示弹层，开始时序
-    requestAnimationFrame(() => {
-      reveal.classList.add('show');
-      // 阶段 1：A 满色 + caption1 "记忆中的物品…" (2s)
+    // 4. 同步目显 + 开始时序
+    reveal.classList.add('show');
+    // 图片加载调试
+    if(imgA){ console.log('[comparison] A complete=' + imgA.complete + ' w=' + imgA.naturalWidth); }
+    if(imgB){ console.log('[comparison] B complete=' + imgB.complete + ' w=' + imgB.naturalWidth); }
+    // 阶段 1：A 满色 + caption1 (2s)
+    setTimeout(() => {
       caption1.classList.add('show');
       if(progress) progress.classList.add('show');
       setTimeout(() => {
