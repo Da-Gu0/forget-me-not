@@ -375,6 +375,30 @@ body{
   to{box-shadow:0 0 24px rgba(255,235,180,0.9);}
 }
 
+/* 下抽屉 & 日历热区光晕（对比与选择解锁后）—— 暖金呼吸脉冲 */
+/* .hotspot 默认背景透明、无边框，单靠 box-shadow 不明显，
+   故叠加半透明金色填充 + 边框 + 内外光晕，确保在透明背景上清晰可见 */
+.hotspot.unlocked[data-item="抽屉（下）"],
+.hotspot.unlocked[data-item="日历"]{
+  background:rgba(255,224,150,0.16);
+  border:1.5px solid rgba(255,224,150,0.55);
+  border-radius:8px;
+  box-shadow:0 0 14px rgba(255,210,120,0.55), inset 0 0 12px rgba(255,225,160,0.22);
+  animation:cp-glow 1.6s ease-in-out infinite alternate;
+}
+@keyframes cp-glow{
+  from{
+    background:rgba(255,224,150,0.10);
+    border-color:rgba(255,224,150,0.40);
+    box-shadow:0 0 10px rgba(255,210,120,0.38), inset 0 0 8px rgba(255,225,160,0.16);
+  }
+  to{
+    background:rgba(255,224,150,0.30);
+    border-color:rgba(255,235,180,0.85);
+    box-shadow:0 0 28px rgba(255,210,120,0.90), inset 0 0 18px rgba(255,225,160,0.42);
+  }
+}
+
 /* ===== 发现矛盾与推理弹窗 ===== */
 #deduction-puzzle{
   position:fixed;inset:0;z-index:80;
@@ -483,12 +507,11 @@ body{
   width:100%;height:100%;
   object-fit:cover;display:block;
 }
-/* v0.3.12: A/B 渐变 - 纯 opacity + filter 5s class 切换, 不用 mask-image, 让 CSS 默认值生效 */
+/* v0.3.13: A/B 渐变 - 改用 CSS animation (cp-a-fade/cp-b-fade) 6s 慢过渡 + mask-image 边缘剥落, JS 通过 style.animation 触发 */
 .cp-reveal-a{
   z-index:3;
   opacity:1;
   filter:sepia(0.18) saturate(1.18) brightness(1.04) contrast(0.96);
-  transition: opacity 3.5s ease-in-out, filter 3.5s ease-in-out;
 }
 .cp-reveal-a.cp-fade-out{
   opacity:0;
@@ -500,12 +523,27 @@ body{
   z-index:2;
   opacity:0;
   filter:sepia(0.18) saturate(1.18) brightness(1.04) contrast(0.96);
-  transition: opacity 3.5s ease-in-out, filter 3.5s ease-in-out;
 }
 .cp-reveal-b.cp-fade-in{
   opacity:1;
   filter:sepia(0) saturate(1.0) brightness(0.98) contrast(1.04);
   transition: opacity 3.5s ease-in-out, filter 3.5s ease-in-out;
+}
+/* v0.3.13: A 图褪色关键帧（6s 重映射: 0%/8%/50%/83%/100%）- 含 mask-image 边缘剥落效果（阿翎接受 Edge 兼容性风险） */
+@keyframes cp-a-fade{
+  0%   {opacity:1; filter:sepia(0.18) saturate(1.18) brightness(1.04) contrast(0.96); -webkit-mask-image:radial-gradient(ellipse at center, #000 0%, #000 80%, transparent 100%); mask-image:radial-gradient(ellipse at center, #000 0%, #000 80%, transparent 100%);}
+  8%   {opacity:1; filter:sepia(0.18) saturate(1.18) brightness(1.04) contrast(0.96); -webkit-mask-image:radial-gradient(ellipse at center, #000 0%, #000 80%, transparent 100%); mask-image:radial-gradient(ellipse at center, #000 0%, #000 80%, transparent 100%);}
+  50%  {opacity:0.5; filter:sepia(0.10) saturate(1.10) brightness(1.02) contrast(1.0); -webkit-mask-image:radial-gradient(ellipse at center, transparent 0%, #000 30%, #000 80%, transparent 100%); mask-image:radial-gradient(ellipse at center, transparent 0%, #000 30%, #000 80%, transparent 100%);}
+  83%  {opacity:0.15; filter:sepia(0.04) saturate(1.04) brightness(1.0) contrast(1.02); -webkit-mask-image:radial-gradient(ellipse at center, transparent 0%, transparent 40%, #000 60%, #000 100%); mask-image:radial-gradient(ellipse at center, transparent 0%, transparent 40%, #000 60%, #000 100%);}
+  100% {opacity:0; filter:sepia(0) saturate(1.0) brightness(1.0) contrast(1.0); -webkit-mask-image:radial-gradient(ellipse at center, transparent 0%, transparent 100%, #000 100%, #000 100%); mask-image:radial-gradient(ellipse at center, transparent 0%, transparent 100%, #000 100%, #000 100%);}
+}
+/* v0.3.13: B 图（现实）显隐关键帧（6s 重映射: 0%/8%/50%/83%/100%） */
+@keyframes cp-b-fade{
+  0%   {opacity:0; filter:sepia(0.18) saturate(1.18) brightness(1.04) contrast(0.96);}
+  8%   {opacity:0; filter:sepia(0.18) saturate(1.18) brightness(1.04) contrast(0.96);}
+  50%  {opacity:0.4; filter:sepia(0.10) saturate(1.10) brightness(1.02) contrast(1.0);}
+  83%  {opacity:0.85; filter:sepia(0.04) saturate(1.04) brightness(1.0) contrast(1.02);}
+  100% {opacity:1; filter:sepia(0) saturate(1.0) brightness(0.98) contrast(1.04);}
 }
 
 /* 暖色光晕层：默认初始态（覆盖画面 70%，满色） */
@@ -525,10 +563,11 @@ body{
 .cp-reveal-glow.cp-glow-out{
   transform:scale(0.3);opacity:0;
 }
+/* v0.3.13: cp-glow-shrink 时间重映射到 6s (0%/8%/50%/100%) - 0.5s 前置停留，3s 缩 70%，6s 缩 30% 消失 */
 @keyframes cp-glow-shrink{
   0%   {transform:scale(1); opacity:1;}
-  22%  {transform:scale(1); opacity:1;}
-  60%  {transform:scale(0.7); opacity:0.7;}
+  8%   {transform:scale(1); opacity:1;}
+  50%  {transform:scale(0.7); opacity:0.7;}
   100% {transform:scale(0.3); opacity:0;}
 }
 
@@ -548,10 +587,11 @@ body{
   transition:opacity 3s ease-in-out;
 }
 .cp-reveal-grain.cp-grain-out{opacity:0;}
+/* v0.3.13: cp-grain-fade 时间重映射到 6s (0%/8%/50%/100%) - 0.5s 前置停留，3s 微弱，6s 消失 */
 @keyframes cp-grain-fade{
   0%   {opacity:0.10;}
-  22%  {opacity:0.10;}
-  60%  {opacity:0.08;}
+  8%   {opacity:0.10;}
+  50%  {opacity:0.08;}
   100% {opacity:0;}
 }
 
@@ -1217,6 +1257,175 @@ body{
     #topbar{padding:10px 12px;}
     #trustTip{font-size:12px;}
   }
+
+/* ===== 故事拼图层（槽位填入式） ===== */
+#story-puzzle-layer{
+  position:fixed;inset:0;z-index:82;
+  display:none;align-items:center;justify-content:center;
+  background:rgba(20,15,10,0.6);
+  backdrop-filter:blur(4px);
+  animation:sp-fadein 0.35s ease;
+}
+#story-puzzle-layer.show{display:flex;}
+@keyframes sp-fadein{from{opacity:0;}to{opacity:1;}}
+.sp-panel{
+  width:min(960px,95vw);max-height:92vh;
+  background:rgba(245,237,224,0.96);
+  border:1.5px solid var(--rust);border-radius:22px;
+  box-shadow:0 24px 60px rgba(0,0,0,0.5);
+  padding:26px 32px 22px;
+  font-family:var(--body-font);color:var(--ink);
+  overflow-y:auto;position:relative;
+  background-image:
+    radial-gradient(ellipse at top left, rgba(180,150,110,0.12) 0%, transparent 10%),
+    radial-gradient(ellipse at top right, rgba(180,150,110,0.12) 0%, transparent 10%),
+    repeating-linear-gradient(0deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(120,90,60,0.03) 3px, rgba(0,0,0,0) 4px);
+}
+.sp-header{text-align:center;margin-bottom:18px;}
+.sp-title{
+  font-family:var(--title-font);font-size:22px;font-weight:600;
+  color:var(--rust);letter-spacing:0.06em;margin-bottom:4px;
+}
+.sp-subtitle{font-size:13px;color:var(--iron-grey);letter-spacing:1px;}
+.sp-body{
+  display:flex;gap:22px;align-items:stretch;
+}
+.sp-col{flex:1;min-width:0;}
+.sp-col-title{
+  font-family:var(--title-font);font-size:15px;color:var(--rust);
+  letter-spacing:1px;margin-bottom:10px;text-align:center;
+  padding-bottom:6px;border-bottom:1px dashed rgba(139,115,85,0.3);
+}
+/* 词条池 */
+.sp-pool-list{
+  display:flex;flex-direction:column;gap:8px;
+  max-height:56vh;overflow-y:auto;padding-right:4px;
+}
+.sp-word{
+  padding:10px 14px;
+  background:rgba(255,248,232,0.75);
+  border:1.5px solid rgba(139,115,85,0.3);
+  border-radius:11px;
+  cursor:pointer;transition:all 0.15s ease;
+  font-size:14px;line-height:1.5;user-select:none;
+}
+.sp-word:hover{
+  background:rgba(234,217,191,0.85);
+  border-color:var(--rust);
+  transform:translateY(-1px);
+}
+.sp-word.selected{
+  background:rgba(232,210,175,0.95);
+  border-color:var(--rust);border-width:2px;
+  padding:9.5px 13px;
+  box-shadow:0 4px 14px rgba(196,168,122,0.4);
+}
+.sp-word.used{
+  opacity:0;pointer-events:none;transform:scale(0.8);
+  height:0;padding:0;margin:0;border:0;overflow:hidden;
+}
+/* 槽位 */
+.sp-slots-list{
+  display:flex;flex-direction:column;gap:9px;
+  max-height:56vh;overflow-y:auto;padding-right:4px;
+}
+.sp-slot{
+  display:flex;flex-direction:column;gap:4px;
+  padding:9px 14px;
+  background:rgba(255,252,246,0.5);
+  border:1.5px dashed rgba(139,115,85,0.35);
+  border-radius:11px;
+  cursor:pointer;transition:all 0.18s ease;
+  min-height:62px;justify-content:center;
+}
+.sp-slot:hover{
+  background:rgba(234,217,191,0.6);
+  border-color:var(--rust);border-style:solid;
+}
+.sp-slot.filled{
+  background:rgba(248,238,222,0.85);
+  border:1.5px solid rgba(139,115,85,0.5);
+  border-style:solid;cursor:default;
+}
+.sp-slot.glow{
+  animation:sp-glow 1s ease;
+  border-color:var(--dark-gold);
+  box-shadow:0 0 24px rgba(212,175,100,0.7), inset 0 0 14px rgba(255,225,150,0.35);
+  background:rgba(255,245,220,0.9);
+}
+@keyframes sp-glow{
+  0%{box-shadow:0 0 0 rgba(212,175,100,0);}
+  50%{box-shadow:0 0 30px rgba(212,175,100,0.85), inset 0 0 18px rgba(255,225,150,0.45);}
+  100%{box-shadow:0 0 24px rgba(212,175,100,0.7), inset 0 0 14px rgba(255,225,150,0.35);}
+}
+.sp-slot-num{
+  font-size:11px;color:var(--iron-grey);letter-spacing:1px;
+}
+.sp-slot-hint{
+  font-size:13px;color:var(--iron-grey);line-height:1.4;
+}
+.sp-slot-fill{
+  font-size:15px;color:var(--ink);font-weight:500;line-height:1.5;
+  min-height:4px;
+}
+.sp-slot.filled .sp-slot-fill{color:#5c3a1f;font-weight:600;}
+/* 错误提示 */
+.sp-error-tip{
+  position:absolute;bottom:14px;left:50%;transform:translateX(-50%);
+  background:rgba(74,64,56,0.88);color:#f5ede0;
+  font-size:14px;padding:8px 20px;border-radius:20px;
+  letter-spacing:1px;opacity:0;transition:opacity 0.3s ease;
+  pointer-events:none;white-space:nowrap;z-index:5;
+}
+.sp-error-tip.show{opacity:1;}
+
+/* ===== dev 快速跳转浮动面板 ===== */
+#dev-skip-panel{
+  position:fixed; top:12px; right:12px; z-index:9999;
+  font-family:'PingFang SC','Microsoft YaHei',sans-serif;
+  user-select:none;
+}
+#dev-skip-toggle{
+  display:flex; align-items:center; gap:4px;
+  background:rgba(60,50,40,0.85); color:#C4A87A;
+  border:1px solid rgba(196,168,122,0.4);
+  border-radius:18px; padding:6px 14px; cursor:pointer;
+  font-size:13px; font-weight:600; letter-spacing:1px;
+  backdrop-filter:blur(8px); transition:all 0.2s ease;
+}
+#dev-skip-toggle:hover{ background:rgba(60,50,40,0.95); color:#E8D5B0; }
+#dev-skip-toggle .dev-icon{ font-size:15px; }
+#dev-skip-list{
+  display:none; margin-top:8px;
+  background:rgba(30,25,20,0.92); border:1px solid rgba(196,168,122,0.25);
+  border-radius:12px; padding:8px; min-width:200px;
+  backdrop-filter:blur(12px);
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);
+}
+#dev-skip-list.show{ display:block; }
+#dev-skip-list .dev-section-label{
+  color:#8a7a6a; font-size:10px; letter-spacing:2px;
+  padding:6px 8px 3px; text-transform:uppercase;
+}
+#dev-skip-list button{
+  display:block; width:100%; text-align:left;
+  background:transparent; border:none; color:#d4c8b8;
+  font-size:13px; padding:7px 10px; border-radius:8px;
+  cursor:pointer; transition:all 0.15s ease;
+  font-family:inherit;
+}
+#dev-skip-list button:hover{
+  background:rgba(196,168,122,0.15); color:#E8D5B0;
+}
+#dev-skip-list button:active{
+  background:rgba(196,168,122,0.25);
+}
+#dev-skip-list .dev-divider{
+  height:1px; background:rgba(196,168,122,0.12); margin:4px 8px;
+}
+#dev-skip-list .dev-hint{
+  color:#6a5a4a; font-size:10px; padding:4px 8px 2px; line-height:1.5;
+}
 </style>
 </head>
 <body>
@@ -1418,6 +1627,26 @@ body{
     </div>
   </div>
 
+  <!-- ===== 故事拼图层（槽位填入式） ===== -->
+  <div id="story-puzzle-layer" aria-hidden="true">
+    <div class="sp-panel">
+      <div class="sp-header">
+        <div class="sp-title">请你拼出完整的故事</div>
+        <div class="sp-subtitle">从左侧词条池中选择碎片，填入右侧正确的位置</div>
+      </div>
+      <div class="sp-body">
+        <div class="sp-col">
+          <div class="sp-col-title">词条池</div>
+          <div class="sp-pool-list" id="sp-pool-list"></div>
+        </div>
+        <div class="sp-col">
+          <div class="sp-col-title">故事碎片</div>
+          <div class="sp-slots-list" id="sp-slots-list"></div>
+        </div>
+      </div>
+      <div class="sp-error-tip" id="sp-error-tip"></div>
+    </div>
+  </div>
 
   <!-- ===== 记忆场景层（点击物品后显示） ===== -->
   <section id="memory-scene" style="display:none;">
@@ -2282,6 +2511,31 @@ body{
     re.style.display = 'block';
     if (/[?&]debug=1\b/.test(location.search)) re.classList.add('debug');
     requestAnimationFrame(() => re.classList.add('active'));
+    // 防御性清理：确保 #game 和 #rm-dialogue 不覆盖房间层
+    const game = document.getElementById('game');
+    if(game){ game.classList.remove('active'); }
+    const rmDialogue = document.getElementById('rm-dialogue');
+    if(rmDialogue){ rmDialogue.classList.remove('active'); }
+    // 防御性恢复：确保热区可点击
+    document.querySelectorAll('#room-exploration .hotspot').forEach(el => { el.style.pointerEvents = ''; });
+    console.log('[room] 显示房间探索层，已清理覆盖层并恢复热区点击');
+  }
+
+  // 恢复房间探索层交互（关闭弹窗/记忆场景后调用）
+  function restoreRoomExplorationInteraction(){
+    const re = document.getElementById('room-exploration');
+    if(re){
+      re.style.display = 'block';
+      re.classList.add('active');
+      re.style.opacity = '1';
+      re.style.transition = '';
+    }
+    const game = document.getElementById('game');
+    if(game){ game.classList.remove('active'); }
+    const rmDialogue = document.getElementById('rm-dialogue');
+    if(rmDialogue){ rmDialogue.classList.remove('active'); }
+    document.querySelectorAll('#room-exploration .hotspot').forEach(el => { el.style.pointerEvents = ''; });
+    console.log('[room] 已恢复房间探索层交互');
   }
 
   /* ===== 房间探索层逻辑 ===== */
@@ -2470,7 +2724,8 @@ body{
     hasShownCalendar: false,          // 日历是否已展示
     hasSeenCalendarDetail: false,     // 日历放大层（2 句对话）是否已看完
     reExploreShown: false,            // 物品重新探索提示是否已弹
-    reExploreItemsDone: [],           // 已闪烁的物品：['红拖鞋','糖醋排骨','奖状和画']
+    drawerCalendarHintShown: false,   // 下抽屉3件看完但日历未看时的提示是否已弹
+    reExploreItemsDone: [],           // 已闪烁的物品：['红拖鞋','糖醋排骨','奖状与小梅的画']
     storyPuzzleShown: false,          // 完整故事拼图是否已弹
     storyPuzzleOrder: []              // 玩家已选的词条顺序
   };
@@ -3546,14 +3801,17 @@ body{
   // 虚幻→现实渐变（v0.3.12 重写）
   // 时序：0.5s 前置（A 满色 + caption1 "记忆中的..."）→ 3.5s 渐变（A 褪色 + B 渐显 + 暖光晕缩小 + 颗粒淡出 + 色调从暖到冷）→ 1s 稳定（B 满色）→ 1.5s 打字机（caption2 "真相..."）→ cpAskMore
   // 总时长 = 0.5 + 3.5 + 1 + 1.5 = 6.5s
-  // 关键修复（v0.3.11 bug）：❌ 不再用 inline style.cssText 设置 opacity:1 !important（会锁死 CSS 5s 过渡）
+  // v0.3.13 cpShowTruthReveal 真相揭示流程：
   // ✅ 让 CSS 默认值生效：.cp-reveal-a opacity:1（暖色），.cp-reveal-b opacity:0（隐藏），.cp-caption opacity:0（隐藏）
-  // ✅ 用 class (.show / .cp-fade-out / .cp-fade-in / .fade-out / .cp-glow-out / .cp-grain-out) 触发 CSS 过渡
+  // ✅ 阶段 2 用 CSS animation (cp-a-fade/cp-b-fade 6s) 触发渐变（含 mask-image 边缘剥落效果），不用 class 切换 transition
+  // ✅ 阶段 4 字幕打字机完成后等玩家点击 cp-reveal 区域才调用 cpAskMore
+  // ✅ cleanup() 函数清理所有 class + inline animation，让下次调用能重新触发
+  // 时序: 0s caption1显示 → 0.5s 开始6s慢渐变 → 6.5s 稳定 → 7.5s 打字机 → 字幕打完等点击 → cpAskMore
   function cpShowTruthReveal(item, truth){
     dpHide();
     cpSelectedIdx = null;
     cpQuestionIdx = null;
-    console.log('[comparison] v0.3.12 cpShowTruthReveal 触发，物品:', item.key);
+    console.log('[comparison] v0.3.13 cpShowTruthReveal 触发，物品:', item.key);
 
     const reveal = document.getElementById('cp-reveal');
     const layerA = document.getElementById('cp-reveal-a');
@@ -3583,8 +3841,8 @@ body{
 
     // 2. 完全重置状态
     reveal.classList.remove('show', 'cp-fade-to-black');
-    layerA.classList.remove('cp-fade-out');
-    layerB.classList.remove('cp-fade-in');
+    layerA.classList.remove('cp-fade-out', 'cp-fade-in');
+    layerB.classList.remove('cp-fade-out', 'cp-fade-in');
     caption1.classList.remove('show', 'fade-out');
     caption2.classList.remove('show', 'fade-out');
     if(glow){ glow.classList.remove('cp-glow-out'); }
@@ -3610,6 +3868,24 @@ body{
     // 4. 同步目显：让 CSS 默认值生效（A=opacity:1, B=opacity:0, captions=opacity:0）
     reveal.classList.add('show');
 
+    // 5. v0.3.13: cleanup 函数（内联闭包） - 字幕打完等玩家点击后调用
+    function cleanup(){
+      reveal.classList.remove('show', 'cp-fade-to-black');
+      layerA.classList.remove('cp-fade-out', 'cp-fade-in');
+      layerB.classList.remove('cp-fade-out', 'cp-fade-in');
+      caption1.classList.remove('show', 'fade-out');
+      caption2.classList.remove('show', 'fade-out');
+      if(glow){ glow.classList.remove('cp-glow-out'); }
+      if(grain){ grain.classList.remove('cp-grain-out'); }
+      // 关键：清理 inline animation，让下次调用能重新触发
+      layerA.style.animation = '';
+      layerB.style.animation = '';
+      if(glow) glow.style.animation = '';
+      if(grain) grain.style.animation = '';
+      caption1.textContent = '';
+      caption2.textContent = '';
+    }
+
     // 调试日志
     const cpStyle = window.getComputedStyle(reveal);
     console.log('[comparison] cp-reveal show: display=' + cpStyle.display + ' opacity=' + cpStyle.opacity + ' z-index=' + cpStyle.zIndex);
@@ -3622,53 +3898,45 @@ body{
     console.log('[comparison] 阶段 1 立即：caption1 显示 (A 满色)');
     caption1.classList.add('show');
 
-    // 阶段 2（0.5s-4s）：A→B 渐变 3.5s（caption1 淡出，A/B 切换，暖光晕缩小，颗粒淡出，色调从暖到冷）
+    // 阶段 2（0.5s-6.5s）：A→B 渐变 6s（用 CSS animation 触发，keyframe 含 mask-image 边缘剥落）
     setTimeout(() => {
-      console.log('[comparison] 阶段 2 开始：3.5s 慢渐变 A→B + caption1 淡出 + 光晕/颗粒淡出');
+      console.log('[comparison] 阶段 2 开始：6s 慢渐变 A→B + caption1 淡出 + 光晕/颗粒淡出');
       caption1.classList.add('fade-out');
       caption1.classList.remove('show');
-      layerA.classList.add('cp-fade-out');
-      layerB.classList.add('cp-fade-in');
-      if(glow) glow.classList.add('cp-glow-out');
-      if(grain) grain.classList.add('cp-grain-out');
+      // v0.3.13: 改用 CSS animation 触发 6s 慢渐变（含 mask-image 边缘剥落效果）
+      layerA.style.animation = 'cp-a-fade 6s ease-in-out forwards';
+      layerB.style.animation = 'cp-b-fade 6s ease-in-out forwards';
+      if(glow) glow.style.animation = 'cp-glow-shrink 6s ease-in-out forwards';
+      if(grain) grain.style.animation = 'cp-grain-fade 6s ease-in-out forwards';
 
-      // 阶段 3（4s-5s）：B 满色稳定 1s
+      // 阶段 3（6.5s-7.5s）：B 满色稳定 1s
       setTimeout(() => {
         console.log('[comparison] 阶段 3 开始：稳定 1s (B 满色，色调已冷)');
 
-        // 阶段 4（5s-6.5s）：caption2 打字机 1.5s
+        // 阶段 4（7.5s+）：caption2 打字机 60ms/字，字幕打完等玩家点击
         setTimeout(() => {
-          console.log('[comparison] 阶段 4 开始：caption2 打字机 1.5s（共 ' + caption2Text.length + ' 字）');
-          // 打字机：逐字 60ms/字
-          const charInterval = 60;
-          let charIdx = 0;
+          console.log('[comparison] 阶段 4 开始：caption2 打字机 60ms/字（共 ' + caption2Text.length + ' 字）');
           caption2.classList.add('show');
+          let charIdx = 0;
           const typeTimer = setInterval(() => {
             if(charIdx < caption2Text.length){
               caption2.textContent = caption2Text.substring(0, charIdx + 1);
               charIdx++;
             } else {
               clearInterval(typeTimer);
+              // v0.3.13: 字幕打完不再自动调用 cpAskMore，等玩家点击 cp-reveal 区域
+              console.log('[comparison] 字幕打完，等待玩家点击 cp-reveal 触发 cpAskMore');
+              const onRevealClick = () => {
+                reveal.removeEventListener('click', onRevealClick);
+                console.log('[comparison] 玩家点击，清理状态 + 调用 cpAskMore');
+                cleanup();
+                cpAskMore();
+              };
+              reveal.addEventListener('click', onRevealClick);
             }
-          }, charInterval);
-
-          // 阶段 5（6.5s）：清理 + 调用 cpAskMore
-          setTimeout(() => {
-            console.log('[comparison] 全部完成 (6.5s)，清理状态 + 调用 cpAskMore');
-            clearInterval(typeTimer);
-            reveal.classList.remove('show', 'cp-fade-to-black');
-            layerA.classList.remove('cp-fade-out');
-            layerB.classList.remove('cp-fade-in');
-            caption1.classList.remove('show', 'fade-out');
-            caption2.classList.remove('show', 'fade-out');
-            if(glow) glow.classList.remove('cp-glow-out');
-            if(grain) grain.classList.remove('cp-grain-out');
-            caption1.textContent = '';
-            caption2.textContent = '';
-            cpAskMore();
-          }, 1500);
+          }, 60);
         }, 1000);
-      }, 3500);
+      }, 6000);
     }, 500);
   }
 
@@ -3811,22 +4079,48 @@ body{
     document.querySelectorAll('.hotspot[data-item="日历"]').forEach(el => el.classList.add('unlocked'));
     document.querySelectorAll('.hotspot[data-item="抽屉（下）"]').forEach(el => el.classList.add('unlocked'));
     console.log('[state] 日历 + 下抽屉 已解锁');
-    // 系统提示
+    // 系统提示 —— 关闭后平滑返回房间探索层
     setTimeout(() => {
       if(told){
         showSysModal(
           '爷爷的头更疼了',
           '王爷爷捂住额头，表情痛苦。\n得快一点找到爷爷的药。',
-          [{ label: '好', primary: true, onClick: hideSysModal }]
+          [{ label: '好', primary: true, onClick: () => { hideSysModal(); cpBackToRoom(); } }]
         );
       } else {
         showSysModal(
           '爷爷似乎想起了什么',
           '去下抽屉和日历那里看看。',
-          [{ label: '好', primary: true, onClick: hideSysModal }]
+          [{ label: '好', primary: true, onClick: () => { hideSysModal(); cpBackToRoom(); } }]
         );
       }
     }, 600);
+  }
+
+  // 对比与选择结束后返回房间探索层
+  // 淡出 deduction-puzzle → 淡入 room-exploration（透明度 0→1，过渡 1s）
+  function cpBackToRoom(){
+    // 1. 隐藏推理弹窗（若仍在显示）
+    dpHide();
+    // 2. 恢复房间层显示与交互
+    restoreRoomExplorationInteraction();
+    // 3. 透明度 0 → 1 过渡 1s
+    const re = document.getElementById('room-exploration');
+    if(re){
+      re.style.opacity = '0';
+      requestAnimationFrame(() => {
+        re.style.transition = 'opacity 1s ease';
+        re.style.opacity = '1';
+        setTimeout(() => { re.style.transition = ''; }, 1050);
+      });
+    }
+    // 4. 更新顶部提示为解锁引导文字
+    const reHint = document.getElementById('re-hint');
+    if(reHint){
+      reHint.textContent = '下抽屉和日历已经可以查看了 · 点击继续探索';
+      reHint.style.visibility = '';
+    }
+    console.log('[comparison] 已返回房间探索层');
   }
 
   /* ===== "继续推理" 按钮（房间左下角，退回探索后重新进入） ===== */
@@ -4216,7 +4510,7 @@ body{
       flash(false, 300, () => {
         flash(true, 500, () => {
           flash(false, 300, () => {
-            flash(true, 500, () => {
+            flash(true, 400, () => {
               msBg.src = bSrc;
               flash(false, 400, () => {
                 if(onDone) onDone();
@@ -4255,7 +4549,7 @@ body{
       b: 'wang_assets/%E7%B3%96%E9%86%8B%E6%8E%92%E9%AA%A8_%E7%9C%9F%E5%AE%9E.jpg',
       text: '她最爱吃这个。但她没吃上那天的。'
     },
-    '奖状和画': {
+    '奖状与小梅的画': {
       a: 'wang_assets/%E5%A5%96%E7%8A%B6%E4%B8%8E%E7%94%BB%E7%94%BB_%E7%8E%8B%E7%88%B7%E7%88%B7%E6%8F%8F%E8%BF%B0%E5%9C%BA%E6%99%AF.jpg',
       b: 'wang_assets/%E5%A5%96%E7%8A%B6%E5%92%8C%E7%94%BB_%E7%9C%9F%E5%AE%9E.jpg',
       text: '她画了爷爷，爷爷也画了她。这张画一直没换过。'
@@ -4287,7 +4581,7 @@ body{
         flash(false, 300, () => {
           flash(true, 500, () => {
             flash(false, 300, () => {
-              flash(true, 500, () => {
+              flash(true, 400, () => {
                 msBg.src = cfg.b;
                 flash(false, 400, () => {
                   if(onDone) onDone();
@@ -4331,10 +4625,22 @@ body{
       playReExploreFlash(itemKey, () => {
         // 3. 闪烁完成后显示底部文字 + 关闭按钮
         if(msText) msText.innerHTML = `<div class="re-explore-text">${cfg.text}</div>`;
+
+        // 移除 addEventListener 绑定的旧 backFromMemory（用 removeEventListener 比 cloneNode 更可靠）
+        if(msBack){
+          msBack.removeEventListener('click', backFromMemory);
+        }
+        // 同样移除 ms-close（× 按钮）上的旧监听器，并隐藏它防止绕过
+        const msCloseBtn = document.getElementById('ms-close');
+        if(msCloseBtn){
+          msCloseBtn.removeEventListener('click', backFromMemory);
+          msCloseBtn.style.display = 'none';
+        }
+
         if(msBack){
           msBack.textContent = '关闭';
-          msBack.style.display = '';
-          // 重新绑定 click 事件
+          // 用 'inline-block' 而非 '' 来覆盖 CSS 的 #ms-back-btn{display:none}
+          msBack.style.display = 'inline-block';
           msBack.onclick = () => {
             ms.classList.add('fade-out');
             stopDustCanvas();
@@ -4343,10 +4649,9 @@ body{
             setTimeout(() => {
               ms.style.display = 'none';
               ms.classList.remove('fade-out');
-              if(msBack) msBack.textContent = '返回房间';
-              msBack.onclick = backFromMemory;
+              // 恢复房间探索层交互
+              restoreRoomExplorationInteraction();
               if(re){
-                re.style.display = 'block';
                 re.style.opacity = '0';
                 requestAnimationFrame(() => {
                   re.style.transition = 'opacity 1s ease';
@@ -4355,6 +4660,7 @@ body{
                 });
               }
               // 检查是否 3 个都完成
+              console.log('[re-explore] 关闭按钮回调, reExploreItemsDone:', JSON.stringify(STATE.reExploreItemsDone), 'count:', STATE.reExploreItemsDone.length);
               checkStoryPuzzleTrigger();
             }, 1000);
           };
@@ -4365,21 +4671,29 @@ body{
 
   // 完整故事拼图触发
   function checkStoryPuzzleTrigger(){
-    if(STATE.storyPuzzleShown) return;
-    if(STATE.reExploreItemsDone.length < 3) return;
+    console.log('[puzzle-trigger] checkStoryPuzzleTrigger 被调用, reExploreItemsDone:', JSON.stringify(STATE.reExploreItemsDone), 'storyPuzzleShown:', STATE.storyPuzzleShown);
+    if(STATE.storyPuzzleShown){ console.log('[puzzle-trigger] 已弹过，跳过'); return; }
+    if(STATE.reExploreItemsDone.length < 3){ console.log('[puzzle-trigger] 物品不足:', STATE.reExploreItemsDone.length, '/ 3'); return; }
     STATE.storyPuzzleShown = true;
+    console.log('[puzzle-trigger] 条件满足，800ms 后弹窗');
     setTimeout(() => {
-      startStoryPuzzle();
+      console.log('[puzzle-trigger] 正在调用 showSysModal...');
+      showSysModal(
+        '你收集了足够多的碎片。现在，请你把这些碎片拼成完整的故事。',
+        '下方有很多词条，请按正确的顺序选择，拼出完整的和小梅关联最大的故事。',
+        [{ label: '开始拼图', primary: true, onClick: () => { hideSysModal(); startStoryPuzzle(); } }]
+      );
+      console.log('[puzzle-trigger] showSysModal 已调用, sys-modal.display =', document.getElementById('sys-modal').style.display);
     }, 800);
   }
 
-  // 完整故事拼图：12 个词条，6 个正确顺序
+  // 完整故事拼图：12 个词条，6 个正确（槽位填入式）
   const STORY_PUZZLE_ITEMS = [
     { key: '1', text: '爸爸离家出走', correct: true, order: 1 },
     { key: '2', text: '爷爷和小梅相依为命', correct: true, order: 2 },
     { key: '3', text: '爷爷患阿尔兹海默症', correct: true, order: 3 },
     { key: '4', text: '小梅放学回来看爷爷', correct: true, order: 4 },
-    { key: '5', text: '帮爷爷买药路上出事故去世了', correct: true, order: 5 },
+    { key: '5', text: '小梅帮爷爷买药路上出事故去世了', correct: true, order: 5 },
     { key: '6', text: '爷爷精神受创，忘记了之前的痛苦', correct: true, order: 6 },
     { key: '7', text: '老刘来看望王爷爷', correct: false },
     { key: '8', text: '王爷爷自己编造了爸爸会回来的谎言', correct: false },
@@ -4389,72 +4703,270 @@ body{
     { key: '12', text: '爷爷买了药膏但没有亲手交给爸爸', correct: false }
   ];
 
+  // 6 个空白槽位：提示文字 + 正确词条的 order
+  const STORY_PUZZLE_SLOTS = [
+    { hint: '那一年，家里少了一个人', order: 1 },
+    { hint: '从那以后，他们只剩彼此', order: 2 },
+    { hint: '爷爷的记忆开始变得模糊', order: 3 },
+    { hint: '那天是星期六，她回来了', order: 4 },
+    { hint: '她跑出去，再也没有回来', order: 5 },
+    { hint: '他忘记了所有，但还记得等她', order: 6 }
+  ];
+
+  // 拼图运行时状态
+  let spSelectedKey = null;       // 当前高亮选中的词条 key
+  let spUsedKeys = new Set();     // 已正确填入的词条 key
+  let spFilledSlots = {};         // { slotOrder: wordKey }
+  let spShuffledWords = [];       // 打乱后的词条列表（保持顺序稳定）
+  let spErrorTimer = null;        // 错误提示定时器
+
   function startStoryPuzzle(){
-    // 打乱词条
-    const shuffled = [...STORY_PUZZLE_ITEMS].sort(() => Math.random() - 0.5);
-    const opts = shuffled.map((it, idx) => ({
-      label: it.text,
-      radio: false,
-      onClick: () => selectPuzzleItem(it, idx)
-    }));
-    dpRender({
-      progress: '完整故事拼图',
-      title: '请你拼出完整的故事',
-      subtitle: '6 步正确顺序',
-      body: '按正确顺序依次选择词条。',
-      options: opts,
-      actions: []
+    // 初始化状态
+    spSelectedKey = null;
+    spUsedKeys = new Set();
+    spFilledSlots = {};
+    spShuffledWords = [...STORY_PUZZLE_ITEMS].sort(() => Math.random() - 0.5);
+    spRenderAll();
+    document.getElementById('story-puzzle-layer').classList.add('show');
+  }
+
+  // 根据 key 查词条文字
+  function spGetWordText(key){
+    const w = STORY_PUZZLE_ITEMS.find(it => it.key === key);
+    return w ? w.text : '';
+  }
+
+  // 渲染词条池 + 槽位
+  function spRenderAll(){
+    // —— 左侧词条池 ——
+    const pool = document.getElementById('sp-pool-list');
+    pool.innerHTML = '';
+    spShuffledWords.forEach((it) => {
+      const div = document.createElement('div');
+      div.className = 'sp-word';
+      if(spUsedKeys.has(it.key)) div.classList.add('used');
+      if(spSelectedKey === it.key) div.classList.add('selected');
+      div.textContent = it.text;
+      if(!spUsedKeys.has(it.key)){
+        div.onclick = () => spSelectWord(it.key);
+      }
+      pool.appendChild(div);
+    });
+
+    // —— 右侧槽位 ——
+    const slotsEl = document.getElementById('sp-slots-list');
+    slotsEl.innerHTML = '';
+    STORY_PUZZLE_SLOTS.forEach((slot) => {
+      const div = document.createElement('div');
+      div.className = 'sp-slot';
+      const isFilled = spFilledSlots[slot.order] !== undefined;
+      if(isFilled) div.classList.add('filled');
+      const numEl = document.createElement('div');
+      numEl.className = 'sp-slot-num';
+      numEl.textContent = '碎片 ' + slot.order;
+      const hintEl = document.createElement('div');
+      hintEl.className = 'sp-slot-hint';
+      hintEl.textContent = slot.hint;
+      const fillEl = document.createElement('div');
+      fillEl.className = 'sp-slot-fill';
+      fillEl.textContent = isFilled ? spGetWordText(spFilledSlots[slot.order]) : '';
+      div.appendChild(numEl);
+      div.appendChild(hintEl);
+      div.appendChild(fillEl);
+      if(!isFilled){
+        div.onclick = () => spClickSlot(slot.order);
+      }
+      slotsEl.appendChild(div);
     });
   }
 
-  function selectPuzzleItem(item, idx){
-    if(item.correct){
-      // 加入顺序
-      const nextOrder = STATE.storyPuzzleOrder.length + 1;
-      if(item.order === nextOrder){
-        // 正确顺序
-        STATE.storyPuzzleOrder.push(item.key);
-        console.log('[puzzle] 选对：', item.text, '（' + STATE.storyPuzzleOrder.length + '/6）');
-        if(STATE.storyPuzzleOrder.length >= 6){
-          // 完成
-          setTimeout(() => showPuzzleComplete(), 500);
-        } else {
-          // 高亮该选项
-          document.querySelectorAll('#deduction-puzzle .dp-option').forEach((el, i) => {
-            if(i === idx){
-              el.classList.add('dp-correct');
-              el.style.pointerEvents = 'none';
-              el.style.opacity = '0.4';
-            }
-          });
-        }
-      } else {
-        // 选对但顺序错
-        dpWrongChoice(
-          '这个碎片似乎放错了位置，再想想。',
-          () => startStoryPuzzle(),
-          () => startStoryPuzzle()
-        );
+  // 点击词条池中的词条 → 高亮/取消高亮
+  function spSelectWord(key){
+    if(spSelectedKey === key){
+      spSelectedKey = null;  // 再次点击取消选中
+    } else {
+      spSelectedKey = key;
+    }
+    spRenderAll();
+  }
+
+  // 点击空白槽位 → 尝试填入选中的词条
+  function spClickSlot(slotOrder){
+    if(!spSelectedKey){
+      // 没有选中词条，提示玩家先选
+      spShowErrorTip('先从左侧词条池中选择一个碎片');
+      return;
+    }
+    const word = STORY_PUZZLE_ITEMS.find(it => it.key === spSelectedKey);
+    if(!word) return;
+
+    if(word.correct && word.order === slotOrder){
+      // 填对位置：词条固定在槽位
+      spFilledSlots[slotOrder] = spSelectedKey;
+      spUsedKeys.add(spSelectedKey);
+      spSelectedKey = null;
+      spRenderAll();
+      console.log('[puzzle] 填对：', word.text, '（' + Object.keys(spFilledSlots).length + '/6）');
+      // 检查是否全部完成
+      if(Object.keys(spFilledSlots).length >= STORY_PUZZLE_SLOTS.length){
+        setTimeout(() => spComplete(), 200);
       }
     } else {
-      // 选错（干扰项）
-      dpWrongChoice(
-        '这个碎片似乎放错了位置，再想想。',
-        () => startStoryPuzzle(),
-        () => startStoryPuzzle()
-      );
+      // 填错位置：词条返回词条池，显示提示
+      spSelectedKey = null;
+      spRenderAll();
+      spShowErrorTip('这个碎片好像放错了位置，再想想');
     }
   }
 
-  function showPuzzleComplete(){
-    dpHide();
+  // 显示底部错误提示（3 秒后自动消失）
+  function spShowErrorTip(msg){
+    const tip = document.getElementById('sp-error-tip');
+    tip.textContent = msg;
+    tip.classList.add('show');
+    if(spErrorTimer) clearTimeout(spErrorTimer);
+    spErrorTimer = setTimeout(() => {
+      tip.classList.remove('show');
+    }, 3000);
+  }
+
+  // 全部填对 → 暖金色光晕 1 秒 → 完成弹窗
+  function spComplete(){
+    // 所有槽位亮起暖金色光晕
+    document.querySelectorAll('#sp-slots-list .sp-slot').forEach(el => {
+      el.classList.add('glow');
+    });
+    // 1 秒后收起光晕并弹出完成弹窗
     setTimeout(() => {
+      document.querySelectorAll('#sp-slots-list .sp-slot').forEach(el => {
+        el.classList.remove('glow');
+      });
+      document.getElementById('story-puzzle-layer').classList.remove('show');
+      showPuzzleComplete();
+    }, 1000);
+  }
+
+  function showPuzzleComplete(){
+    showSysModal(
+      '你拼出了完整的故事',
+      '爸爸离开了，爷爷和小梅相依为命。后来爷爷病了，小梅放学回来看他，却在买药的路上出了车祸。\n爷爷承受不了失去她的痛苦，慢慢忘记了她。\n\n但他没有忘记等她回来。那碗饭，那双拖鞋，那个日历上的圈……都是他记得的证据。\n\n他用自己的方式，守着一个已经离开的人。',
+      [{ label: '继续', primary: true, onClick: () => { hideSysModal(); startEndingChoice(); } }]
+    );
+  }
+
+  /* ===== 模块二/三/四：结局选择 → 最终结局 → 赵奶奶篇过渡 ===== */
+
+  // 进入 #ending 层并设置背景（主视觉封面 + 暗色遮罩）
+  function spEnterEnding(bgGradient){
+    const endBg = document.getElementById('endBg');
+    // 使用主视觉封面图作为结局对话背景，叠加暗色渐变保证文字可读
+    endBg.style.background = 'linear-gradient(rgba(25,18,12,0.58), rgba(18,12,8,0.72)), url("assets/images/ending-cover.jpg") center/cover no-repeat';
+    endBg.style.filter = 'brightness(0.92) saturate(0.95)';
+    endBg.classList.add('show');
+    // 隐藏旧结局的走廊门等元素
+    document.getElementById('endDoorGrid').style.display = 'none';
+    document.getElementById('endTouch').style.display = 'none';
+    document.getElementById('endDoorZoom').style.display = 'none';
+    endHideHint();
+    endHideDialogue();
+    document.getElementById('ending').classList.add('active');
+  }
+
+  // 在 #ending 层逐句播放对话序列（点击推进），结束后回调
+  function spPlayDialogues(lines, onComplete){
+    let i = 0;
+    function next(){
+      if(i >= lines.length){
+        endHideDialogue();
+        if(onComplete) setTimeout(onComplete, 600);
+        return;
+      }
+      const l = lines[i++];
+      endShowDialogue(l.speaker, l.text, next);
+    }
+    next();
+  }
+
+  // 模块二：结局选择
+  function startEndingChoice(){
+    showSysModal(
+      '你已经拼出了完整的故事',
+      '现在，你想对爷爷说什么？',
+      [
+        { label: '告诉爷爷真相', primary: true, onClick: () => { hideSysModal(); playEndingTruth(); } },
+        { label: '给爷爷一个善意的谎言', onClick: () => { hideSysModal(); playEndingLie(); } }
+      ]
+    );
+  }
+
+  // 选项 A：告诉爷爷真相（3 句对话）
+  function playEndingTruth(){
+    console.log('[ending] 选项 A：告诉爷爷真相');
+    spEnterEnding('radial-gradient(ellipse at 50% 45%, #6b4a2a 0%, #3a2818 55%, #1f1410 100%)');
+    spPlayDialogues([
+      { speaker: '你', text: '握着他的手，轻轻说："小梅已经不在了。但她很爱你。她跑出去的时候，心里想的只有一件事——快点回来，把药送到你手里。"' },
+      { speaker: '', text: '王爷爷沉默了很久。他的手指轻轻动了一下，像是想要握住什么。' },
+      { speaker: '王爷爷', text: '……我知道。我好像……一直都知道。我只是不想承认。' }
+    ], () => {
+      playFinalEnding();
+    });
+  }
+
+  // 选项 B：给爷爷一个善意的谎言（3 句对话）
+  function playEndingLie(){
+    console.log('[ending] 选项 B：给爷爷一个善意的谎言');
+    spEnterEnding('radial-gradient(ellipse at 50% 45%, #6b4a2a 0%, #3a2818 55%, #1f1410 100%)');
+    spPlayDialogues([
+      { speaker: '你', text: '握着他的手，轻轻说："小梅只是去了很远的地方。她让我告诉你——她很好。她会回来的。"' },
+      { speaker: '', text: '王爷爷沉默了一会儿。然后他轻轻笑了。' },
+      { speaker: '王爷爷', text: '……是吗。那我要好好活着……等她回来。' }
+    ], () => {
+      playFinalEnding();
+    });
+  }
+
+  // 模块三：最终结局（8 句对话，殊途同归）
+  function playFinalEnding(){
+    console.log('[ending] 最终结局');
+    // 保持主视觉封面背景，稍微提亮标志爷爷目光清晰的时刻
+    const endBg = document.getElementById('endBg');
+    endBg.style.background = 'linear-gradient(rgba(35,22,12,0.45), rgba(20,12,8,0.58)), url("assets/images/ending-cover.jpg") center/cover no-repeat';
+    endBg.style.filter = 'brightness(1.02) saturate(1.02)';
+    spPlayDialogues([
+      { speaker: '', text: '王爷爷转过头来，看着你。他的目光忽然变得清晰——不是以前那种"把你当成小梅"的清晰，而是真正看清了你是谁。' },
+      { speaker: '王爷爷', text: '你不是小梅。我知道。' },
+      { speaker: '王爷爷', text: '谢谢你。谢谢你陪我这个老糊涂……这么久。' },
+      { speaker: '', text: '他慢慢转过头，看向窗台上那盆淡蓝色的勿忘我。' },
+      { speaker: '王爷爷', text: '那盆花……是隔壁赵奶奶送的。' },
+      { speaker: '王爷爷', text: '你替我摘一朵带走吧。去她那儿……替我带句话。' },
+      { speaker: '王爷爷', text: '就说……我的花开了。我等到了。' },
+      { speaker: '王爷爷', text: '她等了我很久。现在，该我去找她了。' }
+    ], () => {
+      // 弹出获得道具提示
       showSysModal(
-        '你拼出了完整的故事',
-        '爸爸离开了，爷爷和小梅相依为命。后来爷爷病了，小梅放学回来看他，却在买药的路上出了车祸。\n爷爷承受不了失去她的痛苦，慢慢忘记了她。\n\n但他没有忘记等她回来。那碗饭，那双拖鞋，那个日历上的圈……都是他记得的证据。\n\n他用自己的方式，守着一个已经离开的人。',
-        [{ label: '继续', primary: true, onClick: () => { hideSysModal(); console.log('[puzzle] 进入核验与结局环节'); } }]
+        '获得道具',
+        '勿忘我花 ×1\n\n赵奶奶篇已解锁\n\n你可以选择继续探索王爷爷的房间，或前往走廊尽头的赵奶奶篇',
+        [{ label: '前往赵奶奶篇', primary: true, onClick: () => { hideSysModal(); playZhaoTransition(); } }]
       );
-    }, 400);
+    });
+  }
+
+  // 模块四：赵奶奶篇过渡（3 句旁白 → 跳转）
+  function playZhaoTransition(){
+    console.log('[ending] 赵奶奶篇过渡');
+    // 背景切换为走廊暖光
+    const endBg = document.getElementById('endBg');
+    endBg.style.background = 'radial-gradient(ellipse at 50% 50%, #d4a878 0%, #8b6b45 45%, #4a3520 100%)';
+    spPlayDialogues([
+      { speaker: '', text: '你走到走廊尽头，一扇门半掩着。' },
+      { speaker: '', text: '门缝里透出暖黄色的灯光。你听见里面有人在轻声说话——不是自言自语，像是对着花说话。' },
+      { speaker: '', text: '你推开门。房间里有一扇朝南的窗户，午后的阳光落在一张小桌子上。桌角放着一盆淡蓝色的花——勿忘我，和你手里那朵一模一样。' }
+    ], () => {
+      // 1.5 秒后跳转赵奶奶篇
+      setTimeout(() => {
+        window.location.href = 'zhao_index.html';
+      }, 1500);
+    });
   }
 
   function msTextClick(){
@@ -4485,15 +4997,17 @@ body{
       clearInterval(msTimer);
       msTyping = false; msLineIdx = 0;
       msCurrentItem = null;
-      // 恢复房间探索层
+      // 恢复房间探索层（显示 + active + 清理覆盖层 + 热区可点）
+      restoreRoomExplorationInteraction();
       const re = document.getElementById('room-exploration');
-      re.style.display = 'block';
-      re.style.opacity = '0';
-      requestAnimationFrame(() => {
-        re.style.transition = 'opacity 1s ease';
-        re.style.opacity = '1';
-        setTimeout(() => { re.style.transition = ''; }, 1050);
-      });
+      if(re){
+        re.style.opacity = '0';
+        requestAnimationFrame(() => {
+          re.style.transition = 'opacity 1s ease';
+          re.style.opacity = '1';
+          setTimeout(() => { re.style.transition = ''; }, 1050);
+        });
+      }
       // 重置返回按钮文本
       const back = document.getElementById('ms-back-btn');
       if(back) back.textContent = '返回房间';
@@ -4512,6 +5026,8 @@ body{
           }
           // 检查是否所有 4 项（成绩单/头绳/密封药瓶/日历）都完成
           setTimeout(() => checkReExploreTrigger(), 1000);
+          // 检查是否需要提示玩家去看日历（3件抽屉物品看完但日历未看）
+          setTimeout(() => checkDrawerCalendarHint(), 1200);
         }, 800);
         return;
       }
@@ -4527,6 +5043,7 @@ body{
 
   // 物品重新探索触发：完成 4 项后弹提示
   function checkReExploreTrigger(){
+    console.log('[re-explore-trigger] checkReExploreTrigger 被调用, reExploreShown:', STATE.reExploreShown, 'record:', STATE.hasSeenDrawer2Record, 'ribbon:', STATE.hasSeenDrawer2Ribbon, 'bottle:', STATE.hasSeenDrawer2Bottle, 'calendar:', STATE.hasSeenCalendarDetail);
     if(STATE.reExploreShown) return;
     if(!STATE.hasSeenDrawer2Record) return;
     if(!STATE.hasSeenDrawer2Ribbon) return;
@@ -4536,10 +5053,35 @@ body{
     setTimeout(() => {
       showSysModal(
         '你似乎触及了一些碎片……',
-        '但还有一些线索藏在房间里。或许那些你最初看到的物品，此刻会有不同的面貌。\n\n重新点击以下物品，可能会有新发现：\n• 红拖鞋\n• 糖醋排骨\n• 奖状和画',
-        [{ label: '我去看看', primary: true, onClick: hideSysModal }]
+        '但还有一些线索藏在房间里。或许那些你最初看到的物品，此刻会有不同的面貌。\n\n重新点击以下物品，可能会有新发现：\n• 红拖鞋\n• 糖醋排骨\n• 奖状与小梅的画',
+        [{
+          label: '我去看看', primary: true,
+          onClick: () => {
+            hideSysModal();
+            restoreRoomExplorationInteraction();
+            console.log('[re-explore] 提示关闭，已恢复房间交互。可点击：红拖鞋 / 糖醋排骨 / 奖状与小梅的画');
+          }
+        }]
       );
     }, 600);
+  }
+
+  // 下抽屉3件物品看完但日历未看时的提示（只弹一次）
+  function checkDrawerCalendarHint(){
+    if(STATE.drawerCalendarHintShown) return;
+    if(!STATE.hasSeenDrawer2Record) return;
+    if(!STATE.hasSeenDrawer2Ribbon) return;
+    if(!STATE.hasSeenDrawer2Bottle) return;
+    if(STATE.hasSeenCalendarDetail) return;
+    STATE.drawerCalendarHintShown = true;
+    console.log('[hint] 弹出日历提示');
+    setTimeout(() => {
+      showSysModal(
+        '别忘了墙上的日历',
+        '爷爷刚才也提到过，那个日历上的圈也许很重要。先去看看日历吧。',
+        [{ label: '好', primary: true, onClick: hideSysModal }]
+      );
+    }, 500);
   }
 
   function playMemory(itemName){
@@ -4732,6 +5274,7 @@ body{
         if(STATE.hasShownCalendar){
           // 弹日历放大层：2 句对话 + 残影效果
           STATE.hasSeenCalendarDetail = true;
+          STATE.hasSeenCalendar = true;
           playMemory('日历放大层');
         } else {
           document.getElementById('item-popup-name').textContent = name;
@@ -4874,6 +5417,250 @@ body{
   /* 初始化 */
   setPetals(0);
   spawnPetals();
+
+  // ===== v0.3.15 dev 快捷键（放在主脚本块内，确保一定注册）=====
+  function initDevShortcuts(){
+    document.addEventListener('keydown', (e) => {
+      if (!e.ctrlKey || !e.shiftKey) return;
+      const code = e.code;
+      const map = {
+        'Digit1': '铁盒里的钥匙', 'Digit2': '旧公文包', 'Digit3': '药膏', 'Digit4': '退学单'
+      };
+      if (map[code] && typeof cpShowTruthReveal === 'function' && typeof COMPARISON_TRUTHS !== 'undefined') {
+        e.preventDefault(); e.stopPropagation();
+        const item = { key: map[code], label: map[code] };
+        const truth = COMPARISON_TRUTHS[map[code]];
+        if (!truth) { console.warn('[dev] COMPARISON_TRUTHS 无此物品:', map[code]); return; }
+        console.log('%c[dev] Ctrl+Shift+' + code.replace('Digit','') + ' 跳转到 ' + map[code] + ' 的真相揭示', 'color:#7B9EAB;font-weight:bold');
+        restoreRoomExplorationInteraction();
+        if (typeof dpHide === 'function') dpHide();
+        if (typeof STATE !== 'undefined') {
+          if (!STATE.comparisonItemsDone.includes(map[code])) STATE.comparisonItemsDone.push(map[code]);
+        }
+        cpShowTruthReveal(item, truth);
+        return;
+      }
+      if (code === 'KeyT' && typeof cpStartStep1 === 'function') {
+        e.preventDefault();
+        console.log('%c[dev] Ctrl+Shift+T 跳转到对比与选择 · 11选1', 'color:#7B9EAB;font-weight:bold');
+        cpStartStep1();
+        return;
+      }
+      if (code === 'KeyC' && typeof cpStartConclusion === 'function') {
+        e.preventDefault();
+        console.log('%c[dev] Ctrl+Shift+C 跳转到收束问题', 'color:#7B9EAB;font-weight:bold');
+        cpStartConclusion();
+        return;
+      }
+      if (code === 'Digit5' && typeof startStoryPuzzle === 'function') {
+        e.preventDefault(); e.stopPropagation();
+        restoreRoomExplorationInteraction();
+        if (typeof dpHide === 'function') dpHide();
+        console.log('%c[dev] Ctrl+Shift+5 跳转到故事拼图', 'color:#7B9EAB;font-weight:bold');
+        startStoryPuzzle();
+        return;
+      }
+      if (code === 'Digit6' && typeof startEndingChoice === 'function') {
+        e.preventDefault(); e.stopPropagation();
+        restoreRoomExplorationInteraction();
+        if (typeof dpHide === 'function') dpHide();
+        console.log('%c[dev] Ctrl+Shift+6 跳转到结局选择', 'color:#7B9EAB;font-weight:bold');
+        startEndingChoice();
+        return;
+      }
+      if (code === 'KeyE') {
+        e.preventDefault(); e.stopPropagation();
+        console.log('%c[dev] Ctrl+Shift+E 跳转到重新探索阶段', 'color:#7B9EAB;font-weight:bold');
+        STATE.hasSeenDrawer2Record = true;
+        STATE.hasSeenDrawer2Ribbon = true;
+        STATE.hasSeenDrawer2Bottle = true;
+        STATE.hasSeenCalendarDetail = true;
+        STATE.hasSeenCalendar = true;
+        STATE.reExploreShown = true;
+        STATE.hasUnlockedDrawer2 = true;
+        STATE.hasShownCalendar = true;
+        document.querySelectorAll('[data-item="抽屉（下）"], [data-item="日历"]').forEach(el => el.classList.add('unlocked'));
+        restoreRoomExplorationInteraction();
+        if (typeof dpHide === 'function') dpHide();
+        const reHint = document.getElementById('re-hint');
+        if (reHint) {
+          reHint.textContent = '重新点击房间里的物品，可能会有新发现';
+          reHint.style.visibility = '';
+        }
+        setTimeout(() => {
+          if (typeof showSysModal === 'function') {
+            showSysModal(
+              '你似乎触及了一些碎片……',
+              '但还有一些线索藏在房间里。或许那些你最初看到的物品，此刻会有不同的面貌。\n\n重新点击以下物品，可能会有新发现：\n• 红拖鞋\n• 糖醋排骨\n• 奖状与小梅的画',
+              [{
+                label: '我去看看', primary: true,
+                onClick: () => {
+                  hideSysModal();
+                  restoreRoomExplorationInteraction();
+                  console.log('[dev] 提示关闭，可点击红拖鞋/糖醋排骨/奖状与小梅的画');
+                }
+              }]
+            );
+          }
+        }, 1200);
+        console.log('[dev] 已设置：4项已看 + 重新探索已解锁。');
+        return;
+      }
+      if (code === 'KeyH') {
+        e.preventDefault();
+        console.log('%c[dev 快捷键 v0.3.15]', 'color:#C4A87A;font-weight:bold;font-size:14px');
+        console.log('Ctrl+Shift+1 → 钥匙真相揭示');
+        console.log('Ctrl+Shift+2 → 公文包真相揭示');
+        console.log('Ctrl+Shift+3 → 药膏真相揭示');
+        console.log('Ctrl+Shift+4 → 退学单真相揭示');
+        console.log('Ctrl+Shift+T → 对比与选择 · 11选1');
+        console.log('Ctrl+Shift+C → 收束问题 · 4选1');
+        console.log('Ctrl+Shift+E → 重新探索阶段（跳过下抽屉+日历）');
+        console.log('Ctrl+Shift+5 → 故事拼图（跳过重新探索）');
+        console.log('Ctrl+Shift+6 → 结局选择（跳过拼图）');
+        console.log('Ctrl+Shift+H → 显示本帮助');
+        return;
+      }
+    });
+    console.log('%c[dev 快捷键已启用 v0.3.15] Ctrl+Shift+H 查看帮助', 'color:#C4A87A;font-weight:bold');
+  }
+  initDevShortcuts();
+
+  // ===== dev 快速跳转浮动面板 =====
+  (function(){
+    const panel = document.createElement('div');
+    panel.id = 'dev-skip-panel';
+    panel.innerHTML = `
+      <div id="dev-skip-toggle"><span class="dev-icon">⚡</span>快速跳转</div>
+      <div id="dev-skip-list">
+        <div class="dev-section-label">阶段跳转</div>
+        <button data-skip="reExplore">重新探索阶段</button>
+        <button data-skip="storyPuzzle">故事拼图</button>
+        <button data-skip="endingChoice">结局选择</button>
+        <button data-skip="finalEnding">最终结局</button>
+        <button data-skip="zhaoTransition">赵奶奶篇过渡</button>
+        <div class="dev-divider"></div>
+        <div class="dev-section-label">真相揭示</div>
+        <button data-skip="truth1">钥匙真相</button>
+        <button data-skip="truth2">公文包真相</button>
+        <button data-skip="truth3">药膏真相</button>
+        <button data-skip="truth4">退学单真相</button>
+        <div class="dev-divider"></div>
+        <div class="dev-section-label">流程节点</div>
+        <button data-skip="comparison">对比与选择 · 11选1</button>
+        <button data-skip="conclusion">收束问题 · 4选1</button>
+        <div class="dev-divider"></div>
+        <div class="dev-hint">提示：也可用 Ctrl+Shift+H 查看键盘快捷键</div>
+      </div>
+    `;
+    document.body.appendChild(panel);
+
+    const toggle = document.getElementById('dev-skip-toggle');
+    const list = document.getElementById('dev-skip-list');
+    toggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      list.classList.toggle('show');
+    });
+    document.addEventListener('click', (e) => {
+      if (!panel.contains(e.target)) list.classList.remove('show');
+    });
+
+    list.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-skip]');
+      if (!btn) return;
+      const action = btn.dataset.skip;
+      list.classList.remove('show');
+
+      const truthMap = {
+        truth1: '铁盒里的钥匙', truth2: '旧公文包', truth3: '药膏', truth4: '退学单'
+      };
+
+      if (truthMap[action] && typeof cpShowTruthReveal === 'function' && typeof COMPARISON_TRUTHS !== 'undefined') {
+        const itemKey = truthMap[action];
+        const truth = COMPARISON_TRUTHS[itemKey];
+        if (!truth) { console.warn('[dev-skip] 无此物品:', itemKey); return; }
+        restoreRoomExplorationInteraction();
+        if (typeof dpHide === 'function') dpHide();
+        if (!STATE.comparisonItemsDone.includes(itemKey)) STATE.comparisonItemsDone.push(itemKey);
+        console.log('%c[dev-skip] 跳转: ' + itemKey + ' 真相揭示', 'color:#C4A87A;font-weight:bold');
+        cpShowTruthReveal({ key: itemKey, label: itemKey }, truth);
+        return;
+      }
+
+      if (action === 'comparison' && typeof cpStartStep1 === 'function') {
+        console.log('%c[dev-skip] 跳转: 对比与选择', 'color:#C4A87A;font-weight:bold');
+        cpStartStep1();
+        return;
+      }
+
+      if (action === 'conclusion' && typeof cpStartConclusion === 'function') {
+        console.log('%c[dev-skip] 跳转: 收束问题', 'color:#C4A87A;font-weight:bold');
+        cpStartConclusion();
+        return;
+      }
+
+      if (action === 'reExplore') {
+        console.log('%c[dev-skip] 跳转: 重新探索阶段', 'color:#C4A87A;font-weight:bold');
+        STATE.hasSeenDrawer2Record = true;
+        STATE.hasSeenDrawer2Ribbon = true;
+        STATE.hasSeenDrawer2Bottle = true;
+        STATE.hasSeenCalendarDetail = true;
+        STATE.hasSeenCalendar = true;
+        STATE.reExploreShown = true;
+        STATE.hasUnlockedDrawer2 = true;
+        STATE.hasShownCalendar = true;
+        document.querySelectorAll('[data-item="抽屉（下）"], [data-item="日历"]').forEach(el => el.classList.add('unlocked'));
+        restoreRoomExplorationInteraction();
+        if (typeof dpHide === 'function') dpHide();
+        const reHint = document.getElementById('re-hint');
+        if (reHint) { reHint.textContent = '重新点击房间里的物品，可能会有新发现'; reHint.style.visibility = ''; }
+        setTimeout(() => {
+          if (typeof showSysModal === 'function') {
+            showSysModal(
+              '你似乎触及了一些碎片……',
+              '但还有一些线索藏在房间里。或许那些你最初看到的物品，此刻会有不同的面貌。\n\n重新点击以下物品，可能会有新发现：\n• 红拖鞋\n• 糖醋排骨\n• 奖状与小梅的画',
+              [{ label: '我去看看', primary: true, onClick: () => { hideSysModal(); restoreRoomExplorationInteraction(); } }]
+            );
+          }
+        }, 600);
+        return;
+      }
+
+      if (action === 'storyPuzzle' && typeof startStoryPuzzle === 'function') {
+        console.log('%c[dev-skip] 跳转: 故事拼图', 'color:#C4A87A;font-weight:bold');
+        restoreRoomExplorationInteraction();
+        if (typeof dpHide === 'function') dpHide();
+        if (typeof hideSysModal === 'function') hideSysModal();
+        startStoryPuzzle();
+        return;
+      }
+
+      if (action === 'endingChoice' && typeof startEndingChoice === 'function') {
+        console.log('%c[dev-skip] 跳转: 结局选择', 'color:#C4A87A;font-weight:bold');
+        restoreRoomExplorationInteraction();
+        if (typeof dpHide === 'function') dpHide();
+        if (typeof hideSysModal === 'function') hideSysModal();
+        startEndingChoice();
+        return;
+      }
+
+      if (action === 'finalEnding' && typeof playFinalEnding === 'function') {
+        console.log('%c[dev-skip] 跳转: 最终结局', 'color:#C4A87A;font-weight:bold');
+        if (typeof hideSysModal === 'function') hideSysModal();
+        playFinalEnding();
+        return;
+      }
+
+      if (action === 'zhaoTransition' && typeof playZhaoTransition === 'function') {
+        console.log('%c[dev-skip] 跳转: 赵奶奶篇过渡', 'color:#C4A87A;font-weight:bold');
+        if (typeof hideSysModal === 'function') hideSysModal();
+        playZhaoTransition();
+        return;
+      }
+    });
+
+    console.log('%c[dev 快速跳转面板已启用] 右上角 ⚡ 按钮', 'color:#C4A87A;font-weight:bold');
+  })();
   </script>
   </div><!-- /stage -->
 
@@ -4892,59 +5679,7 @@ body{
       document.addEventListener('keydown', play, {once:true});
     })();
 
-    // ===== v0.3.9 dev 快捷键:跳过剧情直达真相揭示层 =====
-    // 用 e.code (物理键位 Digit1/2/3/4) 而非 e.key,避开 Shift 把 3→# 的问题
-    document.addEventListener('keydown', (e) => {
-      if (!e.ctrlKey || !e.shiftKey) return;
-      const code = e.code;  // 物理键位: Digit1 Digit2 Digit3 Digit4 KeyT KeyC KeyH
-      // 1-4 直接跳到对应物品的 cpShowTruthReveal
-      const map = {
-        'Digit1': '铁盒里的钥匙', 'Digit2': '旧公文包', 'Digit3': '药膏', 'Digit4': '退学单'
-      };
-      if (map[code] && typeof cpShowTruthReveal === 'function' && typeof COMPARISON_TRUTHS !== 'undefined') {
-        e.preventDefault();
-        e.stopPropagation();
-        const item = { key: map[code], label: map[code] };
-        const truth = COMPARISON_TRUTHS[map[code]];
-        if (!truth) { console.warn('[dev] COMPARISON_TRUTHS 无此物品:', map[code]); return; }
-        console.log('%c[dev] Ctrl+Shift+' + code.replace('Digit','') + ' 跳转到 ' + map[code] + ' 的真相揭示', 'color:#7B9EAB;font-weight:bold');
-        if (typeof dpHide === 'function') dpHide();
-        if (typeof STATE !== 'undefined') {
-          if (!STATE.comparisonItemsDone.includes(map[code])) STATE.comparisonItemsDone.push(map[code]);
-        }
-        cpShowTruthReveal(item, truth);
-        return;
-      }
-      // T = 跳到对比与选择 (cpStartStep1)
-      if (code === 'KeyT' && typeof cpStartStep1 === 'function') {
-        e.preventDefault();
-        console.log('%c[dev] Ctrl+Shift+T 跳转到对比与选择 · 11选1', 'color:#7B9EAB;font-weight:bold');
-        cpStartStep1();
-        return;
-      }
-      // C = 跳到结论题 (4选1)
-      if (code === 'KeyC' && typeof cpStartConclusion === 'function') {
-        e.preventDefault();
-        console.log('%c[dev] Ctrl+Shift+C 跳转到收束问题', 'color:#7B9EAB;font-weight:bold');
-        cpStartConclusion();
-        return;
-      }
-      // H = 显示快捷键帮助
-      if (code === 'KeyH') {
-        e.preventDefault();
-        console.log('%c[dev 快捷键] (v0.3.9 用 e.code 物理键位)', 'color:#C4A87A;font-weight:bold;font-size:14px');
-        console.log('Ctrl+Shift+1 → 钥匙真相揭示');
-        console.log('Ctrl+Shift+2 → 公文包真相揭示');
-        console.log('Ctrl+Shift+3 → 药膏真相揭示 (你之前测的)');
-        console.log('Ctrl+Shift+4 → 退学单真相揭示');
-        console.log('Ctrl+Shift+T → 对比与选择 · 11选1');
-        console.log('Ctrl+Shift+C → 收束问题 · 4选1');
-        console.log('Ctrl+Shift+H → 显示本帮助');
-        return;
-      }
-    });
-    // 启动时打印帮助
-    console.log('%c[dev 快捷键已启用 v0.3.9] Ctrl+Shift+H 查看帮助 (用物理键位 e.code 解决 Shift+3=# 问题)', 'color:#C4A87A;font-weight:bold');
+    // dev 快捷键已移到主脚本块内（v0.3.15），避免第二个 script 块执行时机问题
   </script>
 </body>
 </html>
